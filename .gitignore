@@ -1,0 +1,8 @@
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.code-workspace
+
+auto_reload.txt
+log.txt
