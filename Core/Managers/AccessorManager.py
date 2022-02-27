@@ -1,4 +1,3 @@
-from os import access
 import struct
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Util
@@ -8,7 +7,8 @@ VECTOR_TYPES = [ACCESSOR_TYPE_VECTOR_2, ACCESSOR_TYPE_VECTOR_3, ACCESSOR_TYPE_VE
 MATRIX_TYPES = [ACCESSOR_TYPE_MATRIX_2, ACCESSOR_TYPE_MATRIX_3, ACCESSOR_TYPE_MATRIX_4]
 SCALAR_TYPES = [ACCESSOR_TYPE_SCALAR]
 
-def add_accessor(bucket, componentType, type, packingFormat, data: list):
+def add_accessor(bucket, componentType, type, packingFormat, data: list,
+    min = None, max = None):
     """
     This function does not read or add any tracking data,
     it creates an accessor object, buffer view and writes into the buffer
@@ -21,6 +21,11 @@ def add_accessor(bucket, componentType, type, packingFormat, data: list):
         ACCESSOR_TYPE: type,
         ACCESSOR_COUNT: len(data)
     }
+
+    if min != None:
+        accessor[ACCESSOR_MIN] = min
+    if max != None:
+        accessor[ACCESSOR_MAX] = max
 
     if type in VECTOR_TYPES:
         bytes = __vector_into_bytearray(packingFormat, data)
@@ -45,17 +50,24 @@ def __pack_vector_elements(bytes, obj, format):
     for f in obj:
         bytes += struct.pack(format, f)
 
-def __vector_into_bytearray(packingFormat, data: list):
-    bytes = bytearray()
+def __vector_into_bytearray(format, data: list):
+    scalar = []
 
     for v in data:
-        __pack_vector_elements(bytes, v, packingFormat)
+        for f in v:
+            scalar.append(f)
 
-    return bytes
+    return __scalar_into_bytearray(format, scalar)
 
 
 def __matrix_into_bytearray(data: list):
     pass
 
-def __scalar_into_bytearray(data: list):
-    pass
+def __scalar_into_bytearray(format, data: list):
+    size = struct.calcsize(format)
+    bytes = bytearray(size * len(data))
+
+    for i, s in enumerate(data):
+        struct.pack_into(format, bytes, i * size, s)
+
+    return bytes
