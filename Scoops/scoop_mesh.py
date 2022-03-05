@@ -1,3 +1,4 @@
+from json.encoder import INFINITY
 import bpy
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Util
@@ -45,6 +46,47 @@ def scoop_base_mesh(
 # Q: why the hex()?
 # A: looks cooler then pure int
 
+def __get_core_mesh_components(bucket, mesh):
+    """
+    Gets vertices, normals, indices and min max boundary
+    returns a tuple of (positions, normals, vertices, min, max)
+    """
+
+    mesh.calc_normals_split()
+    mesh.calc_loop_triangles()
+
+    positions = []
+    normals = []
+    indices = []
+
+    _min = [INFINITY, INFINITY, INFINITY]
+    _max = [-INFINITY, -INFINITY, -INFINITY]
+
+    for v in mesh.vertices:
+        v = Util.location_ensure_coord_space(bucket, v.co)
+
+        _min[0] = min(_min[0], v[0])
+        _min[1] = min(_min[1], v[1])
+        _min[2] = min(_min[2], v[2])
+
+        _max[0] = max(_max[0], v[0])
+        _max[1] = max(_max[1], v[1])
+        _max[2] = max(_max[2], v[2])
+
+        positions.append(v)
+
+    for v in mesh.vertices:
+        v = Util.direction_ensure_coord_space(bucket, v.normal)
+        normals.append(v)
+    
+    for l in mesh.loop_triangles:
+        vertices = l.vertices
+        for v in vertices: # should always be 3
+            indices.append(v)
+
+    return (positions, normals, indices, _min, _max)
+
+
 def __scoop_triangles(bucket, meshObj, uvMaps, morphs, skin):
 
     originalName = meshObj.original.name
@@ -55,30 +97,7 @@ def __scoop_triangles(bucket, meshObj, uvMaps, morphs, skin):
     if trackerName in bucket.trackers[BUCKET_TRACKER_MESHES]:
         return bucket.trackers[BUCKET_TRACKER_MESHES][trackerName]
 
-    meshObj.calc_loop_triangles()
-    meshObj.calc_normals_split()
-    meshObj.calc_normals()
-
-    positions = []
-    normals = []
-    indices = []
-
-    min = [-1, -1, -1]
-    max = [1, 1, 1]
-
-    for v in meshObj.vertices:
-        v = Util.location_ensure_coord_space(bucket, v.co)
-        positions.append(v)
-
-    for v in meshObj.vertices:
-        v = Util.direction_ensure_coord_space(bucket, v.normal)
-        normals.append(v)
-
-    
-    for l in meshObj.loop_triangles:
-        vertices = l.vertices
-        for v in vertices: # should always be 3
-            indices.append(v)
+    positions, normals, indices, min, max = __get_core_mesh_components(bucket, meshObj)
 
     accessors = {
         GEOMETRY_ATTRIBUTE_STR_POSITION: AccessorManager.add_accessor(bucket, 
@@ -103,7 +122,7 @@ def __scoop_triangles(bucket, meshObj, uvMaps, morphs, skin):
     )
 
     meshDict = {
-        MESH_NAME: trackerName,
+        MESH_NAME: originalName,
         MESH_PRIMITIVES:[{
             MESH_PRIMITIVE_ATTRIBUTES: accessors,
             MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES,
