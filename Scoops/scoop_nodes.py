@@ -3,6 +3,7 @@ from mathutils import Quaternion, Vector
 from io_advanced_gltf2.Core import Util
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Scoops import scoop_mesh
+from io_advanced_gltf2.Core.Managers import Tracer
 
 def __obj_to_node(bucket,
     tracker,
@@ -57,21 +58,21 @@ def __obj_to_node(bucket,
     return new_id
 
 
-def scoop_hierarchy(bucket, objs, data_types = [], blacklist = []):
+def scoop_hierarchy(bucket, objs, dataTypes = [], blacklist = []):
     if type(objs) != list:
         objs = [objs]
     
     for o in objs:
-        __scoop_hierarchy(bucket, o, data_types=data_types, blacklist=blacklist)
+        __scoop_hierarchy(bucket, o, dataTypes=dataTypes, blacklist=blacklist)
 
 
-def __scoop_hierarchy(bucket, obj, data_types = [], blacklist = [], local_space = False) -> int:
+def __scoop_hierarchy(bucket, obj, dataTypes = [], blacklist = [], localSpace = False) -> int:
 
     children = []
     #children are added first since the parent needs to know their id
     for c in obj.children:
         if c.name not in blacklist:
-            children.append(__scoop_hierarchy(bucket, c, blacklist = blacklist, local_space = True))
+            children.append(__scoop_hierarchy(bucket, c, blacklist = blacklist, localSpace = True))
 
     if len(children) == 0:
         children = None
@@ -79,7 +80,7 @@ def __scoop_hierarchy(bucket, obj, data_types = [], blacklist = [], local_space 
     # TODO: if armature, get joints and scoop them
 
     # if its not a child of something, then we take the world coordinates
-    m = obj.matrix_local if local_space else obj.matrix_world
+    m = obj.matrix_local if localSpace else obj.matrix_world
     loc, rot, sc = m.decompose()
 
     # auto conversion to Y up if required
@@ -89,15 +90,15 @@ def __scoop_hierarchy(bucket, obj, data_types = [], blacklist = [], local_space 
 
     mesh = None
 
-    if obj.type == BLENDER_TYPE_MESH and BLENDER_TYPE_MESH in data_types:
+    if obj.type == BLENDER_TYPE_MESH and BLENDER_TYPE_MESH in dataTypes:
         mesh = scoop_mesh.scoop_from_obj(bucket, obj)
 
     # TODO: get mesh, skins, weights
 
-    tracker_id = obj.name if obj.library == None else ":".join([obj.library, obj.name])
+    tracker = Tracer.make_object_tracker(obj.name, obj.library)
 
     return __obj_to_node(bucket,
-    tracker=tracker_id, 
+    tracker=tracker, 
     name=obj.name, 
     children=children, 
     translation=loc, 

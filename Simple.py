@@ -1,7 +1,9 @@
 import bpy
-from io_advanced_gltf2.Scoops import scoop_nodes
+from io_advanced_gltf2.Keywords import *
+from io_advanced_gltf2.Scoops import scoop_nodes, scoop_mesh
 from io_advanced_gltf2.Core.Bucket import Bucket
 from io_advanced_gltf2.Core.Core import bucket_to_file
+from io_advanced_gltf2.Core.Managers import Tracer
 
 global __bucket
 __bucket = None
@@ -17,7 +19,17 @@ def begin(file_name: str, folder: str, binaries: str):
     __bucket = Bucket(folder + file_name, binaries)
     pass
 
-def add_selected(blacklist = []):
+def end():
+    global __bucket
+    bucket_to_file(__bucket)
+    del __bucket
+    pass
+
+####################################
+# Object commands
+####################################
+
+def object_add_selected(blacklist = []):
     """
     Add every selected object and their children to the bucket.
     Optional Parameter:
@@ -26,11 +38,11 @@ def add_selected(blacklist = []):
     #collect everything that user has selected
     pass
 
-def add_collection(name, blacklist = []):
+def object_add_collection(name, blacklist = []):
     #collect the specified collection
     pass
 
-def add(name, library = None, data_types = [], blacklist = []):
+def object_add(name, library = None, dataTypes = [], blacklist = []):
     global __bucket
 
     if type(name) != list:
@@ -43,11 +55,51 @@ def add(name, library = None, data_types = [], blacklist = []):
             continue
         object = bpy.data.objects.get((n, library))
         if object != None:
-            scoop_nodes.scoop_hierarchy(__bucket, object, data_types=data_types, blacklist=blacklist)
+            scoop_nodes.scoop_hierarchy(__bucket, object, dataTypes=dataTypes, blacklist=blacklist)
     
 
-def end():
+####################################
+# Mesh commands
+####################################
+
+def mesh_add_based_on_object(
+    objName, 
+    library = None, 
+    uvMaps = None, 
+    vertexColor = None, 
+    tangents = False, 
+    weights = True, 
+    shapeKeys = None
+    ):
+
     global __bucket
-    bucket_to_file(__bucket)
-    del __bucket
-    pass
+    obj = bpy.data.objects.get((objName, library))
+    if obj == None:
+        lib_str = " from library: " + library if library != None else ""
+        print(f"Error: failed to find object with name {objName}{lib_str}")
+
+    return scoop_mesh.scoop_from_obj(__bucket, obj)
+
+def mesh_append_to_node(node_id, mesh_id):
+    global __bucket
+    node = __bucket.data[BUCKET_DATA_NODES][node_id]
+    node[NODE_MESH] = mesh_id
+
+def mesh_append_to_node_hierarchy(objName, mesh_id, library = None, blacklist = []):
+    global __bucket
+
+    def recursive_append(obj, mesh_id, blacklist = []):
+        global __bucket
+
+        mesh_append_to_node(Tracer.trace_node_id(__bucket, obj.name, library), mesh_id)
+
+        for c in obj.children:
+            if c.name not in blacklist:
+                recursive_append(c, mesh_id, blacklist)
+
+    obj = bpy.data.objects.get((objName, library))
+
+    if obj == None:
+        return
+
+    recursive_append(obj, mesh_id, blacklist)
