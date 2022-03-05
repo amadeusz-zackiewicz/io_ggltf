@@ -22,7 +22,6 @@ def add_bytes(bucket, bytes: bytearray):
             BUFFER_BYTE_LENGTH: 0,
             BUFFER_URI: __get_uri(bucket, 0)
         })
-        bucket.trackers[BUCKET_TRACKER_BUFFER_PADS].append(0)
         bucket.blobs.append(bytearray())
 
     # TODO: buffers have a limit on how much they can contain
