@@ -30,12 +30,20 @@ def add_collection(name, blacklist = []):
     #collect the specified collection
     pass
 
-def add(name, blacklist = []):
+def add(name, library = None, data_types = [], blacklist = []):
     global __bucket
-    objects = bpy.data.objects
-    if name not in objects:
-        return
-    scoop_nodes.scoop_nodes(__bucket, [name])
+
+    if type(name) != list:
+        name = [name]
+
+    for n in name:
+        if n in blacklist:
+            str_lib = " from library (" + library + ") " if library != None else ""
+            print(f"Warning: {n}{str_lib} has been blacklisted and will be omitted")
+            continue
+        object = bpy.data.objects.get((n, library))
+        if object != None:
+            scoop_nodes.scoop_hierarchy(__bucket, object, data_types=data_types, blacklist=blacklist)
     
 
 def end():

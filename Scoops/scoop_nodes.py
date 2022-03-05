@@ -5,6 +5,7 @@ from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Scoops import scoop_mesh
 
 def __obj_to_node(bucket,
+    tracker,
     name = None,
     translation = None,
     rotation = None,
@@ -17,6 +18,7 @@ def __obj_to_node(bucket,
     extensions = None,
     extras = None
 ):
+
     if name == None:
         print("could not read the name of the object")
         name = ""
@@ -49,27 +51,27 @@ def __obj_to_node(bucket,
     if mesh != None:
         node[NODE_MESH] = mesh
 
-    #Util.cleanup_keys(node)
-    bucket.trackers[BUCKET_TRACKER_NODES][name] = new_id
+    bucket.trackers[BUCKET_TRACKER_NODES][tracker] = new_id
     bucket.data[BUCKET_DATA_NODES].append(node)
 
     return new_id
 
 
-def scoop_nodes(bucket, names):
-    if type(names) != list:
-        names = list(names)
+def scoop_hierarchy(bucket, objs, data_types = [], blacklist = []):
+    if type(objs) != list:
+        objs = [objs]
     
-    for n in names:
-        scoop_obj_hierarchy(bucket, bpy.data.objects[n])
+    for o in objs:
+        __scoop_hierarchy(bucket, o, data_types=data_types, blacklist=blacklist)
 
 
-def scoop_obj_hierarchy(bucket, obj, local_space = False) -> int:
+def __scoop_hierarchy(bucket, obj, data_types = [], blacklist = [], local_space = False) -> int:
 
     children = []
     #children are added first since the parent needs to know their id
     for c in obj.children:
-        children.append(scoop_obj_hierarchy(bucket, c, local_space = True))
+        if c.name not in blacklist:
+            children.append(__scoop_hierarchy(bucket, c, blacklist = blacklist, local_space = True))
 
     if len(children) == 0:
         children = None
@@ -80,13 +82,6 @@ def scoop_obj_hierarchy(bucket, obj, local_space = False) -> int:
     m = obj.matrix_local if local_space else obj.matrix_world
     loc, rot, sc = m.decompose()
 
-    #print("")
-    #print(obj.name)
-    #print(f"Loc: {loc}")
-    #print(f"Rot: {rot}")
-    #print(f"Sca: {sc}")
-    #print("")
-
     # auto conversion to Y up if required
     loc = Util.location_ensure_coord_space(bucket, loc)
     rot = Util.rotation_ensure_coord_space(bucket, rot)
@@ -94,12 +89,15 @@ def scoop_obj_hierarchy(bucket, obj, local_space = False) -> int:
 
     mesh = None
 
-    if obj.type == "MESH":
+    if obj.type == BLENDER_TYPE_MESH and BLENDER_TYPE_MESH in data_types:
         mesh = scoop_mesh.scoop_from_obj(bucket, obj)
 
     # TODO: get mesh, skins, weights
 
-    return __obj_to_node(bucket, 
+    tracker_id = obj.name if obj.library == None else ":".join([obj.library, obj.name])
+
+    return __obj_to_node(bucket,
+    tracker=tracker_id, 
     name=obj.name, 
     children=children, 
     translation=loc, 
