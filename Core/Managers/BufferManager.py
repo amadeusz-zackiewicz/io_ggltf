@@ -1,3 +1,4 @@
+import enum
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Writer
 import base64
@@ -17,10 +18,13 @@ def add_bytes(bucket, bytes: bytearray):
     byteLength = None
 
     if len(bucket.data[BUCKET_DATA_BUFFERS]) == 0:
-        bucket.data[BUCKET_DATA_BUFFERS].append({
-            BUFFER_BYTE_LENGTH: 0,
-            BUFFER_URI: __get_uri(bucket, 0)
-        })
+        buffer = {}
+        buffer[BUFFER_BYTE_LENGTH] = 0
+
+        if bucket.settings[BUCKET_SETTING_FILE_TYPE] != FILE_TYPE_GLB:
+            buffer[BUFFER_URI] = __get_uri(bucket, 0)
+
+        bucket.data[BUCKET_DATA_BUFFERS].append(buffer)
         bucket.blobs.append(bytearray())
 
     # TODO: buffers have a limit on how much they can contain
@@ -57,17 +61,22 @@ def resolve_binaries(bucket):
         Do nothing, this needs to be handled somewhere else
     """
     #TODO: write logic for all file types
-    if bucket.settings[BUCKET_SETTING_FILE_TYPE] == FILE_TYPE_GLTF_EMBEDDED:
+
+    fileType = bucket.settings[BUCKET_SETTING_FILE_TYPE]
+
+    if fileType == FILE_TYPE_GLTF_EMBEDDED:
         for i, buffer in enumerate(bucket.data[BUCKET_DATA_BUFFERS]):
             buffer[BUFFER_BYTE_LENGTH] = len(bucket.blobs[i])
             buffer[BUFFER_URI] += __into_base64(bucket.blobs[i]).decode("utf8")
-    elif bucket.settings[BUCKET_SETTING_FILE_TYPE] == FILE_TYPE_GLTF:
+    elif fileType == FILE_TYPE_GLTF:
         for i, buffer in enumerate(bucket.data[BUCKET_DATA_BUFFERS]):
             buffer[BUFFER_BYTE_LENGTH] = len(bucket.blobs[i])
             filepath = bucket.settings[BUCKET_SETTING_FILEPATH] + bucket.settings[BUCKET_SETTING_BINPATH] + str(i)
             Writer.dump_raw_binary(filepath, bucket.blobs[i])
-    else:
-        return
+    elif fileType == FILE_TYPE_GLB:
+        for i, buffer in enumerate(bucket.data[BUCKET_DATA_BUFFERS]):
+            buffer[BUFFER_BYTE_LENGTH] = len(bucket.blobs[i])
+
         
 
 def __get_uri(bucket, id):
@@ -75,8 +84,6 @@ def __get_uri(bucket, id):
 
     if setting == FILE_TYPE_GLTF:
         return bucket.settings[BUCKET_SETTING_BINPATH] + str(id) + FILE_EXT_BIN
-    if setting == FILE_TYPE_GLB:
-        return str(__GLTF_GLB_PADDING, "utf8")
     if setting == FILE_TYPE_GLTF_EMBEDDED:
         return __GLTF_EMBEDDED_PREFIX
 

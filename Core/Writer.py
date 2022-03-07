@@ -6,9 +6,13 @@ from io_advanced_gltf2.Core.Managers import BufferManager
 from io_advanced_gltf2.Core.Util import cleanup_keys
 from io_advanced_gltf2.Keywords import *
 
-__BINARY_MAGIC_NUMBER = b"glTF"
-__BINARY_VERSION_NUMBER = struct.pack(PACKING_FORMAT_U_INT, 2)
-__BINARY_PAD = b"00"
+# https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf ----- 4.4 glTF Layout
+__BINARY_MAGIC_NUMBER = "glTF".encode("ascii")
+__BINARY_JSON_NUMBER = "JSON".encode("ascii")
+__BINARY_CHUNK_NUMBER = 0x004E4942
+__BINARY_JSON_PAD = b" "
+__BINARY_PAD = b"\0"
+__BINARY_VERSION_NUMBER = 2
 
 def dump_bucket(bucket):
     __to_gltf(bucket)
@@ -65,11 +69,38 @@ def dump_gltf(path : str, data):
     """
     __prep_path(path)
     f = open(path + FILE_EXT_GLTF, "w")
-    _ = json.dump(data, f, indent=4)
+    json.dump(data, f, indent=4)
     f.close()
 
 def dump_glb(path : str, data, blobs):
+    """
+    Path needs to include file name, without extension
+    """
+    js = bytes(json.dumps(data).encode("ascii"))
+
     __prep_path(path)
+    f = open(path + FILE_EXT_GLB, "w+b")
+
+    f.write(__BINARY_MAGIC_NUMBER)
+    f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_VERSION_NUMBER))
+    f.write(struct.pack(PACKING_FORMAT_U_INT, 0)) # temporarily write empty bytes where the file size should be
+    f.write(struct.pack(PACKING_FORMAT_U_INT, len(js)))
+    f.write(__BINARY_JSON_NUMBER)
+    f.write(js)
+    f.write(__BINARY_JSON_PAD * (len(js) & 4))
+
+    for b in blobs:
+        f.write(struct.pack(PACKING_FORMAT_U_INT, len(b)))
+        f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_CHUNK_NUMBER))
+        f.write(b)
+        f.write(__BINARY_PAD * (len(b) % 4))
+    
+    fileLength = os.fstat(f.fileno()).st_size
+
+    f.seek(8) # seek to where the file length is supposed to be
+    f.write(struct.pack(PACKING_FORMAT_U_INT, fileLength))
+
+    f.close()
 
             
 def dump_raw_binary(path : str, bytes : bytearray):
