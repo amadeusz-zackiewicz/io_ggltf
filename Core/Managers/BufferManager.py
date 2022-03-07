@@ -1,4 +1,5 @@
 from io_advanced_gltf2.Keywords import *
+from io_advanced_gltf2.Core import Writer
 import base64
 
 __GLTF_GLB_PADDING = b"\x00"

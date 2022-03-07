@@ -2,7 +2,7 @@ import bpy
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Scoops import scoop_nodes, scoop_mesh
 from io_advanced_gltf2.Core.Bucket import Bucket
-from io_advanced_gltf2.Core.Core import bucket_to_file
+from io_advanced_gltf2.Core import Writer
 from io_advanced_gltf2.Core.Managers import Tracer
 
 global __bucket
@@ -21,7 +21,7 @@ def begin(file_name: str, folder: str, binaries: str):
 
 def end():
     global __bucket
-    bucket_to_file(__bucket)
+    Writer.dump_bucket(__bucket)
     del __bucket
     pass
 
