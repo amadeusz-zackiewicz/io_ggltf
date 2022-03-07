@@ -4,8 +4,6 @@ import base64
 
 __GLTF_GLB_PADDING = b"\x00"
 __GLTF_EMBEDDED_PREFIX = "data:application/octet-stream;base64,"
-__GLTF_EMBEDDED_PADDING_LENGTH = len(__GLTF_EMBEDDED_PREFIX)
-__GLTF_GLB_PADDING_LENGTH = len(__GLTF_GLB_PADDING)
 
 def add_bytes(bucket, bytes: bytearray):
     """

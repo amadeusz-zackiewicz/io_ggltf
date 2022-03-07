@@ -78,6 +78,5 @@ def dump_raw_binary(path : str, bytes : bytearray):
     """
     __prep_path(path)
     f = open(path + FILE_EXT_BIN, "wb")
-    #length = len(bytes) + len(__BINARY_MAGIC_NUMBER) + len(__BINARY_VERSION_NUMBER) + 4
     f.write(bytes)
     f.close()
