@@ -8,7 +8,7 @@ from io_advanced_gltf2.Core.Managers import Tracer
 global __bucket
 __bucket = None
 
-def begin(file_name: str, folder: str, binaries: str):
+def begin(fileName: str, folder: str, binaries: str, fileType = FILE_TYPE_GLB):
     """
     Prepare a bucket that will be used to store objects from your scene.
     """
@@ -16,7 +16,7 @@ def begin(file_name: str, folder: str, binaries: str):
     # construct a generic bucket with arguments given
     if not folder.endswith(('/', '//')):
         folder = folder + "/"
-    __bucket = Bucket(folder + file_name, binaries)
+    __bucket = Bucket(folder, fileName, binaries, fileType=fileType)
     pass
 
 def end():

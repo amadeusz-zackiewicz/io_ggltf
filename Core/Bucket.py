@@ -2,7 +2,8 @@ from io_advanced_gltf2.Keywords import *
 
 class Bucket():
     def __init__(self, 
-    filePath, 
+    filePath,
+    fileName, 
     binPath,
     fileType = FILE_TYPE_GLTF_EMBEDDED,
     y_up = True, 
@@ -11,6 +12,7 @@ class Bucket():
     ):
         self.settings = {
             BUCKET_SETTING_FILEPATH : filePath,
+            BUCKET_SETTING_FILENAME : fileName,
             BUCKET_SETTING_BINPATH : binPath,
             BUCKET_SETTING_Y_UP : y_up,
             BUCKET_SETTING_COLLECT_MODE : mode,

@@ -3,8 +3,8 @@ from io_advanced_gltf2.Core import Writer
 import base64
 
 __GLTF_GLB_PADDING = b"\x00"
-__GLTF_EMBEDDED_PADDING = "data:application/octet-stream;base64,"
-__GLTF_EMBEDDED_PADDING_LENGTH = len(__GLTF_EMBEDDED_PADDING)
+__GLTF_EMBEDDED_PREFIX = "data:application/octet-stream;base64,"
+__GLTF_EMBEDDED_PADDING_LENGTH = len(__GLTF_EMBEDDED_PREFIX)
 __GLTF_GLB_PADDING_LENGTH = len(__GLTF_GLB_PADDING)
 
 def add_bytes(bucket, bytes: bytearray):
@@ -49,14 +49,28 @@ def add_bytes(bucket, bytes: bytearray):
 
     return (bufferID, byteOffset, byteLength)
 
-def write_blobs(bucket):
+def resolve_binaries(bucket):
+    """
+    For GLTF Embedded:
+        Merge blobs into the URI
+    For GLTF:
+        Dump blobs into binary files in the specified paths.
+    For GLB:
+        Do nothing, this needs to be handled somewhere else
+    """
     #TODO: write logic for all file types
     if bucket.settings[BUCKET_SETTING_FILE_TYPE] == FILE_TYPE_GLTF_EMBEDDED:
         for i, buffer in enumerate(bucket.data[BUCKET_DATA_BUFFERS]):
             buffer[BUFFER_BYTE_LENGTH] = len(bucket.blobs[i])
             buffer[BUFFER_URI] += __into_base64(bucket.blobs[i]).decode("utf8")
+    elif bucket.settings[BUCKET_SETTING_FILE_TYPE] == FILE_TYPE_GLTF:
+        for i, buffer in enumerate(bucket.data[BUCKET_DATA_BUFFERS]):
+            buffer[BUFFER_BYTE_LENGTH] = len(bucket.blobs[i])
+            filepath = bucket.settings[BUCKET_SETTING_FILEPATH] + bucket.settings[BUCKET_SETTING_BINPATH] + str(i)
+            Writer.dump_raw_binary(filepath, bucket.blobs[i])
     else:
-        print("file type not yet supported")
+        return
+        
 
 def __get_uri(bucket, id):
     setting = bucket.settings[BUCKET_SETTING_FILE_TYPE]
@@ -66,7 +80,7 @@ def __get_uri(bucket, id):
     if setting == FILE_TYPE_GLB:
         return str(__GLTF_GLB_PADDING, "utf8")
     if setting == FILE_TYPE_GLTF_EMBEDDED:
-        return __GLTF_EMBEDDED_PADDING
+        return __GLTF_EMBEDDED_PREFIX
 
     
 def __into_base64(bytes):

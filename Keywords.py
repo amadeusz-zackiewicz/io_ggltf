@@ -124,6 +124,7 @@ BLENDER_TYPE_MESH           = "MESH"
 
 BUCKET_SETTING_FILEPATH             = "filepath"
 BUCKET_SETTING_BINPATH              = "binpath"
+BUCKET_SETTING_FILENAME             = "filename"
 BUCKET_SETTING_Y_UP                 = "y_up"
 BUCKET_SETTING_COLLECT_MODE         = "collect_mode"
 BUCKET_SETTING_COLLECT_TYPES        = "collect_types"
