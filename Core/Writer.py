@@ -7,8 +7,8 @@ from io_advanced_gltf2.Core.Util import cleanup_keys
 from io_advanced_gltf2.Keywords import *
 
 # https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf ----- 4.4 glTF Layout
-__BINARY_MAGIC_NUMBER = "glTF".encode("ascii")
-__BINARY_JSON_NUMBER = "JSON".encode("ascii")
+__BINARY_MAGIC_NUMBER = 0x46546C67
+__BINARY_JSON_NUMBER = 0x4E4F534A
 __BINARY_CHUNK_NUMBER = 0x004E4942
 __BINARY_JSON_PAD = b" "
 __BINARY_PAD = b"\0"
@@ -81,11 +81,11 @@ def dump_glb(path : str, data, blobs):
     __prep_path(path)
     f = open(path + FILE_EXT_GLB, "w+b")
 
-    f.write(__BINARY_MAGIC_NUMBER)
+    f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_MAGIC_NUMBER))
     f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_VERSION_NUMBER))
     f.write(struct.pack(PACKING_FORMAT_U_INT, 0)) # temporarily write empty bytes where the file size should be
     f.write(struct.pack(PACKING_FORMAT_U_INT, len(js)))
-    f.write(__BINARY_JSON_NUMBER)
+    f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_JSON_NUMBER))
     f.write(js)
     f.write(__BINARY_JSON_PAD * (len(js) & 4))
 
