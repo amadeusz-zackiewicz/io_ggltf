@@ -65,11 +65,11 @@ def object_add(name, library = None, dataTypes = [], blacklist = []):
 def mesh_add_based_on_object(
     objName, 
     library = None, 
-    uvMaps = None, 
-    vertexColor = None, 
-    tangents = False, 
-    weights = True, 
-    shapeKeys = None
+    uvMaps = True, 
+    vertexColor = False, 
+    tangents = False,
+    skin = True, 
+    shapeKeys = False
     ):
 
     global __bucket
@@ -77,8 +77,30 @@ def mesh_add_based_on_object(
     if obj == None:
         lib_str = " from library: " + library if library != None else ""
         print(f"Error: failed to find object with name {objName}{lib_str}")
+        return
 
-    return scoop_mesh.scoop_from_obj(__bucket, obj)
+    uvMapName = []
+    vcName = []
+    skNames = []
+
+    if uvMaps:
+        uvMapName.append(obj.data.uv_layers.active.name)
+
+    if vertexColor:
+        vcName.append(obj.data.vertex_colors.active.name)
+
+    if shapeKeys:
+        skNames.extend(obj.data.shape_keys)
+
+    return scoop_mesh.scoop_from_obj(
+        __bucket, 
+        obj,
+        uvMaps=uvMapName,
+        vertexColors=vcName,
+        shapeKeys=skNames,
+        skin=skin,
+        tangents=tangents
+        )
 
 def mesh_append_to_node(node_id, mesh_id):
     global __bucket

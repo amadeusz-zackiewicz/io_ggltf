@@ -1,7 +1,7 @@
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core.Managers import BufferManager
 
-def add_bytes(bucket, bytes: bytearray):
+def add_bytes(bucket, bytes: bytearray, name=None):
     """
     Returns ID of the new buffer view that is used to access the given bytes
     """
@@ -16,6 +16,10 @@ def add_bytes(bucket, bytes: bytearray):
         BUFFER_VIEW_BYTE_LENGTH: byteLength
     }
 
+    if name != None:
+        bufferView[BUFFER_VIEW_NAME] = name
+
     bucket.data[BUCKET_DATA_BUFFER_VIEWS].append(bufferView)
+
 
     return bViewID

@@ -56,6 +56,7 @@ class Bucket():
         }
         self.trackers = {
             BUCKET_TRACKER_NODES : {},
-            BUCKET_TRACKER_MESHES : {}
+            BUCKET_TRACKER_MESHES : {},
+            BUCKET_TRACKER_MESH_ATTRIBUTE : {}
         }
         self.blobs = []

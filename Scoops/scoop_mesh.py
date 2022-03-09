@@ -2,7 +2,7 @@ from json.encoder import INFINITY
 import bpy
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Util
-from io_advanced_gltf2.Core.Managers import AccessorManager
+from io_advanced_gltf2.Core.Managers import AccessorManager, Tracer
 
 # https://docs.blender.org/api/current/bpy.types.Mesh.html
 # https://docs.blender.org/api/current/bpy.types.Depsgraph.html
@@ -12,14 +12,16 @@ from io_advanced_gltf2.Core.Managers import AccessorManager
 def scoop_from_obj(
     bucket,
     obj,
-    tangent = False,
-    uvMaps = None,
+    tangents = False,
+    uvMaps = [],
     skin = True,
-    morphs = None,
+    shapeKeys = [],
+    vertexColors = [],
     mode = MESH_TYPE_TRIANGLES
 ):
+    # TODO: make sure every mesh mode is supported, only triangles for now
     dependencyGraph = bpy.context.evaluated_depsgraph_get()
-    return __scoop_triangles(bucket, dependencyGraph.id_eval_get(obj).data, None, None, False)
+    return __scoop_triangles(bucket, dependencyGraph.id_eval_get(obj).data, uvMaps, vertexColors, shapeKeys, tangents, skin)
 
 def scoop_base_mesh(
     bucket,
@@ -32,24 +34,11 @@ def scoop_base_mesh(
 ):
     return 0
 
-# how to generate names:
-#
-# mesh name:            <original.name>.<hex(depsgraph_ID)>.<mode>
-# accessor name:        <original.name>.<hex(depsgraph_ID)>.<mode>.<primitive>.<attribute>
-#
-# if the attribute is not dynamic, for example POSITION or NORMAL, 
-# use the attribute type itself, for dynamic attributes such
-# as UV maps or weight use the same name as blender
-# for example:
-# cube.0x1234.0.4.POSITION or cube.0x1234.0.4.uv_map_final
-#
-# Q: why the hex()?
-# A: looks cooler then pure int
-
 def __get_core_mesh_components(bucket, mesh):
     """
-    Gets vertices, normals, indices and min max boundary
-    returns a tuple of (positions, normals, vertices, min, max)
+    Calculates splits and normals then gets vertices, normals, 
+    indices and min max boundary
+    returns a tuple of (positions, normals, indices, min, max)
     """
 
     mesh.calc_normals_split()
@@ -87,56 +76,92 @@ def __get_core_mesh_components(bucket, mesh):
     return (positions, normals, indices, _min, _max)
 
 
-def __scoop_triangles(bucket, meshObj, uvMaps, morphs, skin):
+def __scoop_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents, skin):
 
     originalName = meshObj.original.name
-    depsID = str(hex(id(meshObj)))
+    depsID = id(meshObj)
 
-    trackerName = ".".join([originalName, depsID, str(MESH_TYPE_TRIANGLES)])
+    tracker = Tracer.make_mesh_tracker(originalName, depsID, MESH_TYPE_TRIANGLES, uvMaps, vertexColors, shapeKeys, tangents, skin)
 
-    if trackerName in bucket.trackers[BUCKET_TRACKER_MESHES]:
-        return bucket.trackers[BUCKET_TRACKER_MESHES][trackerName]
+    if tracker in bucket.trackers[BUCKET_TRACKER_MESHES]:
+        return bucket.trackers[BUCKET_TRACKER_MESHES][tracker]
 
     positions, normals, indices, min, max = __get_core_mesh_components(bucket, meshObj)
 
+    positionsAccessor = __get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, positions, min, max)
+    normalsAccessor = __get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, normals)
+
     accessors = {
-        GEOMETRY_ATTRIBUTE_STR_POSITION: AccessorManager.add_accessor(bucket, 
-        ACCESSOR_COMPONENT_TYPE_FLOAT, 
-        ACCESSOR_TYPE_VECTOR_3,
-        PACKING_FORMAT_FLOAT, 
-        positions, min, max
-        ),
-        GEOMETRY_ATTRIBUTE_STR_NORMAL: AccessorManager.add_accessor(bucket,
-        ACCESSOR_COMPONENT_TYPE_FLOAT, 
-        ACCESSOR_TYPE_VECTOR_3, 
-        PACKING_FORMAT_FLOAT,
-        normals
-        )
+        MESH_ATTRIBUTE_STR_POSITION: positionsAccessor,
+        MESH_ATTRIBUTE_STR_NORMAL: normalsAccessor
     }
 
-    indicesAccess = AccessorManager.add_accessor(bucket, 
-    ACCESSOR_COMPONENT_TYPE_UNSIGNED_INT,
-    ACCESSOR_TYPE_SCALAR,
-    PACKING_FORMAT_U_INT,
-    indices
-    )
-
     meshDict = {
-        MESH_NAME: originalName,
+        MESH_NAME: tracker,
         MESH_PRIMITIVES:[{
             MESH_PRIMITIVE_ATTRIBUTES: accessors,
             MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES,
             MESH_PRIMITIVE_MATERIAL: 0, #TODO: ensure materials are correctly assigned here
-            MESH_PRIMITIVE_INDICES: indicesAccess
+            MESH_PRIMITIVE_INDICES: __get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, indices)
         }]
         }
 
     meshID = len(bucket.data[BUCKET_DATA_MESHES])
 
     bucket.data[BUCKET_DATA_MESHES].append(meshDict)
-    bucket.trackers[BUCKET_TRACKER_MESHES][trackerName] = meshID
-
-    # TODO: accessors are still not tracked
+    bucket.trackers[BUCKET_TRACKER_MESHES][tracker] = meshID
 
     return meshID
     
+def __get_accessor_positions(bucket, meshName, depsgraphID, mode, primitive, positions, min, max) -> int:
+
+    id = Tracer.trace_mesh_attribute_id(bucket, meshName, depsgraphID, MESH_TYPE_TRIANGLES, 0, MESH_ATTRIBUTE_STR_POSITION)
+    if id != None:
+        return id
+
+    tracker = Tracer.make_mesh_attribute_tracker(meshName, depsgraphID, mode, primitive, MESH_ATTRIBUTE_STR_POSITION)
+
+    return AccessorManager.add_accessor(bucket,
+    ACCESSOR_COMPONENT_TYPE_FLOAT,
+    ACCESSOR_TYPE_VECTOR_3,
+    PACKING_FORMAT_FLOAT,
+    data=positions,
+    tracker=tracker,
+    min=min,
+    max=max,
+    name=tracker # TODO: this should not be in release build
+    )
+
+def __get_accessor_normals(bucket, meshName, depsgraphID, mode, primitive, normals) -> int:
+
+    id = Tracer.trace_mesh_attribute_id(bucket, meshName, depsgraphID, MESH_TYPE_TRIANGLES, primitive, MESH_ATTRIBUTE_STR_NORMAL)
+    if id != None:
+        return id
+
+    tracker = Tracer.make_mesh_attribute_tracker(meshName, depsgraphID, mode, primitive, MESH_ATTRIBUTE_STR_NORMAL)
+
+    return AccessorManager.add_accessor(bucket,
+    ACCESSOR_COMPONENT_TYPE_FLOAT,
+    ACCESSOR_TYPE_VECTOR_3,
+    PACKING_FORMAT_FLOAT,
+    data=normals,
+    tracker=tracker,
+    name=tracker # TODO: this should not be in release build
+    )
+
+def __get_accessor_indices(bucket, meshName, depsgraphID, mode, primitive, indices) -> int:
+
+    id = Tracer.trace_mesh_attribute_id(bucket, meshName, depsgraphID, MESH_TYPE_TRIANGLES, primitive, MESH_PRIMITIVE_INDICES.upper())
+    if id != None:
+        return id
+
+    tracker = Tracer.make_mesh_attribute_tracker(meshName, depsgraphID, mode, primitive, MESH_PRIMITIVE_INDICES.upper())
+
+    return AccessorManager.add_accessor(bucket,
+    ACCESSOR_COMPONENT_TYPE_UNSIGNED_INT,
+    ACCESSOR_TYPE_SCALAR,
+    PACKING_FORMAT_U_INT,
+    data=indices,
+    tracker=tracker,
+    name=tracker # TODO: this should not be in release build
+    )
