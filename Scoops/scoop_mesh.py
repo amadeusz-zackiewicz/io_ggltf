@@ -1,4 +1,3 @@
-from json.encoder import INFINITY
 import bpy
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Util
@@ -34,12 +33,11 @@ def scoop_base_mesh(
 ):
     return 0
 
-def __get_core_mesh_components(bucket, mesh):
 def __decompose_blender_mesh(bucket, mesh):
     """
     Calculates splits and normals then gets vertices, normals, 
-    indices and min max boundary
-    returns a tuple of (positions, normals, indices, min, max)
+    indices, material indices and min max boundary
+    returns a tuple of (positions, normals, indices, materialIndex, min, max)
     """
 
     mesh.calc_normals_split()
@@ -48,9 +46,10 @@ def __decompose_blender_mesh(bucket, mesh):
     positions = []
     normals = []
     indices = []
+    materialIndex = []
 
-    _min = [INFINITY, INFINITY, INFINITY]
-    _max = [-INFINITY, -INFINITY, -INFINITY]
+    _min = [1000.0, 1000.0, 1000.0]
+    _max = [-1000.0, -1000.0, -1000.0]
 
     for v in mesh.vertices:
         v = Util.location_ensure_coord_space(bucket, v.co)
@@ -88,26 +87,68 @@ def __scoop_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents
     if tracker in bucket.trackers[BUCKET_TRACKER_MESHES]:
         return bucket.trackers[BUCKET_TRACKER_MESHES][tracker]
 
-    positions, normals, indices, min, max = __get_core_mesh_components(bucket, meshObj)
     positions, normals, indices, materialIndex, min, max = __decompose_blender_mesh(bucket, meshObj)
 
-    positionsAccessor = __get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, positions, min, max)
-    normalsAccessor = __get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, normals)
+    # create a primitive for each material
+    primitive_count = len(meshObj.materials) 
 
-    accessors = {
-        MESH_ATTRIBUTE_STR_POSITION: positionsAccessor,
-        MESH_ATTRIBUTE_STR_NORMAL: normalsAccessor
-    }
+    if primitive_count == 0: primitive_count = 1 # make sure we get at least one primitive
+
+    class primitives: pass
+    primitives.positions = []
+    primitives.normals = []
+    primitives.indices = []
+
+    for i in range(0, primitive_count):
+        primitives.positions.append([])
+        primitives.normals.append([])
+        primitives.indices.append([])
+
+    # convert indices from mesh to primitive local indices
+    for i, m in enumerate(materialIndex):
+        def add_index(index):
+            if index in duplicates:
+                primitives.indices[m].append(duplicates[index])
+            else:
+                l = len(primitives.positions[m])
+                primitives.positions[m].append(positions[index])
+                primitives.normals[m].append(normals[index])
+                primitives.indices[m].append(l)
+                duplicates[index] = l
+
+        duplicates = {}
+        stride = i * 3
+        index1 = indices[stride]
+        index2 = indices[stride + 1]
+        index3 = indices[stride + 2]
+
+        add_index(index1)
+        add_index(index2)
+        add_index(index3)
+
 
     meshDict = {
         MESH_NAME: tracker,
-        MESH_PRIMITIVES:[{
-            MESH_PRIMITIVE_ATTRIBUTES: accessors,
-            MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES,
-            MESH_PRIMITIVE_MATERIAL: 0, #TODO: ensure materials are correctly assigned here
-            MESH_PRIMITIVE_INDICES: __get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, indices)
-        }]
+        MESH_PRIMITIVES: []
         }
+
+    for i in range(0, primitive_count):
+
+        positionsAccessor = __get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.positions[i], min, max)
+        normalsAccessor = __get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.normals[i])
+        indicesAccessor = __get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.indices[i])
+
+        accessors = {
+            MESH_ATTRIBUTE_STR_POSITION: positionsAccessor,
+            MESH_ATTRIBUTE_STR_NORMAL: normalsAccessor
+        }
+
+        meshDict[MESH_PRIMITIVES].append({
+            MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES,
+            MESH_PRIMITIVE_MATERIAL: 0, # TODO: materials are not yet supported
+            MESH_PRIMITIVE_ATTRIBUTES: accessors,
+            MESH_PRIMITIVE_INDICES: indicesAccessor
+        })
 
     meshID = len(bucket.data[BUCKET_DATA_MESHES])
 
