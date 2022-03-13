@@ -35,6 +35,7 @@ def scoop_base_mesh(
     return 0
 
 def __get_core_mesh_components(bucket, mesh):
+def __decompose_blender_mesh(bucket, mesh):
     """
     Calculates splits and normals then gets vertices, normals, 
     indices and min max boundary
@@ -70,10 +71,11 @@ def __get_core_mesh_components(bucket, mesh):
     
     for l in mesh.loop_triangles:
         vertices = l.vertices
+        materialIndex.append(l.material_index)
         for v in vertices: # should always be 3
             indices.append(v)
 
-    return (positions, normals, indices, _min, _max)
+    return (positions, normals, indices, materialIndex, _min, _max)
 
 
 def __scoop_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents, skin):
@@ -87,6 +89,7 @@ def __scoop_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents
         return bucket.trackers[BUCKET_TRACKER_MESHES][tracker]
 
     positions, normals, indices, min, max = __get_core_mesh_components(bucket, meshObj)
+    positions, normals, indices, materialIndex, min, max = __decompose_blender_mesh(bucket, meshObj)
 
     positionsAccessor = __get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, positions, min, max)
     normalsAccessor = __get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, normals)
