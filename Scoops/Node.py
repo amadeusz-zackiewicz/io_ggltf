@@ -2,7 +2,7 @@ import bpy
 from mathutils import Quaternion, Vector
 from io_advanced_gltf2.Core import Util
 from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Scoops import scoop_mesh
+from io_advanced_gltf2.Scoops import Mesh
 from io_advanced_gltf2.Core.Managers import Tracer
 
 def __obj_to_node(bucket,
@@ -91,7 +91,7 @@ def __scoop_hierarchy(bucket, obj, dataTypes = [], blacklist = [], localSpace = 
     mesh = None
 
     if obj.type == BLENDER_TYPE_MESH and BLENDER_TYPE_MESH in dataTypes:
-        mesh = scoop_mesh.scoop_from_obj(bucket, obj)
+        mesh = Mesh.scoop_from_obj(bucket, obj)
 
     # TODO: get mesh, skins, weights
 

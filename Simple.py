@@ -1,6 +1,6 @@
 import bpy
 from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2 import Scoops
+from io_advanced_gltf2.Scoops import Node, Mesh
 from io_advanced_gltf2.Core.Bucket import Bucket
 from io_advanced_gltf2.Core import Writer
 from io_advanced_gltf2.Core.Managers import Tracer
@@ -55,7 +55,7 @@ def node_add_hierarchy(name, library = None, dataTypes = [], blacklist = []):
             continue
         object = bpy.data.objects.get((n, library))
         if object != None:
-            Scoops.Node.scoop_hierarchy(__bucket, object, dataTypes=dataTypes, blacklist=blacklist)
+            Node.scoop_hierarchy(__bucket, object, dataTypes=dataTypes, blacklist=blacklist)
     
 
 ####################################
@@ -92,7 +92,7 @@ def mesh_add_based_on_object(
     if shapeKeys:
         skNames.extend(obj.data.shape_keys)
 
-    return Scoops.Mesh.scoop_from_obj(
+    return Mesh.scoop_from_obj(
         __bucket, 
         obj,
         uvMaps=uvMapName,
