@@ -26,10 +26,10 @@ def end():
     pass
 
 ####################################
-# Object commands
+# Node commands
 ####################################
 
-def object_add_selected(blacklist = []):
+def node_add_selected(blacklist = []):
     """
     Add every selected object and their children to the bucket.
     Optional Parameter:
@@ -38,11 +38,11 @@ def object_add_selected(blacklist = []):
     #collect everything that user has selected
     pass
 
-def object_add_collection(name, blacklist = []):
+def node_add_collection(name, blacklist = []):
     #collect the specified collection
     pass
 
-def object_add(name, library = None, dataTypes = [], blacklist = []):
+def node_add_hierarchy(name, library = None, dataTypes = [], blacklist = []):
     global __bucket
 
     if type(name) != list:
