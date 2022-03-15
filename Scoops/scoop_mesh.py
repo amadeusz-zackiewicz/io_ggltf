@@ -20,7 +20,7 @@ def scoop_from_obj(
 ):
     # TODO: make sure every mesh mode is supported, only triangles for now
     dependencyGraph = bpy.context.evaluated_depsgraph_get()
-    return __scoop_triangles(bucket, dependencyGraph.id_eval_get(obj).data, uvMaps, vertexColors, shapeKeys, tangents, skin)
+    return __scoop_mesh_triangles(bucket, dependencyGraph.id_eval_get(obj).data, uvMaps, vertexColors, shapeKeys, tangents, skin)
 
 def scoop_base_mesh(
     bucket,
@@ -65,7 +65,7 @@ def __decompose_blender_mesh(bucket, mesh):
     return (positions, normals, indices, materialIndex)
 
 
-def __scoop_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents, skin):
+def __scoop_mesh_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents, skin):
 
     originalName = meshObj.original.name
     depsID = id(meshObj)
