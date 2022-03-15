@@ -115,7 +115,6 @@ def __scoop_mesh_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tan
         add_index(index2)
         add_index(index3)
 
-
     meshDict = {
         MESH_NAME: tracker,
         MESH_PRIMITIVES: []
@@ -138,9 +137,9 @@ def __scoop_mesh_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tan
             _max[1] = max(_max[1], p.y)
             _max[2] = max(_max[2], p.z)
 
-        positionsAccessor = __get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.positions[i], _min, _max)
-        normalsAccessor = __get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.normals[i])
-        indicesAccessor = __get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.indices[i])
+        positionsAccessor = __get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, primitives.positions[i], _min, _max)
+        normalsAccessor = __get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, primitives.normals[i])
+        indicesAccessor = __get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, primitives.indices[i])
 
         accessors = {
             MESH_ATTRIBUTE_STR_POSITION: positionsAccessor,
