@@ -86,25 +86,26 @@ def __scoop_mesh_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tan
     primitives.positions = []
     primitives.normals = []
     primitives.indices = []
+    primitives.duplicates = []
 
     for i in range(0, primitive_count):
         primitives.positions.append([])
         primitives.normals.append([])
         primitives.indices.append([])
+        primitives.duplicates.append({})
 
     # convert indices from mesh to primitive local indices
     for i, m in enumerate(materialIndex):
         def add_index(index):
-            if index in duplicates:
-                primitives.indices[m].append(duplicates[index])
+            if index in primitives.duplicates[m]:
+                primitives.indices[m].append(primitives.duplicates[m][index])
             else:
                 l = len(primitives.positions[m])
                 primitives.positions[m].append(positions[index])
                 primitives.normals[m].append(normals[index])
                 primitives.indices[m].append(l)
-                duplicates[index] = l
+                primitives.duplicates[m][index] = l
 
-        duplicates = {}
         stride = i * 3
         index1 = indices[stride]
         index2 = indices[stride + 1]
