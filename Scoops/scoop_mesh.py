@@ -36,8 +36,8 @@ def scoop_base_mesh(
 def __decompose_blender_mesh(bucket, mesh):
     """
     Calculates splits and normals then gets vertices, normals, 
-    indices, material indices and min max boundary
-    returns a tuple of (positions, normals, indices, materialIndex, min, max)
+    indices and material indices
+    returns a tuple of (positions, normals, indices, materialIndex)
     """
 
     mesh.calc_normals_split()
@@ -48,20 +48,8 @@ def __decompose_blender_mesh(bucket, mesh):
     indices = []
     materialIndex = []
 
-    _min = [1000.0, 1000.0, 1000.0]
-    _max = [-1000.0, -1000.0, -1000.0]
-
     for v in mesh.vertices:
         v = Util.location_ensure_coord_space(bucket, v.co)
-
-        _min[0] = min(_min[0], v[0])
-        _min[1] = min(_min[1], v[1])
-        _min[2] = min(_min[2], v[2])
-
-        _max[0] = max(_max[0], v[0])
-        _max[1] = max(_max[1], v[1])
-        _max[2] = max(_max[2], v[2])
-
         positions.append(v)
 
     for v in mesh.vertices:
@@ -74,7 +62,7 @@ def __decompose_blender_mesh(bucket, mesh):
         for v in vertices: # should always be 3
             indices.append(v)
 
-    return (positions, normals, indices, materialIndex, _min, _max)
+    return (positions, normals, indices, materialIndex)
 
 
 def __scoop_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents, skin):
@@ -87,7 +75,7 @@ def __scoop_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents
     if tracker in bucket.trackers[BUCKET_TRACKER_MESHES]:
         return bucket.trackers[BUCKET_TRACKER_MESHES][tracker]
 
-    positions, normals, indices, materialIndex, min, max = __decompose_blender_mesh(bucket, meshObj)
+    positions, normals, indices, materialIndex = __decompose_blender_mesh(bucket, meshObj)
 
     # create a primitive for each material
     primitive_count = len(meshObj.materials) 
@@ -134,7 +122,22 @@ def __scoop_triangles(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents
 
     for i in range(0, primitive_count):
 
-        positionsAccessor = __get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.positions[i], min, max)
+        _min = [100000.0, 100000.0, 100000.0]
+        _max = [-100000.0, -100000.0, -100000.0]
+
+        print(len(positions))
+
+        for p in primitives.positions[i]:
+            print(i)
+            _min[0] = min(_min[0], p.x)
+            _min[1] = min(_min[1], p.y)
+            _min[2] = min(_min[2], p.z)
+
+            _max[0] = max(_max[0], p.x)
+            _max[1] = max(_max[1], p.y)
+            _max[2] = max(_max[2], p.z)
+
+        positionsAccessor = __get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.positions[i], _min, _max)
         normalsAccessor = __get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.normals[i])
         indicesAccessor = __get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, 0, primitives.indices[i])
 
