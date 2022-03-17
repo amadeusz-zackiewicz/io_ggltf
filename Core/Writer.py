@@ -77,6 +77,7 @@ def dump_glb(path : str, data, blobs):
     Path needs to include file name, without extension
     """
     js = bytes(json.dumps(data).encode("ascii"))
+    js_len = len(js) + len(js) % 4
 
     __prep_path(path)
     f = open(path + FILE_EXT_GLB, "w+b")
@@ -84,21 +85,22 @@ def dump_glb(path : str, data, blobs):
     f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_MAGIC_NUMBER))
     f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_VERSION_NUMBER))
     f.write(struct.pack(PACKING_FORMAT_U_INT, 0)) # temporarily write empty bytes where the file size should be
-    f.write(struct.pack(PACKING_FORMAT_U_INT, len(js)))
+    f.write(struct.pack(PACKING_FORMAT_U_INT, js_len))
     f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_JSON_NUMBER))
     f.write(js)
-    f.write(__BINARY_JSON_PAD * (len(js) & 4))
+    f.write(__BINARY_JSON_PAD * (len(js) % 4))
 
     for b in blobs:
-        f.write(struct.pack(PACKING_FORMAT_U_INT, len(b)))
+        f.write(struct.pack(PACKING_FORMAT_U_INT, len(b) + len(b) % 4))
         f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_CHUNK_NUMBER))
         f.write(b)
         f.write(__BINARY_PAD * (len(b) % 4))
     
+    # ask the operating system for file size
     fileLength = os.fstat(f.fileno()).st_size
 
     f.seek(8) # seek to where the file length is supposed to be
-    f.write(struct.pack(PACKING_FORMAT_U_INT, fileLength))
+    f.write(struct.pack(PACKING_FORMAT_U_INT, fileLength)) # overwrite the temporary size of 0 to real size
 
     f.close()
 
