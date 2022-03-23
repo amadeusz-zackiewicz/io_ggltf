@@ -2,7 +2,7 @@ import bpy
 from mathutils import Quaternion, Vector
 from io_advanced_gltf2.Core import Util
 from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Scoops import Mesh
+from io_advanced_gltf2.Scoops.Mesh import ScoopMesh
 from io_advanced_gltf2.Core.Managers import Tracer
 
 def __obj_to_node(bucket,
@@ -84,16 +84,16 @@ def __scoop_hierarchy(bucket, obj, dataTypes = [], blacklist = [], localSpace = 
     loc, rot, sc = m.decompose()
 
     # auto conversion to Y up if required
-    loc = Util.location_ensure_coord_space(bucket, loc)
-    rot = Util.rotation_ensure_coord_space(bucket, rot)
-    sc = Util.scale_ensure_coord_space(bucket, sc)
+    loc = Util.location_ensure_coord_space(loc)
+    rot = Util.rotation_ensure_coord_space(rot)
+    sc = Util.scale_ensure_coord_space(sc)
 
     mesh = None
 
     if obj.type == BLENDER_TYPE_MESH and BLENDER_TYPE_MESH in dataTypes:
-        mesh = Mesh.scoop_from_obj(bucket, obj)
+        mesh = ScoopMesh.scoop_from_obj(bucket, obj)
 
-    # TODO: get mesh, skins, weights
+    # TODO: skins, weights
 
     tracker = Tracer.make_object_tracker(obj.name, obj.library)
 

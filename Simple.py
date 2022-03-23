@@ -1,6 +1,7 @@
 import bpy
 from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Scoops import Node, Mesh
+from io_advanced_gltf2.Scoops import Node
+from io_advanced_gltf2.Scoops.Mesh import ScoopMesh
 from io_advanced_gltf2.Core.Bucket import Bucket
 from io_advanced_gltf2.Core import Writer
 from io_advanced_gltf2.Core.Managers import Tracer
@@ -84,7 +85,9 @@ def mesh_add_based_on_object(
     skNames = []
 
     if uvMaps:
-        uvMapName.append(obj.data.uv_layers.active.name)
+        for uvl in obj.data.uv_layers:
+            if uvl.active_render:
+                uvMapName.append(uvl.name)
 
     if vertexColor:
         vcName.append(obj.data.vertex_colors.active.name)
@@ -92,7 +95,7 @@ def mesh_add_based_on_object(
     if shapeKeys:
         skNames.extend(obj.data.shape_keys)
 
-    return Mesh.scoop_from_obj(
+    return ScoopMesh.scoop_from_obj(
         __bucket, 
         obj,
         uvMaps=uvMapName,
