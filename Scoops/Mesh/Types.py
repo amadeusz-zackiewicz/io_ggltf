@@ -21,6 +21,9 @@ class Compound:
         if a.normal.x != b.normal.x or a.normal.y != b.normal.y or a.normal.z != b.normal.z: return False
         for i in range(len(a.uv)):
             if a.uv[i].x != b.uv[i].x or a.uv[i].y != b.uv[i].y: return False
+        for i in range(len(a.vColor)):
+            for vc_i in range(len(a.vColor)):
+                if a.vColor[i][vc_i] != b.vColor[i][vc_i]: return False
         return True
 
 class Primitive:
