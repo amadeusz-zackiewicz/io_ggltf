@@ -16,6 +16,7 @@ def scoop_indexed(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents, sk
 
     uvIDs = []
     vColorIDs = []
+    shapeKeyIDs = []
 
     for uvName in uvMaps:
         if uvName in meshObj.uv_layers:
@@ -34,45 +35,67 @@ def scoop_indexed(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents, sk
         else:
             print(vColorName, " Vertex Color not found inside ", originalName, " and will be ignored")
 
-    primitives = MeshUtil.decompose_into_indexed_triangles(meshObj, uvIDs, vColorIDs, [])
+    for shapeKeyName in shapeKeys:
+        if shapeKeyName in meshObj.shape_keys.key_blocks:
+            for i, sk in enumerate(meshObj.shape_keys.key_blocks):
+                if shapeKeyName == sk.name:
+                    shapeKeyIDs.append(i)
+        else:
+            print(shapeKeyName, "Shape Key not found inside", originalName, "and will be ignored")
+
+    primitives = MeshUtil.decompose_into_indexed_triangles(meshObj, uvIDs, vColorIDs, shapeKeyIDs)
 
     meshDict = {
         MESH_NAME: tracker,
         MESH_PRIMITIVES: []
         }
 
-    for i in range(len(primitives)):
-        _min = [100000.0, 100000.0, 100000.0]
-        _max = [-100000.0, -100000.0, -100000.0]
-
-
-        for p in primitives[i].positions:
-            _min[0] = min(_min[0], p.x)
-            _min[1] = min(_min[1], p.y)
-            _min[2] = min(_min[2], p.z)
-
-            _max[0] = max(_max[0], p.x)
-            _max[1] = max(_max[1], p.y)
-            _max[2] = max(_max[2], p.z)
-        positionsAccessor = MeshUtil.get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, primitives[i].positions, _min, _max)
-        normalsAccessor = MeshUtil.get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, primitives[i].normals)
-        indicesAccessor = MeshUtil.get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, primitives[i].indices)
-
-        accessors = {
-            MESH_ATTRIBUTE_STR_POSITION: positionsAccessor,
-            MESH_ATTRIBUTE_STR_NORMAL: normalsAccessor
-        }
-        for i_uv, uvID in enumerate(uvIDs):
-            uvAccessor = MeshUtil.get_accessor_uv(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, meshObj.uv_layers[uvID].name, primitives[i].uv[i_uv])
-            accessors[MESH_ATTRIBUTE_STR_TEXCOORD + str(i_uv)] = uvAccessor
-
-
-        meshDict[MESH_PRIMITIVES].append({
+    for i, p in enumerate(primitives):
+        primitiveDict = {
             MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES,
             MESH_PRIMITIVE_MATERIAL: 0, # TODO: materials are not yet supported
-            MESH_PRIMITIVE_ATTRIBUTES: accessors,
-            MESH_PRIMITIVE_INDICES: indicesAccessor
-        })
+            }
+
+        positionsAccessor = MeshUtil.get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, p.positions)
+        normalsAccessor = MeshUtil.get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, p.normals)
+        indicesAccessor = MeshUtil.get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, p.indices)
+
+        primitiveDict[MESH_PRIMITIVE_INDICES] = indicesAccessor
+        primitiveDict[MESH_PRIMITIVE_ATTRIBUTES] = {
+            MESH_ATTRIBUTE_STR_POSITION: positionsAccessor,
+            MESH_ATTRIBUTE_STR_NORMAL: normalsAccessor,
+        }
+        for i_uv, uvID in enumerate(uvIDs):
+            uvAccessor = MeshUtil.get_accessor_uv(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, meshObj.uv_layers[uvID].name, p.uv[i_uv])
+            primitiveDict[MESH_PRIMITIVE_ATTRIBUTES][MESH_ATTRIBUTE_STR_TEXCOORD + str(i_uv)] = uvAccessor
+        for i_vc, vcID in enumerate(vColorIDs):
+            vColorAccessor = MeshUtil.get_accessor_vertex_color(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, meshObj.vertex_colors[vcID].name, p.vertexColor[i_vc])
+            primitiveDict[MESH_PRIMITIVE_ATTRIBUTES][MESH_ATTRIBUTE_STR_COLOR + str(i_vc)] = vColorAccessor
+
+        targets = []
+        for i_sk, skID in enumerate(shapeKeyIDs):
+            morph = {}
+            morphName = originalName + "//" + meshObj.shape_keys.key_blocks[skID].name
+            print(__file__, "79 --", len(meshObj.loops), len(p.shapeKey[i_sk].positions))
+            skPosAccessor = MeshUtil.get_accessor_positions(bucket, morphName, depsID, MESH_TYPE_TRIANGLES, i, p.shapeKey[i_sk].positions)
+            skNmAccessor = MeshUtil.get_accessor_normals(bucket, morphName, depsID, MESH_TYPE_TRIANGLES, i, p.shapeKey[i_sk].normals)
+            morph[MESH_ATTRIBUTE_STR_POSITION] = skPosAccessor
+            morph[MESH_ATTRIBUTE_STR_NORMAL] = skNmAccessor
+            targets.append(morph)
+
+        if len(targets) > 0:
+            primitiveDict[MESH_PRIMITIVE_TARGETS] = targets
+
+        meshDict[MESH_PRIMITIVES].append(primitiveDict)
+
+    if len(shapeKeyIDs) > 0:
+        weights = [0.0] * len(shapeKeyIDs)
+
+        #for i_sk, skID in enumerate(shapeKeyIDs):
+            #weights[i_sk] = meshObj.shape_keys.key_blocks[skID].value # TODO: add setting to decide if weights should be zero or same as in blender
+
+        meshDict[MESH_WEIGHTS] = weights
+
 
     meshID = len(bucket.data[BUCKET_DATA_MESHES])
 

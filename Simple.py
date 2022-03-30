@@ -67,7 +67,7 @@ def mesh_add_based_on_object(
     objName, 
     library = None, 
     uvMaps = True, 
-    vertexColor = False, 
+    vertexColors = False, 
     tangents = False,
     skin = True, 
     shapeKeys = False
@@ -89,11 +89,14 @@ def mesh_add_based_on_object(
             if uvl.active_render:
                 uvMapName.append(uvl.name)
 
-    if vertexColor:
+    if vertexColors:
         vcName.append(obj.data.vertex_colors.active.name)
 
     if shapeKeys:
-        skNames.extend(obj.data.shape_keys)
+        for key in obj.data.shape_keys.key_blocks:
+            if not key.mute:
+                if key.name != "Basis":
+                    skNames.append(key.name)
 
     return ScoopMesh.scoop_from_obj(
         __bucket, 
