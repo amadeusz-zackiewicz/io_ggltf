@@ -4,7 +4,7 @@ FILE_EXT_BIN    = ".bin"
 
 FILE_TYPE_GLTF          = "GLTF"
 FILE_TYPE_GLB           = "GLB"
-FILE_TYPE_GLTF_EMBEDDED = "GLTF Embedded"
+FILE_TYPE_GLTF_EMBEDDED = "GLTF_E"
 
 COLLECT_MODE_SIMPLE   = 0
 COLLECT_MODE_ADVANCED = 1
@@ -122,6 +122,8 @@ BLENDER_TYPE_EMPTY          = "EMPTY"
 BLENDER_TYPE_SURFACE        = "SURFACE"
 BLENDER_TYPE_MESH           = "MESH"
 
+BLENDER_MESH_CONVERTIBLE    = [BLENDER_TYPE_MESH, BLENDER_TYPE_CURVE, BLENDER_TYPE_SURFACE]
+
 BUCKET_SETTING_FILEPATH             = "filepath"
 BUCKET_SETTING_BINPATH              = "binpath"
 BUCKET_SETTING_FILENAME             = "filename"
@@ -130,6 +132,16 @@ BUCKET_SETTING_COLLECT_MODE         = "collect_mode"
 BUCKET_SETTING_COLLECT_TYPES        = "collect_types"
 BUCKET_SETTING_DECOMPOSE_MATRIX     = "decompose_matrix"
 BUCKET_SETTING_FILE_TYPE            = "file_type"
+############## Mesh specific settings
+BUCKET_SETTING_MESH_GET_NORMALS             = "get_normals"
+BUCKET_SETTING_MESH_GET_TANGENTS            = "get_tangents"
+BUCKET_SETTING_MESH_GET_UVS                 = "get_uvs"
+BUCKET_SETTING_MESH_GET_VERTEX_COLORS       = "get_vcolors"
+BUCKET_SETTING_MESH_GET_SKIN                = "get_skins"
+BUCKET_SETTING_MESH_GET_SHAPE_KEYS          = "get_skeys"
+BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS  = "get_skeys_normals"
+BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS = "get_skeys_tangents"
+BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV       = "get_skeys_uv"
 
 BUCKET_TRACKER_ACCESSORS        = "ACCESSORS"
 BUCKET_TRACKER_BUFFERS          = "BUFFERS"
@@ -318,4 +330,12 @@ NODE_EXTRA                              = __VAR_EXTRA
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.27 Scene
 SCENE_NAME                              = __VAR_NAME
 SCENE_NODES                             = "nodes"
+#https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.28 Skin
+SKIN_NAME                       = __VAR_NAME
+SKIN_INVERSE_BIND_MATRICES      = "inverseBindMatrices"
+SKIN_SKELETON                   = "skeleton"
+SKIN_JOINTS                     = "joints"
+SKIN_EXTENSION                  = __VAR_EXTENSION
+SKIN_EXTRA                      = __VAR_EXTRA
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.29 Texture
+#https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.30 Texture Info

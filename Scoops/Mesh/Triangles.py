@@ -102,4 +102,4 @@ def scoop_indexed(bucket, meshObj, uvMaps, vertexColors, shapeKeys, tangents, sk
     bucket.data[BUCKET_DATA_MESHES].append(meshDict)
     bucket.trackers[BUCKET_TRACKER_MESHES][tracker] = meshID
 
-    return meshID
+    return (meshID, None, None)
