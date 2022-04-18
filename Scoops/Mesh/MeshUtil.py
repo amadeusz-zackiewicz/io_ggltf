@@ -2,13 +2,18 @@ import enum
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Util
 from io_advanced_gltf2.Core.Managers import AccessorManager, Tracer
-from io_advanced_gltf2.Scoops.Mesh.Types import Compound, Primitive, ShapeKeyCompound, ShapeKeyData
+from io_advanced_gltf2.Scoops.Mesh.Types import *
 from bpy_extras import mesh_utils
 from mathutils import Vector
 import numpy
 
-def decompose_into_indexed_triangles(mesh, uvIDs, vColorIDs, shapeIDs):
+def decompose_into_indexed_triangles(mesh, vertexGroups, uvIDs, vColorIDs, shapeIDs, skinDefinition, maxInfluences):
     
+    if skinDefinition == None:
+        maxInfluences = 0 # save memory in case influences is not set 0 already
+
+    influenceDivisions = int(maxInfluences / 4)
+
     mesh.calc_normals_split()
     mesh.calc_loop_triangles()
     triangles = mesh.loop_triangles
@@ -25,11 +30,11 @@ def decompose_into_indexed_triangles(mesh, uvIDs, vColorIDs, shapeIDs):
     primitives = []
     # create one primitive per material
     for _ in range(len(mesh.materials)):
-        primitives.append(Primitive(len(uvIDs), len(vColorIDs), len(shapeIDs)))
+        primitives.append(Primitive(len(uvIDs), len(vColorIDs), len(shapeIDs), influenceDivisions))
 
     # ensure there is at least one primitive
     if len(primitives) == 0:
-        primitives.append(Primitive(len(uvIDs), len(vColorIDs), len(shapeIDs)))
+        primitives.append(Primitive(len(uvIDs), len(vColorIDs), len(shapeIDs), influenceDivisions))
 
 
     for uvID in uvIDs:
@@ -50,6 +55,7 @@ def decompose_into_indexed_triangles(mesh, uvIDs, vColorIDs, shapeIDs):
     for i_loop, loop in enumerate(loops):
         position = Util.location_ensure_coord_space(vertices[loop.vertex_index].co)
         normal = Util.direction_ensure_coord_space(loop.normal)
+        boneID, boneInflu = get_vertex_bone_info(loop.vertex_index, vertexGroups, skinDefinition, maxInfluences)
         uv = [None] * len(uvLoops)
         vColor = [None] * len(vcLoops)
         shapeKey = [None] * len(shapeIDs)
@@ -61,7 +67,7 @@ def decompose_into_indexed_triangles(mesh, uvIDs, vColorIDs, shapeIDs):
             nm = skData[i].normals[i_loop]
             pos = skData[i].positions[loop.vertex_index]
             shapeKey[i] = ShapeKeyCompound(pos, nm, None)
-        compounds.append(Compound(position, normal, None, uv, vColor, shapeKey))
+        compounds.append(Compound(position, normal, None, uv, vColor, shapeKey, boneID, boneInflu))
 
     del uvLoops
     del vcLoops
@@ -90,6 +96,13 @@ def decompose_into_indexed_triangles(mesh, uvIDs, vColorIDs, shapeIDs):
                 compound = compounds[loop_i]
                 p.positions.append(compound.position)
                 p.normals.append(compound.normal)
+
+                for division in range(influenceDivisions): # vectorize the IDs and influences
+                    vbID = [compound.boneID[division], compound.boneID[division + 1], compound.boneID[division + 2], compound.boneID[division + 3]]
+                    vInf = [compound.boneInfluence[division], compound.boneInfluence[division + 1], compound.boneInfluence[division + 2], compound.boneInfluence[division + 3]]
+                    p.boneID[division].append(vbID)
+                    p.boneInfluence[division].append(vInf)
+
                 for i, uv in enumerate(compound.uv):
                     p.uv[i].append(uv)
                 for i, vc in enumerate(compound.color):
@@ -100,6 +113,48 @@ def decompose_into_indexed_triangles(mesh, uvIDs, vColorIDs, shapeIDs):
                     p.shapeKey[i].tangents.append(skc.tangent)
 
     return primitives
+
+
+def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
+    """
+    Returns array of boneIDs and array of bone influences (normalized)
+    """
+    if maxInfleunces <= 0:
+        return ([], [])
+
+    boneInfo = []
+
+    for boneName in skinDefinition.keys():
+        group = vertexGroups.get(boneName)
+        if group != None:
+            try:
+                weight = group.weight(vertID)
+            except:
+                weight = 0.0
+            boneInfo.append((skinDefinition[boneName], weight)) # numpy.sort uses last element to decide order, so put the weight as last
+
+
+    if maxInfleunces > len(boneInfo):
+        for _ in range(len(boneInfo), maxInfleunces):
+            boneInfo.append(0, 0.0) # insert empty data if there isn't enough to match the influence count
+
+    if len(boneInfo) > maxInfleunces:
+        boneInfo = numpy.sort(boneInfo) 
+        boneInfo = boneInfo[:maxInfleunces - 1] # slice the list
+
+    print(boneInfo)
+
+    boneID = []
+    boneInflu = []
+    for bf in boneInfo:
+        boneID.append(bf[0])
+        boneInflu.append(bf[1])
+
+    normalizer = numpy.linalg.norm(boneInflu)
+    boneInflu = boneInflu / normalizer
+
+    return boneID, boneInflu
+
 
 
 def get_accessor_positions(bucket, meshName, depsgraphID, mode, primitive, positions) -> int:

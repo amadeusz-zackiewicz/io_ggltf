@@ -23,7 +23,7 @@ def make_new(name: str, position, rotation, scale, convertToYup = False):
 
     return nodeID
 
-def add_from_object(objName, includeData = True, useLocalSpace = False):
+def add_based_on_object(objName, includeData = True, useLocalSpace = False):
 
     obj = bpy.data.objects.get(objName)
     if obj == None:

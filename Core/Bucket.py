@@ -1,4 +1,5 @@
 from io_advanced_gltf2.Keywords import *
+import bpy
 
 class Bucket():
     def __init__(self, 
@@ -7,7 +8,8 @@ class Bucket():
     binPath,
     fileType = FILE_TYPE_GLTF_EMBEDDED,
     mode = COLLECT_MODE_SIMPLE,
-    collectTypes = [BLENDER_TYPE_EMPTY]
+    collectTypes = [BLENDER_TYPE_EMPTY],
+    dependencyGraph = None
     ):
         self.settings = {
             BUCKET_SETTING_FILEPATH : filePath,
@@ -68,3 +70,5 @@ class Bucket():
             BUCKET_TRACKER_MESH_ATTRIBUTE : {}
         }
         self.blobs = []
+        self.currentDependencyGraph = bpy.context.evaluated_depsgraph_get() if dependencyGraph == None else dependencyGraph
+        self.skinDefinition = []

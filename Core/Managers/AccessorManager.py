@@ -64,6 +64,7 @@ def __vector_into_bytearray(format, data: list):
 
 
 def __matrix_into_bytearray(data: list):
+    raise Exception("matrix accessor not yet supported")
     pass
 
 def __scalar_into_bytearray(format, data: list):

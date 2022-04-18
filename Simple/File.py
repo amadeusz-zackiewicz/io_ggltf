@@ -22,12 +22,12 @@ def begin(fileName : str, filePath : str, binPath = "bin/", fileType = FILE_TYPE
         if binPath != "":
             binPath = binPath + "/"
 
-    __bucket = Bucket(filePath=filePath, fileName=filename, binPath=binPath, fileType=fileType)
+    __bucket = Bucket(filePath=filePath, fileName=fileName, binPath=binPath, fileType=fileType)
 
 def end():
     global __bucket
     if __bucket != None:
         Writer.dump_bucket(__bucket)
-        del __bucket
+        __bucket = None
     else:
         raise Exception("Bucket is not initialized, please use File.begin() before using File.end()")

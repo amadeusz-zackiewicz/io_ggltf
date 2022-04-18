@@ -1,32 +1,9 @@
 from io_advanced_gltf2.Keywords import *
 from mathutils import Matrix, Vector, Quaternion, Euler
+from bpy_extras.io_utils import axis_conversion
 
-def matrix_identity(bucket) -> Matrix:
-    if bucket.settings[BUCKET_SETTING_Y_UP] == True:
-        return Matrix(
-            (
-                (1.0, 0.0, 0.0, 0.0),
-                (0.0, 0.0, 1.0, 0.0),
-                (0.0,-1.0, 0.0, 0.0),
-                (0.0, 0.0, 0.0, 0.0)
-            )
-        )
-    else:
-        return Matrix()
-
-def matrix_ensure_coord_space(bucket, org_mat : Matrix) -> Matrix:
-    if bucket.settings[BUCKET_SETTING_Y_UP] == True:
-        yup = Matrix(
-            (
-                (1.0, 0.0, 0.0, 0.0),
-                (0.0, 0.0, 1.0, 0.0),
-                (0.0,-1.0, 0.0, 0.0),
-                (0.0, 0.0, 0.0, 0.0)
-            )
-        )
-        return org_mat * yup
-    else:
-        return org_mat
+def matrix_ensure_coord_space(org_mat : Matrix) -> Matrix:
+    return get_basis_matrix_conversion() @ org_mat
 
 def location_ensure_coord_space(org_loc : Vector) -> Vector:
     return Vector((org_loc[0], org_loc[2], -org_loc[1]))
@@ -89,3 +66,8 @@ def validate_filter_list(obj, filter, expected_type = str) -> list:
         return None
 
     return obj
+
+def get_basis_matrix_conversion():
+    convert = axis_conversion(from_forward="-Y", from_up="Z", to_forward="Z", to_up="Y")
+    convert.resize_4x4()
+    return convert

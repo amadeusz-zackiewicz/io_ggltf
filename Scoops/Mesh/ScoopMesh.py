@@ -1,6 +1,7 @@
 import bpy
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Scoops.Mesh import Triangles
+from io_advanced_gltf2.Core.Bucket import Bucket
 
 # https://docs.blender.org/api/current/bpy.types.Mesh.html
 # https://docs.blender.org/api/current/bpy.types.Depsgraph.html
@@ -8,18 +9,17 @@ from io_advanced_gltf2.Scoops.Mesh import Triangles
 # https://docs.blender.org/api/current/bpy.types.ID.html#bpy.types.ID.evaluated_get
 
 def scoop_from_obj(
-    bucket,
+    bucket: Bucket,
     obj,
     tangents = False,
     uvMaps = [],
-    skin = True,
+    skinID = None,
     shapeKeys = [],
     vertexColors = [],
     mode = MESH_TYPE_TRIANGLES
 ):
     # TODO: make sure every mesh mode is supported, only triangles for now
-    dependencyGraph = bpy.context.evaluated_depsgraph_get()
-    return Triangles.scoop_indexed(bucket, dependencyGraph.id_eval_get(obj).data, uvMaps, vertexColors, shapeKeys, tangents, skin)
+    return Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences=4)
 
 def scoop_base_mesh(
     bucket,

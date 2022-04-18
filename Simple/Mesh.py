@@ -1,19 +1,26 @@
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Simple.File import get_current_bucket
 from io_advanced_gltf2.Scoops.Mesh import ScoopMesh
+from io_advanced_gltf2.Simple import Skin
 import bpy
+from io_advanced_gltf2.Core.Bucket import Bucket
 
 def add_based_on_object(objName, 
     normals = False,
     tangents = False, 
     uv = False, 
     vertexColors = False, 
-    boneInfluences = False, 
+    boneInfluences = False,
+    boneForceRestPose = False,
+    boneBlacklist = [],
     shapeKeys = False,
     shapeKeyNormals = False,
     shapeKeyTangents = False,
     shapeKeyUV = False
     ):
+
+    bucket = get_current_bucket()
+    depsGraph = bucket.currentDependencyGraph
 
     obj = bpy.data.objects.get(objName)
     if obj == None:
@@ -21,9 +28,11 @@ def add_based_on_object(objName,
         print(f"Error: failed to find object with name {lib_str}{objName}")
         return
 
+    modifierReset = []
     uvMapName = []
     vcName = []
     skNames = []
+    skinID = None
 
     if uv:
         for uvl in obj.data.uv_layers:
@@ -39,13 +48,43 @@ def add_based_on_object(objName,
                 if key.name != "Basis":
                     skNames.append(key.name)
 
-    return ScoopMesh.scoop_from_obj(get_current_bucket(),
+    if boneInfluences:
+        for i, mod in enumerate(obj.modifiers):
+            if mod.type == BLENDER_MODIFIER_ARMATURE:
+                if skinID == None:
+                    skinID = Skin.add_based_on_object((mod.object.name, mod.object.library), boneForceRestPose, boneBlacklist)
+                if depsGraph.mode == BLENDER_DEPSGRAPH_MODE_VIEWPORT:
+                    modifierReset.append(mod.show_viewport)
+                    mod.show_viewport = False
+                else:
+                    modifierReset.append(mod.show_render)
+                    mod.show_render = False
+            else:
+                modifierReset.append(None)
+                
+        depsGraph.update()
+        obj = bpy.data.objects.get(objName) # get the reference again in case it became invalid
+
+
+    meshID = ScoopMesh.scoop_from_obj(bucket,
     obj, 
     uvMaps=uvMapName,
     vertexColors=vcName,
     shapeKeys=skNames,
-    tangents=tangents
+    tangents=tangents,
+    skinID=skinID
     )
+
+    if boneInfluences:
+        for i, mod in enumerate(obj.modifiers):
+            if modifierReset[i] != None:
+                if depsGraph.mode == BLENDER_DEPSGRAPH_MODE_VIEWPORT:
+                    mod.show_viewport = modifierReset[i]
+                else:
+                    mod.show_render = modifierReset[i]
+        depsGraph.update()
+
+    return meshID, skinID
 
 def append_to_node(nodeID, meshID):
     node = get_current_bucket().data[BUCKET_DATA_NODES][nodeID]

@@ -2,13 +2,15 @@ import functools
 
 @functools.total_ordering
 class Compound:
-    def __init__(self, position, normal, tangent, uvPos, vColor, shapeKey):
+    def __init__(self, position, normal, tangent, uvPos, vColor, shapeKey, boneID, boneInfluence):
         self.position = position
         self.normal = normal
         self.tangent = tangent
         self.uv = uvPos
         self.color = vColor
         self.shapeKey = shapeKey
+        self.boneID = boneID
+        self.boneInfluence = boneInfluence
 
     def __lt__(a, b):
         return a.position < b.position
@@ -62,7 +64,7 @@ class ShapeKeyCompound:
         return True
 
 class Primitive:
-    def __init__(self, uvMapCount = 0, vertexColorCount = 0, shapeKeyCount = 0):
+    def __init__(self, uvMapCount = 0, vertexColorCount = 0, shapeKeyCount = 0, boneInfluenceDivisions = 0):
         self.positions = []
         self.normals = []
         self.tangents = []
@@ -71,5 +73,7 @@ class Primitive:
         self.uv = [[]] * uvMapCount
         self.vertexColor = [[]] * vertexColorCount
         self.shapeKey = [None] * shapeKeyCount
+        self.boneID = [[]] * boneInfluenceDivisions
+        self.boneInfluence = [[]] * boneInfluenceDivisions
         for i in range(shapeKeyCount):
             self.shapeKey[i] = ShapeKeyData([], [], [])

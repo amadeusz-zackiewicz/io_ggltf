@@ -6,7 +6,7 @@ from io_advanced_gltf2.Scoops.Mesh import ScoopMesh
 from io_advanced_gltf2.Core.Managers import Tracer
 
 def __obj_to_node(bucket,
-    tracker,
+    tracker=None,
     name = None,
     translation = None,
     rotation = None,
@@ -51,7 +51,8 @@ def __obj_to_node(bucket,
         print(f"Failed to get scale for object {name} defaulting to 1, 1, 1")
 
     if children != None:
-        node[NODE_CHILDREN] = children
+        if len(children) > 0:
+            node[NODE_CHILDREN] = children
 
     if mesh != None:
         node[NODE_MESH] = mesh
