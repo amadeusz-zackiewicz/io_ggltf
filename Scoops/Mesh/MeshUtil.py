@@ -8,6 +8,20 @@ from mathutils import Vector
 import numpy
 
 def decompose_into_indexed_triangles(mesh, vertexGroups, uvIDs, vColorIDs, shapeIDs, skinDefinition, maxInfluences):
+    """Decompose the mesh into primitives and remove any duplicate vertices based on the other arguments.
+
+    Args:
+        mesh (bpy.types.Mesh): Blender mesh data-block.
+        vertexGroups (bpy.types.VertexGroups): A collection of vertex groups, extracted from the object.
+        uvIDs (list of int): Indices of UV maps that will be added to the mesh.
+        vColorIDs (list of int): Indices of vertex colors that will be added to the mesh.
+        shapeIDs (list of int): Indices of shape keys that will be added to the mesh.
+        skinDefinition (dictionary): A dictionary that is used to determine bone indices and which vertex groups should be included
+        maxInfluences (int): Maximum number of influences, must be multiple of 4, any vertex with less then max influences will be padded with empty data, and any vertex with more then max will only contain highest influences and will be normalised
+
+    Returns:
+        list of io_advanced_gltf2.Scoops.Mesh.Types.Primitive
+    """
     
     if skinDefinition == None:
         maxInfluences = 0 # save memory in case influences is not set 0 already
@@ -131,7 +145,7 @@ def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
                 weight = group.weight(vertID)
             except:
                 weight = 0.0
-            boneInfo.append((skinDefinition[boneName], weight)) # numpy.sort uses last element to decide order, so put the weight as last
+            boneInfo.append((skinDefinition[boneName], weight)) # numpy.sort uses last element to decide order, put weight at the end
 
 
     if maxInfleunces > len(boneInfo):

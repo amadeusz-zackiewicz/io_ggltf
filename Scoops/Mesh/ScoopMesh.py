@@ -18,6 +18,21 @@ def scoop_from_obj(
     vertexColors = [],
     mode = MESH_TYPE_TRIANGLES
 ):
+    """_summary_
+
+    Args:
+        bucket (Bucket)
+        obj (bpt.types.Object): Blender object that holds the mesh data
+        tangents (bool, optional): Should the tangents data be included. Defaults to False.
+        uvMaps (list of string, optional): Names of UV maps to include. Defaults to [].
+        skinID (int, optional): Skin ID that will be used to get bone influences. Defaults to None.
+        shapeKeys (list of int, optional): Names of shape keys to include. Defaults to [].
+        vertexColors (list of int, optional): Names of vertex colors to include. Defaults to [].
+        mode (int, optional): How the data should be stored inside the glTF file, please be aware that some functionality is unavailable for some modes. Defaults to MESH_TYPE_TRIANGLES.
+
+    Returns:
+        _type_: _description_
+    """
     # TODO: make sure every mesh mode is supported, only triangles for now
     return Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences=4)
 
