@@ -19,17 +19,18 @@ class Compound:
         return a.position > b.position
 
     def __eq__(a, b):
-        for i in range(3):
+        for i in range(3): # compare position
             if a.position[i] != b.position[i]: return False
-        for i in range(3):
+        for i in range(3): # compare normals
             if a.normal[i] != b.normal[i]: return False
-        for i in range(len(a.uv)):
+        for i in range(len(a.uv)): # compare each uv
             if a.uv[i].x != b.uv[i].x or a.uv[i].y != b.uv[i].y: return False
-        for i in range(len(a.vColor)):
+        for i in range(len(a.vColor)): # compare each vertex color
             for vc_i in range(len(a.vColor)):
                 if a.vColor[i][vc_i] != b.vColor[i][vc_i]: return False
-        for i in range(len(a.shapeKey)):
+        for i in range(len(a.shapeKey)): # compare shape keys
             if a.shapeKey[i] != b.shapeKey[i]: return False
+        # TODO: tangents are missing
         return True
 
 class ShapeKeyData:
@@ -57,10 +58,11 @@ class ShapeKeyCompound:
         return a.position < b.position
 
     def __eq__(a, b):
-        for i in range(3):
+        for i in range(3): # compare positions
             if a.position[i] != b.position[i]: return False
-        for i in range(3):
+        for i in range(3): # compare normals
             if a.normal[i] != b.normal[i]: return False
+        # TODO: tangents and uv are missing
         return True
 
 class Primitive:

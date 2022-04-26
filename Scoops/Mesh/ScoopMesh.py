@@ -18,7 +18,7 @@ def scoop_from_obj(
     vertexColors = [],
     mode = MESH_TYPE_TRIANGLES
 ):
-    """_summary_
+    """Add mesh data using object's modifier stack
 
     Args:
         bucket (Bucket)
@@ -31,7 +31,7 @@ def scoop_from_obj(
         mode (int, optional): How the data should be stored inside the glTF file, please be aware that some functionality is unavailable for some modes. Defaults to MESH_TYPE_TRIANGLES.
 
     Returns:
-        _type_: _description_
+        _type_: Tuple containing index of the mesh and weights (None if shape keys are not added)
     """
     # TODO: make sure every mesh mode is supported, only triangles for now
     return Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences=4)
