@@ -13,6 +13,7 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, uvIDs, vColorI
     Args:
         mesh (bpy.types.Mesh): Blender mesh data-block.
         vertexGroups (bpy.types.VertexGroups): A collection of vertex groups, extracted from the object.
+        normals (boolean): Should normals data be included.
         uvIDs (list of int): Indices of UV maps that will be added to the mesh.
         vColorIDs (list of int): Indices of vertex colors that will be added to the mesh.
         shapeIDs (list of int): Indices of shape keys that will be added to the mesh.

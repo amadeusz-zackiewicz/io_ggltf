@@ -12,6 +12,7 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
     Args:
         bucket (Bucket)
         meshObj (bpy.types.Mesh): Evaluated Blender mesh data-block
+        normals (boolean): Should normals data be included.
         vertexGroups (bpy.types.VertexGroups): Vertex group extracted from the object that holds the mesh
         uvMaps (list of string): Names of UV maps that will be added to the mesh data.
         vertexColors (_type_): Names of vertex colors that will be added to the mesh data.
