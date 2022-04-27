@@ -67,7 +67,8 @@ def add_based_on_object(objName,
 
 
     meshID = ScoopMesh.scoop_from_obj(bucket,
-    obj, 
+    obj,
+    normals=normals,
     uvMaps=uvMapName,
     vertexColors=vcName,
     shapeKeys=skNames,

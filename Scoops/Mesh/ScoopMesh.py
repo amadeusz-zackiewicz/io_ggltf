@@ -11,6 +11,7 @@ from io_advanced_gltf2.Core.Bucket import Bucket
 def scoop_from_obj(
     bucket: Bucket,
     obj,
+    normals = False,
     tangents = False,
     uvMaps = [],
     skinID = None,
@@ -23,6 +24,7 @@ def scoop_from_obj(
     Args:
         bucket (Bucket)
         obj (bpt.types.Object): Blender object that holds the mesh data
+        normals (bool, optional): Should normals data be included. Defaults to False.
         tangents (bool, optional): Should the tangents data be included. Defaults to False.
         uvMaps (list of string, optional): Names of UV maps to include. Defaults to [].
         skinID (int, optional): Skin ID that will be used to get bone influences. Defaults to None.
@@ -34,7 +36,7 @@ def scoop_from_obj(
         _type_: Tuple containing index of the mesh and weights (None if shape keys are not added)
     """
     # TODO: make sure every mesh mode is supported, only triangles for now
-    return Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences=4)
+    return Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, normals, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences=4)
 
 def scoop_base_mesh(
     bucket,

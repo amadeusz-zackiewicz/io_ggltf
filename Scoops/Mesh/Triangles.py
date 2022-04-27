@@ -6,7 +6,7 @@ from io_advanced_gltf2.Scoops.Mesh import MeshUtil
 from io_advanced_gltf2.Core.Bucket import Bucket
 from mathutils import Vector
 
-def scoop_indexed(bucket: Bucket, meshObj, vertexGroups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences = 4):
+def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences = 4):
     """_summary_
 
     Args:
@@ -74,7 +74,7 @@ def scoop_indexed(bucket: Bucket, meshObj, vertexGroups, uvMaps, vertexColors, s
 
     # get the skin definition (a dictionary of [BoneName : NodeID])
     skinDef = None if skinID == None else bucket.skinDefinition[skinID] 
-    primitives = MeshUtil.decompose_into_indexed_triangles(meshObj, vertexGroups, uvIDs, vColorIDs, shapeKeyIDs, skinDef, maxInfluences)
+    primitives = MeshUtil.decompose_into_indexed_triangles(meshObj, vertexGroups, normals, uvIDs, vColorIDs, shapeKeyIDs, skinDef, maxInfluences)
 
     # prepare the dictionary object
     meshDict = {
@@ -91,14 +91,17 @@ def scoop_indexed(bucket: Bucket, meshObj, vertexGroups, uvMaps, vertexColors, s
             }
 
         positionsAccessor = MeshUtil.get_accessor_positions(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, p.positions)
-        normalsAccessor = MeshUtil.get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, p.normals) # TODO: normals should be optional
         indicesAccessor = MeshUtil.get_accessor_indices(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, p.indices)
+        
+        if normals:
+            normalsAccessor = MeshUtil.get_accessor_normals(bucket, originalName, depsID, MESH_TYPE_TRIANGLES, i, p.normals)
+        else:
+            normalsAccessor = None
 
         primitiveDict[MESH_PRIMITIVE_INDICES] = indicesAccessor
-        primitiveDict[MESH_PRIMITIVE_ATTRIBUTES] = {
-            MESH_ATTRIBUTE_STR_POSITION: positionsAccessor,
-            MESH_ATTRIBUTE_STR_NORMAL: normalsAccessor,
-        }
+        primitiveDict[MESH_PRIMITIVE_ATTRIBUTES] = { MESH_ATTRIBUTE_STR_POSITION: positionsAccessor }
+        if normals:
+            primitiveDict[MESH_PRIMITIVE_ATTRIBUTES][MESH_ATTRIBUTE_STR_NORMAL] = normalsAccessor
 
         # bone influence data
         if skinID != None: 

@@ -7,7 +7,7 @@ from bpy_extras import mesh_utils
 from mathutils import Vector
 import numpy
 
-def decompose_into_indexed_triangles(mesh, vertexGroups, uvIDs, vColorIDs, shapeIDs, skinDefinition, maxInfluences):
+def decompose_into_indexed_triangles(mesh, vertexGroups, normals, uvIDs, vColorIDs, shapeIDs, skinDefinition, maxInfluences):
     """Decompose the mesh into primitives and remove any duplicate vertices based on the other arguments.
 
     Args:
@@ -28,7 +28,9 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, uvIDs, vColorIDs, shape
 
     influenceDivisions = int(maxInfluences / 4)
 
-    mesh.calc_normals_split()
+    if normals:
+        mesh.calc_normals_split()
+        
     mesh.calc_loop_triangles()
     triangles = mesh.loop_triangles
 
@@ -68,7 +70,7 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, uvIDs, vColorIDs, shape
 
     for i_loop, loop in enumerate(loops):
         position = Util.location_ensure_coord_space(vertices[loop.vertex_index].co)
-        normal = Util.direction_ensure_coord_space(loop.normal)
+        normal = Util.direction_ensure_coord_space(loop.normal) if normals else Vector((0.0, 0.0, 0.0))
         boneID, boneInflu = get_vertex_bone_info(loop.vertex_index, vertexGroups, skinDefinition, maxInfluences)
         uv = [None] * len(uvLoops)
         vColor = [None] * len(vcLoops)
