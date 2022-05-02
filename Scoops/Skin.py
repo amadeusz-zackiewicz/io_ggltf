@@ -1,135 +1,157 @@
+from ctypes import util
+import enum
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Util
 from io_advanced_gltf2.Scoops import Node
-from mathutils import Matrix
+from mathutils import Matrix, Vector
 from io_advanced_gltf2.Core.Bucket import Bucket
 from io_advanced_gltf2.Core.Managers import AccessorManager
 
+class Joint:
+    def __init__(self):
+        self.name = ""
+        self.blenderBone = None
+        self.children = []
+        self.parent = None
+        self.localMatrix = None
+        self.worldMatrix = None
+        self.inverseBind = None
+        self.nodeID = -1
+        self.jointID = -1
+
 def scoop_skin(bucket: Bucket, obj, getInversedBinds = False, blacklist = set()):
-
     bones = obj.pose.bones
-    nameToID = {}
+    skinDefinition = {}
+    jointTree = []
     rootBones = []
-    includeBone = [True] * len(bones)
-    calculatedMatrices = []
-    inversedBinds = []
+    rootNodes = []
+    nodeIDs = []
+    skeleton = []
+    joints = []
 
-    # find root bone IDs and create dictionary to get bone indices by name
+    skinDict = {}
+
     for i, b in enumerate(bones):
-        nameToID[b.name] = i
+        skinDefinition[b.name] = i
         if not b.parent:
             rootBones.append(i)
 
-    # mark bones for exclusion based on blacklist and hierarchy
-    for boneID in rootBones:
-        __recursive_get_exclusions(bones[boneID], includeBone, nameToID, blacklist)
+    for root in rootBones:
+        __get_joint_hierarchy(bones[root], None, blacklist, jointTree, obj.matrix_world)
 
-    for i, b in enumerate(bones):
-        if includeBone[i]:
-            matrix = None
-            if b.parent:
-                correction_matrix = b.parent.bone.matrix_local.inverted_safe() @ b.bone.matrix_local
-                matrix_basis = b.parent.bone.matrix_local.inverted_safe() @ b.bone.matrix_local
-                matrix_basis = matrix_basis.inverted_safe() @ b.parent.matrix.inverted_safe() @ b.matrix
-                matrix = correction_matrix @ matrix_basis
-            else:
-                correction_matrix = Util.get_basis_matrix_conversion() @ b.bone.matrix_local
-                matrix_basis = b.matrix
-                matrix_basis = obj.convert_space(pose_bone=b, matrix=matrix_basis, from_space="POSE", to_space="LOCAL")
-                matrix = correction_matrix @ matrix_basis
+    for rootJoint in jointTree:
+        __calculate_local_matrices(rootJoint, obj.matrix_world.inverted_safe())
+        __joint_hierarchy_to_nodes(bucket, rootJoint, nodeIDs)
+        __get_joint_list(rootJoint, joints)
+        __get_joint_dictionary(rootJoint, skinDefinition)
+        rootNodes.append(rootJoint.nodeID)
+        skeleton.append(rootJoint.jointID)
 
-            calculatedMatrices.append(matrix)
-            inversedBinds.append(Util.matrix_ensure_coord_space(b.bone.matrix_local.inverted_safe()))
-        else:
-            calculatedMatrices.append(None)
-            inversedBinds.append(None)
+    skinDict[SKIN_JOINTS] = joints
 
-    rootNodes, allNodes, skinDefinition = __bones_to_nodes(bucket, bones, rootBones, includeBone, nameToID, calculatedMatrices)
-    
-    skinDict = {SKIN_JOINTS: allNodes}
-
-    if len(rootNodes) == 1:
-        skinDict[SKIN_SKELETON] = rootNodes[0]
+    if len(skeleton) == 1:
+        skinDict[SKIN_SKELETON] = skeleton[0]
 
     if getInversedBinds:
-        for i in range(len(inversedBinds), 0, -1):
-            if inversedBinds[i] == None:
-                inversedBinds.pop(i)
+        inversedBinds = []
+        for rootJoint in jointTree:
+            __calculate_inverse_binds(rootJoint, obj.matrix_world)
+            __inverse_binds_to_list(rootJoint, inversedBinds)
 
-        iBindID = AccessorManager.add_accessor(bucket,
+        skinDict[SKIN_INVERSE_BIND_MATRICES] = AccessorManager.add_accessor(bucket,
         componentType=ACCESSOR_COMPONENT_TYPE_FLOAT,
         type=ACCESSOR_TYPE_MATRIX_4,
         packingFormat=PACKING_FORMAT_FLOAT,
         data=inversedBinds,
-        name=obj.name + "-Skin-Inverse-Binds" # TODO: remove after testing is finished
+        name=obj.name + "-Skin-Inverse-Binds", # TODO: remove after testing is finished
+        tracker=obj.name + "-Skin-Inverse-Binds"
         )
-
-        skinDict[SKIN_INVERSE_BIND_MATRICES] = iBindID
 
     skinID = len(bucket.data[BUCKET_DATA_SKINS])
     bucket.data[BUCKET_DATA_SKINS].append(skinDict)
     bucket.skinDefinition.append(skinDefinition)
 
-    return skinID
+    return skinID, rootNodes
 
-def __bones_to_nodes(bucket, bones, rootBonesID, includeBone, nameToID, calculatedMatrices):
-    nodeIDs = []
-    rootNodeIDs = []
-    definition = {} # a dictionary of name : bone index, this is for mesh bone influences
+def __get_joint_hierarchy(bone, parentJoint, blacklist, jointTree, objWorldMatrix):
+    if bone.name in blacklist:
+        return
 
-    for rootBoneID in rootBonesID:
-        if includeBone[rootBoneID]:
-            nodeID, childrenIDs, childDefinitions = __recursive_bones_to_nodes(bucket, rootBoneID, bones, includeBone, nameToID, calculatedMatrices)
-            if nodeID != None:
-                rootNodeIDs.append(nodeID)
-            nodeIDs.extend(childrenIDs)
-            for key in childDefinitions:
-                definition[key] = childDefinitions[key]
-
-    return (rootNodeIDs, nodeIDs, definition)
-            
-
-def __recursive_bones_to_nodes(bucket, boneID, bones, includeBone, nameToID, calculatedMatrices):
-    nodeIDs = []
-    definition = {}
-    nodeChildren = []
-
-    bone = bones[boneID]
+    joint = Joint()
+    joint.name = bone.name
+    joint.blenderBone = bone
+    joint.worldMatrix = Util.matrix_ensure_coord_space(objWorldMatrix @ bone.matrix)
 
     for c in bone.children:
-        childID = nameToID[c.name]
-        if includeBone[childID]:
-            childNodeID, childNodeIDs, childrenDef = __recursive_bones_to_nodes(bucket, childID, bones, includeBone, nameToID, calculatedMatrices)
-            if childNodeID != None:
-                nodeChildren.append(childNodeID)
-            nodeIDs.extend(childNodeIDs)
-            for ck in childrenDef.keys():
-                definition[ck] = childrenDef[ck]
+        cJoint = __get_joint_hierarchy(c, parentJoint, blacklist, jointTree, objWorldMatrix)
+        if cJoint != None:
+            joint.children.append(cJoint)
 
-    nodeID = __bone_to_node(bucket, bone, calculatedMatrices[boneID], nodeChildren)
+    # root joint
+    if parentJoint == None:
+        jointTree.append(joint)
+    else:
+        joint.parent = parentJoint
 
-    definition[bone.name] = len(nodeIDs)
-    nodeIDs.append(nodeID)
+def __calculate_local_matrices(joint: Joint, objectWorldMatrixInverse):
+    if joint.parent == None:
+        joint.localMatrix = objectWorldMatrixInverse @ joint.worldMatrix
+    else:
+        joint.localMatrix = joint.parent.inversed_safe() @ joint.worldMatrix
+    for c in joint.children:
+        __calculate_local_matrices(c, objectWorldMatrixInverse)
 
-    return nodeID, nodeIDs,definition
+def __joint_hierarchy_to_nodes(bucket, joint: Joint, nodeIDs):
+    children = []
+    for c in joint.children:
+        childNodeID = __joint_hierarchy_to_nodes(c)
+        nodeIDs.append(childNodeID)
 
-def __bone_to_node(bucket, bone, matrix, children):
-
-    loc, rot, sc = matrix.decompose()
-    return Node.__obj_to_node(bucket, name=bone.name, 
+    loc, rot, sc = joint.localMatrix.decompose()
+    nodeID = Node.__obj_to_node(bucket, 
+    name=joint.name, 
     translation=loc, 
     rotation=rot, 
     scale=sc,
     children=children)
 
-def __recursive_get_exclusions(bone, includeBone, nameToID, blacklist):
-    boneID = nameToID[bone.name]
+    joint.nodeID = nodeID
+    nodeIDs.append(nodeID)
+    return nodeID
+    
+def __get_joint_dictionary(joint: Joint, nameToID: dict):
+    for c in joint.children:
+        __get_joint_dictionary(c, nameToID)
 
-    if bone.parent:
-        if not includeBone[nameToID[bone.parent.name]]:
-            includeBone[boneID] = False
-    if bone.name in blacklist:
-        includeBone[boneID] = False
+    nameToID[joint.name] = joint.jointID
 
-    for c in bone.children:
-        __recursive_get_exclusions(c, includeBone, nameToID, blacklist)
+def __get_joint_list(joint: Joint, joints):
+    for c in joint.children:
+        __get_joint_list(c, joints)
+
+    joint.jointID = len(joints)
+    joints.append(joint.nodeID)
+
+def __calculate_inverse_binds(joint: Joint, objWorldMatrix):
+    for c in joint.children:
+        __calculate_inverse_binds(c)
+
+    joint.inverseBind = Util.matrix_ensure_coord_space(objWorldMatrix @ joint.blenderBone.bone.matrix_local).inverted_safe()
+    # I spend 3 days trying to figure out what I'm doing wrong and gave up
+    # I have absolutely no idea why I have to do this
+    # I even tried copying code from the official blender exporter and it still produced wrong results
+    # Maybe I missed something
+    # so it is what it is
+    joint.inverseBind[3][0] = joint.inverseBind[0][3]
+    joint.inverseBind[3][1] = joint.inverseBind[1][3]
+    joint.inverseBind[3][2] = joint.inverseBind[2][3]
+
+    joint.inverseBind[0][3] = 0.0
+    joint.inverseBind[1][3] = 0.0
+    joint.inverseBind[2][3] = 0.0
+
+def __inverse_binds_to_list(joint: Joint, binds):
+    for c in joint.children:
+        __inverse_binds_to_list(c, binds)
+
+    binds.append(joint.inverseBind)
