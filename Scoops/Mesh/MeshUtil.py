@@ -148,27 +148,32 @@ def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
                 weight = group.weight(vertID)
             except:
                 weight = 0.0
-            boneInfo.append((skinDefinition[boneName], weight)) # numpy.sort uses last element to decide order, put weight at the end
+            boneInfo.append((skinDefinition[boneName], weight))
 
 
     if maxInfleunces > len(boneInfo):
         for _ in range(len(boneInfo), maxInfleunces):
-            boneInfo.append(0, 0.0) # insert empty data if there isn't enough to match the influence count
+            boneInfo.append((0, 0.0)) # insert empty data if there isn't enough to match the influence count
+
+    boneInfo.sort(key=lambda k: k[1], reverse=True) # sort by weight, highest -> lowest
 
     if len(boneInfo) > maxInfleunces:
-        boneInfo = numpy.sort(boneInfo) 
         boneInfo = boneInfo[:maxInfleunces - 1] # slice the list
-
-    print(boneInfo)
 
     boneID = []
     boneInflu = []
     for bf in boneInfo:
-        boneID.append(bf[0])
-        boneInflu.append(bf[1])
+        if bf[1] == 0.0:
+            boneID.append(0)
+            boneInflu.append(0.0)
+        else:
+            boneID.append(bf[0])
+            boneInflu.append(bf[1])
 
-    normalizer = numpy.linalg.norm(boneInflu)
-    boneInflu = boneInflu / normalizer
+    normalizer = sum(boneInflu)
+    normalizer = 1.0 / normalizer
+    for i, b in enumerate(boneInflu):
+        boneInflu[i] = b * normalizer
 
     return boneID, boneInflu
 
