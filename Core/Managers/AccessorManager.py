@@ -46,13 +46,6 @@ def add_accessor(bucket, componentType, type, packingFormat, data: list,
 
     return accessorID
 
-    
-
-
-def __pack_vector_elements(bytes, obj, format):
-    for f in obj:
-        bytes += struct.pack(format, f)
-
 def __vector_into_bytearray(format, data: list):
     scalar = []
 
@@ -63,9 +56,19 @@ def __vector_into_bytearray(format, data: list):
     return __scalar_into_bytearray(format, scalar)
 
 
-def __matrix_into_bytearray(data: list):
-    raise Exception("matrix accessor not yet supported")
-    pass
+def __matrix_into_bytearray(format, data: list):
+
+    rowSize = len(data[0].row[0])
+    colSize = len(data[0].col[0])
+
+    scalar = []
+
+    for m in data:
+        for r in range(rowSize):
+            for c in range(colSize):
+                scalar.append(m[r][c])
+
+    return __scalar_into_bytearray(format, scalar)
 
 def __scalar_into_bytearray(format, data: list):
     size = struct.calcsize(format)
