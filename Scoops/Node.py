@@ -2,7 +2,7 @@ import bpy
 from mathutils import Quaternion, Vector
 from io_advanced_gltf2.Core import Util
 from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Scoops.Mesh import ScoopMesh
+from io_advanced_gltf2.Simple import Mesh
 from io_advanced_gltf2.Core.Managers import Tracer
 
 def __obj_to_node(bucket,
@@ -34,21 +34,12 @@ def __obj_to_node(bucket,
 
     if translation != None:
         node[NODE_TRANSLATION] = Util.bl_math_to_gltf_list(translation)
-    else:
-        node[NODE_TRANSLATION] = [0.0, 0.0, 0.0]
-        print(f"Failed to get location for object {name} defaulting to 0, 0, 0")
 
     if rotation != None:
         node[NODE_ROTATION] = Util.bl_math_to_gltf_list(rotation)
-    else:
-        node[NODE_ROTATION] = Util.bl_math_to_gltf_list(Util.rotation_ensure_coord_space(bucket, Quaternion.identity()))
-        print(f"Failed to get rotation for object {name} defaulting to 0, 0, 0")
 
     if scale != None:
         node[NODE_SCALE] = Util.bl_math_to_gltf_list(scale)
-    else:
-        node[NODE_SCALE] = [1.0, 1.0, 1.0]
-        print(f"Failed to get scale for object {name} defaulting to 1, 1, 1")
 
     if children != None:
         if len(children) > 0:
@@ -152,7 +143,6 @@ def scoop_object(bucket, obj, includeData, localSpace = False):
 
 def __include_data(bucket, obj):
     mesh = None
-    skin = None
     weights = None
 
     if obj.type in BLENDER_MESH_CONVERTIBLE:
@@ -175,6 +165,6 @@ def __include_data(bucket, obj):
                             if key.name != "Basis":
                                 sk.append(key.name)
 
-                mesh = ScoopMesh.scoop_from_obj(bucket, obj, tangents=tangents, uvMaps=uvs, skin=skin, shapeKeys=sk, vertexColors=vColors)
+                mesh, skin, weights = Mesh.add_based_on_object((obj.name, obj.library),tangents=tangents, uvMaps=uvs, skin=skin, shapeKeys=sk, vertexColors=vColors)
     
     return (mesh, skin, weights)

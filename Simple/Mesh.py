@@ -12,6 +12,7 @@ def add_based_on_object(objName,
     vertexColors = False, 
     boneInfluences = False,
     boneForceRestPose = False,
+    boneGetInverseBinds = False,
     boneBlacklist = [],
     shapeKeys = False,
     shapeKeyNormals = False,
@@ -52,7 +53,7 @@ def add_based_on_object(objName,
         for i, mod in enumerate(obj.modifiers):
             if mod.type == BLENDER_MODIFIER_ARMATURE:
                 if skinID == None:
-                    skinID = Skin.add_based_on_object((mod.object.name, mod.object.library), boneForceRestPose, boneBlacklist)
+                    skinID = Skin.add_based_on_object((mod.object.name, mod.object.library), boneGetInverseBinds, boneForceRestPose, boneBlacklist)
                 if depsGraph.mode == BLENDER_DEPSGRAPH_MODE_VIEWPORT:
                     modifierReset.append(mod.show_viewport)
                     mod.show_viewport = False
@@ -66,7 +67,7 @@ def add_based_on_object(objName,
         obj = bpy.data.objects.get(objName) # get the reference again in case it became invalid
 
 
-    meshID = ScoopMesh.scoop_from_obj(bucket,
+    meshID, weights = ScoopMesh.scoop_from_obj(bucket,
     obj,
     normals=normals,
     uvMaps=uvMapName,
@@ -85,7 +86,7 @@ def add_based_on_object(objName,
                     mod.show_render = modifierReset[i]
         depsGraph.update()
 
-    return meshID, skinID
+    return (meshID, skinID, weights)
 
 def append_to_node(nodeID, meshID):
     node = get_current_bucket().data[BUCKET_DATA_NODES][nodeID]

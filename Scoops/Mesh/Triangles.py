@@ -134,7 +134,6 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
         for i_sk, skID in enumerate(shapeKeyIDs):
             morph = {}
             morphName = originalName + "//" + meshObj.shape_keys.key_blocks[skID].name
-            print(__file__, "79 --", len(meshObj.loops), len(p.shapeKey[i_sk].positions))
             skPosAccessor = MeshUtil.get_accessor_positions(bucket, morphName, depsID, MESH_TYPE_TRIANGLES, i, p.shapeKey[i_sk].positions)
             skNmAccessor = MeshUtil.get_accessor_normals(bucket, morphName, depsID, MESH_TYPE_TRIANGLES, i, p.shapeKey[i_sk].normals)
             morph[MESH_ATTRIBUTE_STR_POSITION] = skPosAccessor
@@ -146,13 +145,14 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
 
         meshDict[MESH_PRIMITIVES].append(primitiveDict)
 
+    weights = None
     if len(shapeKeyIDs) > 0:
         weights = [0.0] * len(shapeKeyIDs)
 
         #for i_sk, skID in enumerate(shapeKeyIDs):
             #weights[i_sk] = meshObj.shape_keys.key_blocks[skID].value # TODO: add setting to decide if weights should be zero or same as in blender
 
-        meshDict[MESH_WEIGHTS] = weights
+        #meshDict[MESH_WEIGHTS] = weights
 
     
 
@@ -161,4 +161,4 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
     bucket.data[BUCKET_DATA_MESHES].append(meshDict)
     bucket.trackers[BUCKET_TRACKER_MESHES][tracker] = meshID
 
-    return (meshID, None, None) # TODO: the return info should be just meshID and weights, update everything upwards
+    return (meshID, weights)
