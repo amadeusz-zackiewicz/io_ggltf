@@ -83,9 +83,9 @@ def __scoop_hierarchy(bucket, obj, includeData, blacklist = [], localSpace = Fal
     loc, rot, sc = m.decompose()
 
     # auto conversion to Y up if required
-    loc = Util.location_ensure_coord_space(loc)
-    rot = Util.rotation_ensure_coord_space(rot)
-    sc = Util.scale_ensure_coord_space(sc)
+    loc = Util.y_up_location(loc)
+    rot = Util.y_up_rotation(rot)
+    sc = Util.y_up_scale(sc)
 
     mesh = None
     skin = None
@@ -117,9 +117,9 @@ def scoop_object(bucket, obj, includeData, localSpace = False):
     m = obj.matrix_local if localSpace else obj.matrix_world
     loc, rot, sc = m.decompose()
 
-    loc = Util.location_ensure_coord_space(loc)
-    rot = Util.rotation_ensure_coord_space(rot)
-    sc = Util.scale_ensure_coord_space(sc)
+    loc = Util.y_up_location(loc)
+    rot = Util.y_up_rotation(rot)
+    sc = Util.y_up_scale(sc)
 
     mesh = None
     skin = None

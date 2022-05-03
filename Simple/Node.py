@@ -7,9 +7,9 @@ import bpy
 def make_new(name: str, position, rotation, scale, convertToYup = False):
     bucket = get_current_bucket()
     if convertToYup:
-        position = Util.location_ensure_coord_space(position)
-        rotation = Util.rotation_ensure_coord_space(rotation)
-        scale = Util.scale_ensure_coord_space(scale)
+        position = Util.y_up_location(position)
+        rotation = Util.y_up_rotation(rotation)
+        scale = Util.y_up_scale(scale)
 
     node = {
         NODE_NAME: name,

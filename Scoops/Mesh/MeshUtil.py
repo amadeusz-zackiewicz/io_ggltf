@@ -60,24 +60,24 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, uvIDs, vColorI
         vcLoops.append(mesh.vertex_colors[vColorID].data)
     for shapeID in shapeIDs:
         skPositions = [] 
-        for skp in mesh.shape_keys.key_blocks[shapeID].data: skPositions.append(Util.location_ensure_coord_space(skp.co))
+        for skp in mesh.shape_keys.key_blocks[shapeID].data: skPositions.append(Util.y_up_location(skp.co))
         skRawNormals = []
         for nm in mesh.shape_keys.key_blocks[shapeID].normals_split_get(): skRawNormals.append(nm)
         skNormals = []
         for i in range(0, len(skRawNormals), 3): # for some reason shape key normals get returned as a raw list instead of vectors
-            skNormals.append(Util.direction_ensure_coord_space(Vector((skRawNormals[i], skRawNormals[i + 1], skRawNormals[i + 2]))))
+            skNormals.append(Util.y_up_direction(Vector((skRawNormals[i], skRawNormals[i + 1], skRawNormals[i + 2]))))
 
         skData.append(ShapeKeyData(skPositions, skNormals, None))
 
     for i_loop, loop in enumerate(loops):
-        position = Util.location_ensure_coord_space(vertices[loop.vertex_index].co)
-        normal = Util.direction_ensure_coord_space(loop.normal) if normals else Vector((0.0, 0.0, 0.0))
+        position = Util.y_up_location(vertices[loop.vertex_index].co)
+        normal = Util.y_up_direction(loop.normal) if normals else Vector((0.0, 0.0, 0.0))
         boneID, boneInflu = get_vertex_bone_info(loop.vertex_index, vertexGroups, skinDefinition, maxInfluences)
         uv = [None] * len(uvLoops)
         vColor = [None] * len(vcLoops)
         shapeKey = [None] * len(shapeIDs)
         for i in range(len(uv)):
-            uv[i] = Util.uv_ensure_coord_space(uvLoops[uvIDs[i]][i_loop].uv)
+            uv[i] = Util.correct_uv(uvLoops[uvIDs[i]][i_loop].uv)
         for i in range(len(vColor)):
             vColor[i] = vcLoops[vColorIDs[i]][i_loop].color
         for i in range(len(shapeKey)):

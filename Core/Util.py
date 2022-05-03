@@ -2,25 +2,25 @@ from io_advanced_gltf2.Keywords import *
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
 
-def matrix_ensure_coord_space(org_mat : Matrix) -> Matrix:
+def y_up_matrix(org_mat : Matrix) -> Matrix:
     return get_basis_matrix_conversion() @ org_mat
 
-def location_ensure_coord_space(org_loc : Vector) -> Vector:
+def y_up_location(org_loc : Vector) -> Vector:
     return Vector((org_loc[0], org_loc[2], -org_loc[1]))
 
 
-def rotation_ensure_coord_space(org_rot : Quaternion) -> Quaternion:
+def y_up_rotation(org_rot : Quaternion) -> Quaternion:
     return Quaternion((org_rot[0], org_rot[1], org_rot[3], -org_rot[2]))
 
 
-def scale_ensure_coord_space(org_scl : Vector) -> Vector:
+def y_up_scale(org_scl : Vector) -> Vector:
     return Vector((org_scl[0], org_scl[2], org_scl[1]))
 
 
-def direction_ensure_coord_space(org_dir: Vector) -> Vector:
+def y_up_direction(org_dir: Vector) -> Vector:
     return Vector((org_dir[0], org_dir[2], -org_dir[1]))
 
-def uv_ensure_coord_space(org_uv: Vector) -> Vector:
+def correct_uv(org_uv: Vector) -> Vector:
     org_uv[1] = 1 - org_uv[1]
     return org_uv
 

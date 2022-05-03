@@ -80,7 +80,7 @@ def __get_joint_hierarchy(bone, parentJoint, blacklist, jointTree, objWorldMatri
     joint = Joint()
     joint.name = bone.name
     joint.blenderBone = bone
-    joint.worldMatrix = Util.matrix_ensure_coord_space(objWorldMatrix @ bone.matrix)
+    joint.worldMatrix = Util.y_up_matrix(objWorldMatrix @ bone.matrix)
 
     for c in bone.children:
         cJoint = __get_joint_hierarchy(c, parentJoint, blacklist, jointTree, objWorldMatrix)
@@ -136,7 +136,7 @@ def __calculate_inverse_binds(joint: Joint, objWorldMatrix):
     for c in joint.children:
         __calculate_inverse_binds(c)
 
-    joint.inverseBind = Util.matrix_ensure_coord_space(objWorldMatrix @ joint.blenderBone.bone.matrix_local).inverted_safe()
+    joint.inverseBind = Util.y_up_matrix(objWorldMatrix @ joint.blenderBone.bone.matrix_local).inverted_safe()
     # I spend 3 days trying to figure out what I'm doing wrong and gave up
     # I have absolutely no idea why I have to do this
     # I even tried copying code from the official blender exporter and it still produced wrong results
