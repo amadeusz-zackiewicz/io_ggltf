@@ -63,8 +63,7 @@ def scoop_skin(bucket: Bucket, obj, getInversedBinds = False, blacklist = set())
         type=ACCESSOR_TYPE_MATRIX_4,
         packingFormat=PACKING_FORMAT_FLOAT,
         data=inversedBinds,
-        name=obj.name + "-Skin-Inverse-Binds", # TODO: remove after testing is finished
-        tracker=obj.name + "-Skin-Inverse-Binds"
+        name=obj.name + "-Skin-Inverse-Binds" # TODO: remove after testing is finished
         )
 
     skinID = len(bucket.data[BUCKET_DATA_SKINS])
