@@ -35,9 +35,11 @@ def add_object_hierarchy(objName, includeData = True, useLocalSpace = False, bla
 
     obj = bpy.data.objects.get(objName)
     if obj != None:
-        Node.scoop_hierarchy(get_current_bucket(), 
+        return Node.scoop_hierarchy(get_current_bucket(), 
         obj, 
         includeData=includeData,
         useLocalSpace=useLocalSpace, 
         blacklist=blacklist
         )
+    else:
+        return None

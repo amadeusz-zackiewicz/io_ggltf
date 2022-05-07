@@ -62,7 +62,7 @@ def __obj_to_node(bucket,
 
 
 def scoop_hierarchy(bucket, obj, includeData, useLocalSpace, blacklist = []):
-        __scoop_hierarchy(bucket, obj, includeData=includeData, localSpace=useLocalSpace, blacklist=blacklist)
+        return __scoop_hierarchy(bucket, obj, includeData=includeData, localSpace=useLocalSpace, blacklist=blacklist)
 
 
 def __scoop_hierarchy(bucket, obj, includeData, blacklist = [], localSpace = False) -> int:
@@ -143,28 +143,26 @@ def scoop_object(bucket, obj, includeData, localSpace = False):
 
 def __include_data(bucket, obj):
     mesh = None
+    skin = None
     weights = None
 
     if obj.type in BLENDER_MESH_CONVERTIBLE:
             if obj.type == BLENDER_TYPE_MESH:
                 normals = bucket.settings[BUCKET_SETTING_MESH_GET_NORMALS]
                 tangents = bucket.settings[BUCKET_SETTING_MESH_GET_TANGENTS]
-                skin = bucket.settings[BUCKET_SETTING_MESH_GET_SKIN]
-                uvs = []
-                vColors = []
-                sk = []
-                if bucket.settings[BUCKET_SETTING_MESH_GET_UVS]:
-                    for uv in obj.data.uv_layers:
-                        if uv.active_render:
-                            uvs.append(uv.name)
-                if bucket.settings[BUCKET_SETTING_MESH_GET_VERTEX_COLORS]:
-                    vColors.append(obj.data.vertex_colors.active.name)
-                if bucket.settings[BUCKET_SETTING_MESH_GET_SHAPE_KEYS]:
-                    for key in obj.data.shape_keys.key_blocks:
-                        if not key.mute:
-                            if key.name != "Basis":
-                                sk.append(key.name)
+                getSkin = bucket.settings[BUCKET_SETTING_MESH_GET_SKIN]
+                uvs = bucket.settings[BUCKET_SETTING_MESH_GET_UVS]
+                vColors = bucket.settings[BUCKET_SETTING_MESH_GET_VERTEX_COLORS]
+                sk = bucket.settings[BUCKET_SETTING_MESH_GET_SHAPE_KEYS]
+                
 
-                mesh, skin, weights = Mesh.add_based_on_object((obj.name, obj.library),tangents=tangents, uvMaps=uvs, skin=skin, shapeKeys=sk, vertexColors=vColors)
+                mesh, skin, weights = Mesh.add_based_on_object((obj.name, obj.library),
+                normals=normals,
+                tangents=tangents, 
+                uv=uvs, 
+                boneInfluences=getSkin,
+                boneGetInverseBinds=getSkin,
+                shapeKeys=sk, 
+                vertexColors=vColors)
     
     return (mesh, skin, weights)
