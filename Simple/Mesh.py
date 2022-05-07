@@ -91,3 +91,15 @@ def add_based_on_object(objName,
 def append_to_node(nodeID, meshID):
     node = get_current_bucket().data[BUCKET_DATA_NODES][nodeID]
     node[NODE_MESH] = meshID
+
+def append_to_node_hierarchy(nodeID, meshID, blacklist = []):
+
+    node = get_current_bucket().data[BUCKET_DATA_NODES][nodeID]
+
+    if node[NODE_NAME] in blacklist:
+        return
+
+    node[NODE_MESH] = meshID
+    if NODE_CHILDREN in node.keys():
+        for cID in node[NODE_CHILDREN]:
+            append_to_node_hierarchy(cID, meshID, blacklist)
