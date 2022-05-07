@@ -33,7 +33,7 @@ def scoop_from_obj(
         mode (int, optional): How the data should be stored inside the glTF file, please be aware that some functionality is unavailable for some modes. Defaults to MESH_TYPE_TRIANGLES.
 
     Returns:
-        _type_: Tuple containing index of the mesh and weights (None if shape keys are not added)
+        tuple: Tuple containing index of the mesh and weights (None if shape keys are not included)
     """
     # TODO: make sure every mesh mode is supported, only triangles for now
     return Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, normals, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences=4)

@@ -7,7 +7,7 @@ from bpy_extras import mesh_utils
 from mathutils import Vector
 import numpy
 
-def decompose_into_indexed_triangles(mesh, vertexGroups, normals, uvIDs, vColorIDs, shapeIDs, skinDefinition, maxInfluences):
+def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvIDs, vColorIDs, shapeIDs, skinDefinition, maxInfluences):
     """Decompose the mesh into primitives and remove any duplicate vertices based on the other arguments.
 
     Args:
@@ -31,6 +31,9 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, uvIDs, vColorI
 
     if normals:
         mesh.calc_normals_split()
+
+    if tangents:
+        mesh.calc_tangents()
         
     mesh.calc_loop_triangles()
     triangles = mesh.loop_triangles
@@ -72,6 +75,11 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, uvIDs, vColorI
     for i_loop, loop in enumerate(loops):
         position = Util.y_up_location(vertices[loop.vertex_index].co)
         normal = Util.y_up_direction(loop.normal) if normals else Vector((0.0, 0.0, 0.0))
+        if tangents:
+            tangent = Util.y_up_direction(loop.tangent)
+            tangent = Vector((tangent[0], tangent[1], tangent[2], loop.bitangent_sign))
+        else:
+            tangent = Vector((0.0, 0.0, 0.0, 0.0))
         boneID, boneInflu = get_vertex_bone_info(loop.vertex_index, vertexGroups, skinDefinition, maxInfluences)
         uv = [None] * len(uvLoops)
         vColor = [None] * len(vcLoops)
@@ -84,7 +92,7 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, uvIDs, vColorI
             nm = skData[i].normals[i_loop]
             pos = skData[i].positions[loop.vertex_index]
             shapeKey[i] = ShapeKeyCompound(pos, nm, None)
-        compounds.append(Compound(position, normal, None, uv, vColor, shapeKey, boneID, boneInflu))
+        compounds.append(Compound(position, normal, tangent, uv, vColor, shapeKey, boneID, boneInflu))
 
     del uvLoops
     del vcLoops
@@ -113,6 +121,7 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, uvIDs, vColorI
                 compound = compounds[loop_i]
                 p.positions.append(compound.position)
                 p.normals.append(compound.normal)
+                p.tangents.append(compound.tangent)
 
                 for division in range(influenceDivisions): # vectorize the IDs and influences
                     vbID = [compound.boneID[division], compound.boneID[division + 1], compound.boneID[division + 2], compound.boneID[division + 3]]
@@ -179,13 +188,7 @@ def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
 
 
 
-def get_accessor_positions(bucket, meshName, depsgraphID, mode, primitive, positions) -> int:
-
-    id = Tracer.trace_mesh_attribute_id(bucket, meshName, depsgraphID, MESH_TYPE_TRIANGLES, 0, MESH_ATTRIBUTE_STR_POSITION)
-    if id != None:
-        return id
-
-    tracker = Tracer.make_mesh_attribute_tracker(meshName, depsgraphID, mode, primitive, MESH_ATTRIBUTE_STR_POSITION)
+def get_accessor_positions(bucket, positions) -> int:
 
     _min = [100000.0, 100000.0, 100000.0]
     _max = [-100000.0, -100000.0, -100000.0]
@@ -203,78 +206,51 @@ def get_accessor_positions(bucket, meshName, depsgraphID, mode, primitive, posit
     ACCESSOR_TYPE_VECTOR_3,
     PACKING_FORMAT_FLOAT,
     data=positions,
-    tracker=tracker,
     min=_min,
     max=_max,
-    name=tracker # TODO: this should not be in release build
     )
 
-def get_accessor_normals(bucket, meshName, depsgraphID, mode, primitive, normals) -> int:
-
-    id = Tracer.trace_mesh_attribute_id(bucket, meshName, depsgraphID, MESH_TYPE_TRIANGLES, primitive, MESH_ATTRIBUTE_STR_NORMAL)
-    if id != None:
-        return id
-
-    tracker = Tracer.make_mesh_attribute_tracker(meshName, depsgraphID, mode, primitive, MESH_ATTRIBUTE_STR_NORMAL)
+def get_accessor_normals(bucket, normals) -> int:
 
     return AccessorManager.add_accessor(bucket,
     ACCESSOR_COMPONENT_TYPE_FLOAT,
     ACCESSOR_TYPE_VECTOR_3,
     PACKING_FORMAT_FLOAT,
-    data=normals,
-    tracker=tracker,
-    name=tracker # TODO: this should not be in release build
+    data=normals
     )
 
-def get_accessor_indices(bucket, meshName, depsgraphID, mode, primitive, indices) -> int:
-
-    id = Tracer.trace_mesh_attribute_id(bucket, meshName, depsgraphID, mode, primitive, MESH_PRIMITIVE_INDICES.upper())
-    if id != None:
-        return id
-
-    tracker = Tracer.make_mesh_attribute_tracker(meshName, depsgraphID, mode, primitive, MESH_PRIMITIVE_INDICES.upper())
+def get_accessor_indices(bucket, indices) -> int:
 
     return AccessorManager.add_accessor(bucket,
     ACCESSOR_COMPONENT_TYPE_UNSIGNED_INT,
     ACCESSOR_TYPE_SCALAR,
     PACKING_FORMAT_U_INT,
-    data=indices,
-    tracker=tracker,
-    name=tracker # TODO: this should not be in release build
+    data=indices
     )
 
-def get_accessor_uv(bucket, meshName, depsgraphID, mode, primitive, uvName, uvs):
+def get_accessor_uv(bucket, uvs):
     
-
-    id = Tracer.trace_mesh_attribute_id(bucket, meshName, depsgraphID, mode, primitive, "UVMAP-" + uvName)
-    if id != None:
-        return id
-
-    tracker = Tracer.make_mesh_attribute_tracker(meshName, depsgraphID, mode, primitive, "UVMAP-" + uvName)
-
     return AccessorManager.add_accessor(bucket,
     ACCESSOR_COMPONENT_TYPE_FLOAT,
     ACCESSOR_TYPE_VECTOR_2,
     PACKING_FORMAT_FLOAT,
-    data=uvs,
-    tracker=tracker,
-    name=tracker # TODO: this should not be in release build
+    data=uvs
     )
 
-def get_accessor_vertex_color(bucket, meshName, depsgraphID, mode, primitive, vColorName, vColor):
-
-    id = Tracer.trace_mesh_attribute_id(bucket, meshName, depsgraphID, mode, primitive, "VCOLOR-" + vColorName)
-
-    if id != None:
-        return id
-
-    tracker = Tracer.make_mesh_attribute_tracker(meshName, depsgraphID, mode, primitive, "VCOLOR-" + vColorName)
+def get_accessor_vertex_color(bucket, vColor):
 
     return AccessorManager.add_accessor(bucket,
     ACCESSOR_COMPONENT_TYPE_FLOAT,
     ACCESSOR_TYPE_VECTOR_4,
     PACKING_FORMAT_FLOAT,
-    data=vColor,
-    tracker=tracker,
-    name=tracker # TODO: this should not be in release build
+    data=vColor
+    )
+
+def get_accessor_tangents(bucket, tangents):
+
+    return AccessorManager.add_accessor(bucket,
+    ACCESSOR_COMPONENT_TYPE_FLOAT,
+    ACCESSOR_TYPE_VECTOR_4,
+    PACKING_FORMAT_FLOAT,
+    data=tangents
     )

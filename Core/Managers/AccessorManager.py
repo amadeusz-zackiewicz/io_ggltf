@@ -8,11 +8,10 @@ MATRIX_TYPES = [ACCESSOR_TYPE_MATRIX_2, ACCESSOR_TYPE_MATRIX_3, ACCESSOR_TYPE_MA
 SCALAR_TYPES = [ACCESSOR_TYPE_SCALAR]
 
 def add_accessor(bucket, componentType, type, packingFormat, data: list,
-    tracker : str, min = None, max = None, name=None):
+    min = None, max = None, name=None):
     """
     This function does not check for duplicates,
-    it creates an accessor object, buffer view, writes into the buffer
-    then adds the tracking info and returns you the ID
+    it creates an accessor object, buffer view, writes into the buffer, returning the ID
     """
     bytes = None
 
