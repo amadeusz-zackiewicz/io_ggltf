@@ -7,27 +7,27 @@ class Bucket():
     fileName, 
     binPath,
     fileType = FILE_TYPE_GLTF_EMBEDDED,
-    mode = COLLECT_MODE_SIMPLE,
-    collectTypes = [BLENDER_TYPE_EMPTY],
     dependencyGraph = None
     ):
         self.settings = {
             BUCKET_SETTING_FILEPATH : filePath,
             BUCKET_SETTING_FILENAME : fileName,
             BUCKET_SETTING_BINPATH : binPath,
-            BUCKET_SETTING_COLLECT_MODE : mode,
-            BUCKET_SETTING_COLLECT_TYPES : collectTypes,
             BUCKET_SETTING_FILE_TYPE: fileType,
             ####### MESH
+            BUCKET_SETTING_INCLUDE_MESH: True,
             BUCKET_SETTING_MESH_GET_NORMALS: True,
             BUCKET_SETTING_MESH_GET_TANGENTS: False,
             BUCKET_SETTING_MESH_GET_UVS: True,
             BUCKET_SETTING_MESH_GET_VERTEX_COLORS: False,
-            BUCKET_SETTING_MESH_GET_SKIN: True,
+            BUCKET_SETTING_MESH_GET_BONE_INFLUENCE: True,
             BUCKET_SETTING_MESH_GET_SHAPE_KEYS: False,
             BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS: False,
             BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS: False,
-            BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV: False
+            BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV: False,
+            ####### SKIN
+            BUCKET_SETTING_INCLUDE_SKIN: True,
+            BUCKET_SETTING_SKIN_GET_INVERSED_BINDS: True
         }
         self.data = {
             BUCKET_DATA_EXTENSIONS_USED : [],
