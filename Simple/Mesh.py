@@ -1,6 +1,6 @@
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Simple.File import get_current_bucket
-from io_advanced_gltf2.Scoops.Mesh import ScoopMesh
+from io_advanced_gltf2.Core.Scoops.Mesh import ScoopMesh
 from io_advanced_gltf2.Simple import Skin
 import bpy
 from io_advanced_gltf2.Core.Bucket import Bucket

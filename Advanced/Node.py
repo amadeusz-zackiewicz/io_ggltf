@@ -1,7 +1,6 @@
-from pprint import isreadable
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core.Bucket import Bucket
-from io_advanced_gltf2.Scoops import Node as NodeScoop
+from io_advanced_gltf2.Core.Scoops import Node as NodeScoop
 from io_advanced_gltf2.Core.Managers import RedundancyManager as RM
 from io_advanced_gltf2.Core import Linker
 import bpy

@@ -1,5 +1,5 @@
 from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Scoops import Skin
+from io_advanced_gltf2.Core.Scoops import Skin
 from io_advanced_gltf2.Simple import Node
 from io_advanced_gltf2.Simple.File import get_current_bucket
 import bpy
