@@ -1,6 +1,16 @@
 from io_advanced_gltf2.Keywords import *
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
+import bpy
+
+class ObjectNameInvalidException(Exception):
+    def __init__(self, objName):
+        if type(objName) == tuple:
+            print(f"{objName[1]}::{objName[0]} not found within blend file, please check if the library path is correct and linked correctly")
+        elif type(objName) == str:
+            print(f"{objName} not found within blend file")
+        else:
+            print(f"Invalid format used while getting object, expected tuple(object name, library) or string, got: {objName}")
 
 def y_up_matrix(org_mat : Matrix) -> Matrix:
     return get_basis_matrix_conversion() @ org_mat
@@ -71,3 +81,15 @@ def get_basis_matrix_conversion():
     convert = axis_conversion(from_forward="-Y", from_up="Z", to_forward="Z", to_up="Y")
     convert.resize_4x4()
     return convert
+
+def try_get_object(objName):
+    try:
+        obj = bpy.data.objects.get(objName)
+        if obj == None:
+            raise ObjectNameInvalidException(objName)
+        return obj
+
+    except Exception as e:
+        print(e)
+        return None
+    
