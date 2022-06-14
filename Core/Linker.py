@@ -56,3 +56,17 @@ def skin_to_node(bucket: Bucket, skinID: int, nodeID: int, override = True):
             node[NODE_SKIN] = skinID
     else:
         node[NODE_SKIN] = skinID
+
+def weights_to_node(bucket: Bucket, weights: list, nodeID, override = True):
+    nodes = bucket.data[BUCKET_DATA_NODES]
+
+    if not nodeID in range(len(nodes)):
+        raise OutOfBoundsException("Node ID", 0, len(nodes), nodeID)
+
+    node = nodes[nodeID]
+
+    if NODE_WEIGHTS in node:
+        if override:
+            node[NODE_WEIGHTS] = weights
+    else:
+        node[NODE_WEIGHTS] = weights
