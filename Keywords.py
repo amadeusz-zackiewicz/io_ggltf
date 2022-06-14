@@ -159,12 +159,15 @@ BUCKET_TRACKER_MESHES           = "MESHES"
 BUCKET_TRACKER_MESH_ATTRIBUTE   = "MESHATTRIBUTE"
 BUCKET_TRACKER_NODES            = "NODES"
 
-COMMAND_QUEUE_SKIN              = 0
-COMMAND_QUEUE_MESH              = 1
-COMMAND_QUEUE_NODE              = 2
-COMMAND_QUEUE_LINKER            = 3
+COMMAND_QUEUE_SETUP             = 0
+COMMAND_QUEUE_SKIN              = 1
+COMMAND_QUEUE_MESH              = 2
+COMMAND_QUEUE_NODE              = 3
+COMMAND_QUEUE_LINKER            = 4
+COMMAND_QUEUE_ANIM_SETUP        = 5
+COMMAND_QUEUE_CLEAN_UP          = 6
 
-BUCKET_COMMAND_QUEUE_TYPES      = 4
+BUCKET_COMMAND_QUEUE_TYPES      = 7
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.17 glTF
 BUCKET_DATA_EXTENSIONS_USED          = "extensionsUsed"
