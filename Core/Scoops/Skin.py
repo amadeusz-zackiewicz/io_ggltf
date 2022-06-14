@@ -2,7 +2,7 @@ from ctypes import util
 import enum
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Util
-from io_advanced_gltf2.Scoops import Node
+from io_advanced_gltf2.Core.Scoops import Node
 from mathutils import Matrix, Vector
 from io_advanced_gltf2.Core.Bucket import Bucket
 from io_advanced_gltf2.Core.Managers import AccessorManager

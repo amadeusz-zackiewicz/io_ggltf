@@ -2,7 +2,7 @@ from math import ceil
 from io_advanced_gltf2.Core.Managers import AccessorManager
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core.Managers import Tracer
-from io_advanced_gltf2.Scoops.Mesh import MeshUtil
+from io_advanced_gltf2.Core.Scoops.Mesh import MeshUtil
 from io_advanced_gltf2.Core.Bucket import Bucket
 from mathutils import Vector
 

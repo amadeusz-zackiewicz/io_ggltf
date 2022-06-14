@@ -2,7 +2,7 @@ import enum
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Util
 from io_advanced_gltf2.Core.Managers import AccessorManager, Tracer
-from io_advanced_gltf2.Scoops.Mesh.Types import *
+from io_advanced_gltf2.Core.Scoops.Mesh.Types import *
 from bpy_extras import mesh_utils
 from mathutils import Vector
 import numpy
