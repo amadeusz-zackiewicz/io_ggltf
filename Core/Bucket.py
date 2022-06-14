@@ -1,5 +1,4 @@
 from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Managers.RedundancyManager import Redundancies
 import bpy
 
 class Bucket():
@@ -73,7 +72,9 @@ class Bucket():
         self.blobs = []
         self.currentDependencyGraph = bpy.context.evaluated_depsgraph_get() if dependencyGraph == None else dependencyGraph
         self.skinDefinition = []
-        self.commandQueue = [[]] * BUCKET_COMMAND_QUEUE_TYPES
+        self.commandQueue = []
+        for _ in range(BUCKET_COMMAND_QUEUE_TYPES):
+            self.commandQueue.append([])
         self.redundancies = {}
         self.preScoopCounts = { # used to determine which ID the specific data will occupy before commiting
             BUCKET_DATA_SCENES: 0,
