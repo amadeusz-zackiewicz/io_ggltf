@@ -12,7 +12,7 @@ __scoopCommand = lambda bucket, assignedID, objID, space: NodeScoop.scoop_object
 def based_on_object(bucket: Bucket, objName, worldSpace=False) -> int:
 
     obj = try_get_object(objName)
-    redundant, nodeID = RM.smart_redundancy(bucket, obj, BUCKET_DATA_NODES)
+    redundant, nodeID = RM.smart_redundancy(bucket, (obj.name, obj.library), BUCKET_DATA_NODES)
     if redundant:
         return nodeID
     else:
@@ -30,7 +30,7 @@ def based_on_hierarchy(bucket: Bucket, topObjName, blacklist = [], topObjWorldSp
             if childID != None:
                 childrenIDs.append(childID)
 
-        redundant, nodeID = RM.smart_redundancy(bucket, obj, BUCKET_DATA_NODES)
+        redundant, nodeID = RM.smart_redundancy(bucket, (obj.name, obj.library), BUCKET_DATA_NODES)
         if redundant:
             return nodeID
 
