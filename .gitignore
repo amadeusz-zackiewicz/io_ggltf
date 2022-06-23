@@ -3,6 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.code-workspace
+*.blend[0-9*]
 
-auto_reload.txt
-log.txt
+Tests/output
