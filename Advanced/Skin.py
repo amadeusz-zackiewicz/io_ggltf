@@ -6,8 +6,8 @@ from io_advanced_gltf2.Core.Managers import RedundancyManager as RM
 from io_advanced_gltf2.Core import BlenderUtil
 import bpy
 
-__setArmaturePoseCommand = lambda bucket, objName, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objName=objName, poseMode=poseMode)
-__scoopSkinCommand = lambda bucket, obj, getInverse, boneBlackList: Skin.scoop_skin(bucket=bucket, obj=obj,getInversedBinds=getInverse, blacklist=boneBlackList)
+__setArmaturePoseCommand = lambda bucket, objGetter, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objName=objGetter, poseMode=poseMode)
+__scoopSkinCommand = lambda bucket, skinID, objGetter, getInverse, boneBlackList, boneOffset: Skin.scoop_skin(bucket=bucket, objGetters=objGetter,getInversedBinds=getInverse, blacklist=boneBlackList, nodeIDOffset=boneOffset, skinID=skinID) # TODO: need to provide bone node offsets and skin id
 
 def based_on_object(
     bucket: Bucket, 
@@ -21,45 +21,60 @@ def based_on_object(
         obj = try_get_object(objName)
     except Exception:
         return None
-    else:
-        redundant, skinID = RM.smart_redundancy(bucket, obj, BUCKET_DATA_SKINS)
 
-        if redundant:
-            return skinID
-        else:
-            if forceRestPose:
-                if obj.data.pose_position != BLENDER_ARMATURE_REST_MODE:
-                    bucket.commandQueue[COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, objName, BLENDER_ARMATURE_REST_MODE)))
-                    
-            bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, objName, obj.data.pose_position)))
+    redundant, skinID = RM.smart_redundancy(bucket, (obj.name, obj.library), BUCKET_DATA_SKINS)
 
-            bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, obj, getInverseBinds, boneBlackList)))
-            return skinID
+    if redundant:
+        return skinID
+    
+    if forceRestPose:
+        if obj.data.pose_position != BLENDER_ARMATURE_REST_MODE:
+            bucket.commandQueue[COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, objName, BLENDER_ARMATURE_REST_MODE)))
+            bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, objName, BLENDER_ARMATURE_POSE_MODE)))
+
+    boneOffset = Skin.reserve_bone_ids(bucket, (obj.name, obj.library), boneBlackList) 
+    bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, (obj.name, obj.library), getInverseBinds, boneBlackList, boneOffset)))
+    return skinID
 
 
-def based_on_mesh_modifiers(
+def based_on_object_modifiers(
     bucket: Bucket,
     objName,
     getInverseBinds=False,
     forceRestPose=False,
     boneBlackList=[]
-):
-    obj = try_get_object(objName)
+) -> int:
+    try:
+        obj = try_get_object(objName)
+    except Exception:
+        return None
 
-    armatureDataBlocks = []
+    armatureObjects = []
     depsGraph = bucket.currentDependencyGraph
 
     for mod in obj.modifiers:
         if mod.type == BLENDER_MODIFIER_ARMATURE:
-            if depsGraph.mode == BLENDER_DEPSGRAPH_MODE_VIEWPORT and mod.show_viewport:
-                armatureDataBlocks.append(mod.object)
-            if depsGraph.mode == BLENDER_DEPSGRAPH_MODE_RENDER and mod.show_render:
-                armatureDataBlocks.append(mod.object)
+            if depsGraph.mode == BLENDER_DEPSGRAPH_MODE_VIEWPORT and mod.show_viewport or depsGraph.mode == BLENDER_DEPSGRAPH_MODE_RENDER and mod.show_render:
+                armatureObjects.append(mod.object)
 
-    if len(armatureDataBlocks) == 0:
+    if len(armatureObjects) == 0:
         print("No armature modifiers found")
         return None
 
-    redundant, skinID = RM.smart_redundancy(bucket, armatureDataBlocks, BUCKET_DATA_SKINS)
+    objectGetters = tuple([(o.name, o.library) for o in armatureObjects])
 
-    # TODO: check for redudnancy and queue commands
+    redundant, skinID = RM.smart_redundancy(bucket, objectGetters, BUCKET_DATA_SKINS)
+
+    if redundant:
+        return skinID
+
+    for armatureObj in armatureObjects:
+        if forceRestPose:
+            if armatureObj.data.pose_position != BLENDER_ARMATURE_REST_MODE:
+                bucket.commandQueue[COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), BLENDER_ARMATURE_REST_MODE)))
+                bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), BLENDER_ARMATURE_POSE_MODE)))
+
+    boneOffset = Skin.reserve_bone_ids(bucket, objectGetters, boneBlackList) 
+    bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectGetters, getInverseBinds, boneBlackList, boneOffset)))
+
+    return skinID
