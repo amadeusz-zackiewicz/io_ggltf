@@ -5,7 +5,7 @@ from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Simple import Mesh
 from io_advanced_gltf2.Core.Bucket import Bucket
 
-def __obj_to_node(
+def obj_to_node(
     name = None,
     translation = None,
     rotation = None,
@@ -113,7 +113,7 @@ def scoop_object(bucket: Bucket, assignedID, objID, worldSpace = False):
     rot = Util.y_up_rotation(rot)
     sc = Util.y_up_scale(sc)
 
-    bucket.data[BUCKET_DATA_NODES][assignedID] = __obj_to_node(
+    bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(
     name=obj.name,
     translation=loc,
     rotation=rot,
