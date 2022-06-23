@@ -2,6 +2,7 @@ from fileinput import filename
 import os
 import json
 import struct
+import bpy
 from io_advanced_gltf2.Core.Managers import BufferManager
 from io_advanced_gltf2.Core.Util import cleanup_keys
 from io_advanced_gltf2.Keywords import *
@@ -65,7 +66,7 @@ def __prep_path(path : str):
 
 def dump_gltf(path : str, data):
     """
-    Path needs to include name, without extension
+    Path needs to include file name, without extension
     """
     __prep_path(path)
     f = open(path + FILE_EXT_GLTF, "w")
@@ -96,8 +97,8 @@ def dump_glb(path : str, data, blobs):
         f.write(b)
         f.write(__BINARY_PAD * (len(b) % 4))
     
-    # ask the operating system for file size
-    fileLength = os.fstat(f.fileno()).st_size
+    # use current cursor position to determine the file size
+    fileLength = f.tell()
 
     f.seek(8) # seek to where the file length is supposed to be
     f.write(struct.pack(PACKING_FORMAT_U_INT, fileLength)) # overwrite the temporary size of 0 to real size
@@ -110,6 +111,6 @@ def dump_raw_binary(path : str, bytes : bytearray):
     Path needs to include file name, without extension
     """
     __prep_path(path)
-    f = open(path + FILE_EXT_BIN, "wb")
+    f = open(path, "wb")
     f.write(bytes)
     f.close()

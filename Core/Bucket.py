@@ -1,5 +1,6 @@
 from io_advanced_gltf2.Keywords import *
 import bpy
+import os
 
 class Bucket():
     def __init__(self, 
@@ -9,6 +10,11 @@ class Bucket():
     fileType = FILE_TYPE_GLTF_EMBEDDED,
     dependencyGraph = None
     ):
+
+        filePath = os.path.abspath(bpy.path.abspath(filePath))
+        if filePath[-1] != os.path.sep:
+            filePath = filePath + os.path.sep
+
         self.settings = {
             BUCKET_SETTING_FILEPATH : filePath,
             BUCKET_SETTING_FILENAME : fileName,

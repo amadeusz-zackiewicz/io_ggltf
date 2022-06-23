@@ -1,6 +1,6 @@
-import enum
 from io_advanced_gltf2.Keywords import *
 from io_advanced_gltf2.Core import Writer
+import os
 import base64
 
 __GLTF_GLB_PADDING = b"\x00"
@@ -71,7 +71,7 @@ def resolve_binaries(bucket):
     elif fileType == FILE_TYPE_GLTF:
         for i, buffer in enumerate(bucket.data[BUCKET_DATA_BUFFERS]):
             buffer[BUFFER_BYTE_LENGTH] = len(bucket.blobs[i])
-            filepath = bucket.settings[BUCKET_SETTING_FILEPATH] + bucket.settings[BUCKET_SETTING_BINPATH] + str(i)
+            filepath = os.path.abspath(bucket.settings[BUCKET_SETTING_FILEPATH] + bucket.data[BUCKET_DATA_BUFFERS][i][BUFFER_URI]) # the URI should be the relative path from the main file, we convert it to the real absolute path
             Writer.dump_raw_binary(filepath, bucket.blobs[i])
     elif fileType == FILE_TYPE_GLB:
         for i, buffer in enumerate(bucket.data[BUCKET_DATA_BUFFERS]):
@@ -80,11 +80,11 @@ def resolve_binaries(bucket):
         
 
 def __get_uri(bucket, id):
-    setting = bucket.settings[BUCKET_SETTING_FILE_TYPE]
+    fileType = bucket.settings[BUCKET_SETTING_FILE_TYPE]
 
-    if setting == FILE_TYPE_GLTF:
-        return bucket.settings[BUCKET_SETTING_BINPATH] + str(id) + FILE_EXT_BIN
-    if setting == FILE_TYPE_GLTF_EMBEDDED:
+    if fileType == FILE_TYPE_GLTF:
+        return bucket.settings[BUCKET_SETTING_BINPATH] + bucket.settings[BUCKET_SETTING_FILENAME]+ "_" + str(id) + FILE_EXT_BIN
+    if fileType == FILE_TYPE_GLTF_EMBEDDED:
         return __GLTF_EMBEDDED_PREFIX
 
     
