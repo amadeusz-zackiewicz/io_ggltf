@@ -5,4 +5,5 @@ __pycache__/
 *.code-workspace
 *.blend[0-9*]
 
+Comparison.txt
 Tests/output
