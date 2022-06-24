@@ -1,0 +1,293 @@
+{
+    "asset": {
+        "generator": "Blender Advanced GLTF2 I/O",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "scene",
+            "nodes": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "Arm-02.L",
+            "translation": [
+                -3.0,
+                7.0,
+                1.3113415775478643e-07
+            ],
+            "rotation": [
+                -0.5,
+                0.5,
+                0.5,
+                0.5
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.9999999403953552
+            ]
+        },
+        {
+            "name": "Arm-01.L",
+            "translation": [
+                -1.0,
+                7.0,
+                4.371138828673793e-08
+            ],
+            "rotation": [
+                -0.5,
+                0.5,
+                0.5,
+                0.5
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.9999999403953552
+            ]
+        },
+        {
+            "name": "Arm-02.R",
+            "translation": [
+                3.0,
+                7.0,
+                -1.3113415775478643e-07
+            ],
+            "rotation": [
+                -0.7071068286895752,
+                -0.7071068286895752,
+                -5.338509012631221e-08,
+                8.429369557916289e-08
+            ],
+            "scale": [
+                0.9999999403953552,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Arm-01.R",
+            "translation": [
+                1.0,
+                7.0,
+                -4.371138828673793e-08
+            ],
+            "rotation": [
+                0.7071068286895752,
+                0.7071068286895752,
+                -4.214684778958144e-08,
+                1.1238233454946567e-08
+            ],
+            "scale": [
+                0.9999999403953552,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Spine-03",
+            "translation": [
+                0.0,
+                4.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.7071068286895752,
+                0.0,
+                0.7071068286895752
+            ],
+            "scale": [
+                1.0,
+                0.9999999403953552,
+                1.0
+            ]
+        },
+        {
+            "name": "Spine-02",
+            "translation": [
+                0.0,
+                1.9999998807907104,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.7071068286895752,
+                0.0,
+                0.7071068286895752
+            ],
+            "scale": [
+                1.0,
+                0.9999999403953552,
+                1.0
+            ]
+        },
+        {
+            "name": "Spine-01",
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.7071068286895752,
+                0.0,
+                0.7071068286895752
+            ],
+            "scale": [
+                1.0,
+                0.9999999403953552,
+                1.0
+            ]
+        },
+        {
+            "name": "Top.L",
+            "translation": [
+                -3.0,
+                4.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Top.R",
+            "translation": [
+                3.0,
+                4.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Bottom.L",
+            "translation": [
+                -5.0,
+                2.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Bottom.R",
+            "translation": [
+                5.0,
+                2.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    ],
+    "materials": [
+        {
+            "name": "default_temp_material",
+            "doubleSided": false,
+            "alphaMode": "OPAQUE",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.8,
+                    0.8,
+                    0.8,
+                    1.0
+                ],
+                "metallicFactor": 0,
+                "roughnessFactor": 0.4
+            }
+        }
+    ],
+    "skins": [
+        {
+            "joints": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+            ],
+            "inverseBindMatrices": 0
+        }
+    ],
+    "accessors": [
+        {
+            "componentType": 5126,
+            "type": "MAT4",
+            "count": 11,
+            "name": "Armature_Cubes-Skin-Inverse-Binds",
+            "bufferView": 0
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 704
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 704,
+            "uri": "multi_armature_mesh_export_both_0.bin"
+        }
+    ],
+    "scene": 0
+}
