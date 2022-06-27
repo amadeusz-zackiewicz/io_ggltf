@@ -135,10 +135,13 @@ BLENDER_MESH_CONVERTIBLE    = [BLENDER_TYPE_MESH, BLENDER_TYPE_CURVE, BLENDER_TY
 BUCKET_SETTING_FILEPATH             = "filepath"
 BUCKET_SETTING_BINPATH              = "binpath"
 BUCKET_SETTING_FILENAME             = "filename"
-BUCKET_SETTING_DECOMPOSE_MATRIX     = "decompose_matrix"
 BUCKET_SETTING_FILE_TYPE            = "file_type"
+############## Node specific settings
+BUCKET_SETTING_REDUNDANCY_CHECK_NODE        = "redundancy_check_node"
+BUCKET_SETTING_NODE_DEFAULT_WORLD_SPACE     = "top_node_world_space"
 ############## Mesh specific settings
 BUCKET_SETTING_INCLUDE_MESH                 = "get_mesh"
+BUCKET_SETTING_REDUNDANCY_CHECK_MESH        = "redundancy_check_mesh"
 BUCKET_SETTING_MESH_GET_NORMALS             = "get_normals"
 BUCKET_SETTING_MESH_GET_TANGENTS            = "get_tangents"
 BUCKET_SETTING_MESH_GET_UVS                 = "get_uvs"
@@ -149,15 +152,9 @@ BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS  = "get_skeys_normals"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS = "get_skeys_tangents"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV       = "get_skeys_uv"
 ############## Skin specific settings
+BUCKET_SETTING_REDUNDANCY_CHECK_SKIN        = "redundancy_check_skin"
 BUCKET_SETTING_INCLUDE_SKIN                 = "get_skin"
 BUCKET_SETTING_SKIN_GET_INVERSED_BINDS      = "get_inversed_binds"
-
-BUCKET_TRACKER_ACCESSORS        = "ACCESSORS"
-BUCKET_TRACKER_BUFFERS          = "BUFFERS"
-BUCKET_TRACKER_BUFFER_VIEWS     = "BUFFERVIEWS"
-BUCKET_TRACKER_MESHES           = "MESHES"
-BUCKET_TRACKER_MESH_ATTRIBUTE   = "MESHATTRIBUTE"
-BUCKET_TRACKER_NODES            = "NODES"
 
 COMMAND_QUEUE_SETUP             = 0
 COMMAND_QUEUE_SKIN              = 1
