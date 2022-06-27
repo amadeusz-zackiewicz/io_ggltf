@@ -1,5 +1,6 @@
 from io_advanced_gltf2.Core.Bucket import Bucket
 import bpy
+from io_advanced_gltf2.Keywords import BUCKET_DATA_NODES
 
 def is_redundant(bucket: Bucket, objGetter: tuple) -> bool:
     return get_eval(bucket.currentDependencyGraph, objGetter) in bucket.redundancies
@@ -25,3 +26,8 @@ def get_eval(depsGraph, objGetter: tuple):
     else:
         eval = tuple([id(depsGraph.id_eval_get(bpy.data.objects.get(o))) for o in objGetter])
     return eval
+
+def reserve_untracked_id(bucket: Bucket, dataType: str):
+    oldCount = bucket.preScoopCounts[dataType]
+    bucket.preScoopCounts[dataType] += 1
+    return oldCount

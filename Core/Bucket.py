@@ -15,26 +15,23 @@ class Bucket():
         if filePath[-1] != os.path.sep:
             filePath = filePath + os.path.sep
 
-        self.settings = {
-            BUCKET_SETTING_FILEPATH : filePath,
-            BUCKET_SETTING_FILENAME : fileName,
-            BUCKET_SETTING_BINPATH : binPath,
-            BUCKET_SETTING_FILE_TYPE: fileType,
-            ####### MESH
-            BUCKET_SETTING_INCLUDE_MESH: True,
-            BUCKET_SETTING_MESH_GET_NORMALS: True,
-            BUCKET_SETTING_MESH_GET_TANGENTS: False,
-            BUCKET_SETTING_MESH_GET_UVS: True,
-            BUCKET_SETTING_MESH_GET_VERTEX_COLORS: False,
-            BUCKET_SETTING_MESH_GET_BONE_INFLUENCE: True,
-            BUCKET_SETTING_MESH_GET_SHAPE_KEYS: False,
-            BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS: False,
-            BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS: False,
-            BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV: False,
-            ####### SKIN
-            BUCKET_SETTING_INCLUDE_SKIN: True,
-            BUCKET_SETTING_SKIN_GET_INVERSED_BINDS: True
+        self.__get_default_settings(filePath, fileName, binPath, fileType)
+        self.__fill_in_data()
+        self.blobs = []
+        self.currentDependencyGraph = bpy.context.evaluated_depsgraph_get() if dependencyGraph == None else dependencyGraph
+        self.skinDefinition = []
+        self.commandQueue = []
+        for _ in range(BUCKET_COMMAND_QUEUE_TYPES):
+            self.commandQueue.append([])
+        self.redundancies = {}
+        self.preScoopCounts = { # used to determine which ID the specific data will occupy before commiting
+            BUCKET_DATA_SCENES: 0,
+            BUCKET_DATA_NODES: 0,
+            BUCKET_DATA_MESHES: 0,
+            BUCKET_DATA_SKINS: 0
         }
+
+    def __fill_in_data(self) -> dict:
         self.data = {
             BUCKET_DATA_EXTENSIONS_USED : [],
             BUCKET_DATA_EXTENSIONS_REQUIRED : [],
@@ -70,21 +67,12 @@ class Bucket():
             BUCKET_DATA_BUFFER_VIEWS : [],
             BUCKET_DATA_BUFFERS : []
         }
-        self.trackers = {
-            BUCKET_TRACKER_NODES : {},
-            BUCKET_TRACKER_MESHES : {},
-            BUCKET_TRACKER_MESH_ATTRIBUTE : {}
+
+    def __get_default_settings(self, filePath, fileName, binPath, fileType) -> dict:
+        self.settings = {
+            BUCKET_SETTING_FILEPATH : filePath,
+            BUCKET_SETTING_FILENAME : fileName,
+            BUCKET_SETTING_BINPATH : binPath,
+            BUCKET_SETTING_FILE_TYPE: fileType,
         }
-        self.blobs = []
-        self.currentDependencyGraph = bpy.context.evaluated_depsgraph_get() if dependencyGraph == None else dependencyGraph
-        self.skinDefinition = []
-        self.commandQueue = []
-        for _ in range(BUCKET_COMMAND_QUEUE_TYPES):
-            self.commandQueue.append([])
-        self.redundancies = {}
-        self.preScoopCounts = { # used to determine which ID the specific data will occupy before commiting
-            BUCKET_DATA_SCENES: 0,
-            BUCKET_DATA_NODES: 0,
-            BUCKET_DATA_MESHES: 0,
-            BUCKET_DATA_SKINS: 0
-        }
+
