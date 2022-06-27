@@ -120,6 +120,8 @@ if __name__ == "__main__":
 
     ## comparison tests
     for outputFileName in os.listdir(testOutputPath):
+        if re.search(".txt$", outputFileName):
+            continue 
         print("Comparison test:", outputFileName)
         if os.path.exists(testComparisonOutputPath + outputFileName):
 
