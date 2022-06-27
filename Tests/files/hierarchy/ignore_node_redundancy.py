@@ -1,14 +1,19 @@
 from io_advanced_gltf2.Advanced import Node
 from io_advanced_gltf2.Advanced import File
+from io_advanced_gltf2.Advanced import Settings
 
-from io_advanced_gltf2.Keywords import FILE_TYPE_GLTF_EMBEDDED, FILE_TYPE_GLB, FILE_TYPE_GLTF
+from io_advanced_gltf2.Keywords import FILE_TYPE_GLTF_EMBEDDED, FILE_TYPE_GLB, FILE_TYPE_GLTF, BUCKET_SETTING_REDUNDANCY_CHECK_NODE
 
 filePath = "//..\\..\\output\\"
-fileName = "simple_hierarchy_export_all"
+fileName = "hierarchy_ignore_node_redundancy"
 binPath = ""
 
 def test(bucket):
+    Settings.set_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE, False)
     Node.based_on_hierarchy(bucket, "0-0")
+    Node.based_on_hierarchy(bucket, "0-0")
+    Node.based_on_hierarchy(bucket, "1-0")
+    Node.based_on_hierarchy(bucket, "4-4")
     File.dump_bucket(bucket)
 
 test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))
