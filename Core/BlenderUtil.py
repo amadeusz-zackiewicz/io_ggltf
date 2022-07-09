@@ -12,3 +12,6 @@ def set_object_modifier(bucket: Bucket, objName, modifierID, setActive):
         obj.modifiers[modifierID].show_viewport = setActive
     else:
         obj.modifiers[modifierID].show_render = setActive
+
+def get_object_getter(obj):
+    return (obj.name, obj.library.filepath if obj.library != None else None)

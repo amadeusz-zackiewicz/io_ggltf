@@ -3,6 +3,7 @@ from io_advanced_gltf2.Core.Scoops import Node as NodeScoop
 from io_advanced_gltf2.Core.Managers import RedundancyManager as RM
 from io_advanced_gltf2.Core.Bucket import Bucket
 from io_advanced_gltf2.Core.Util import try_get_object
+from io_advanced_gltf2.Core.BlenderUtil import get_object_getter
 from io_advanced_gltf2.Core import Linker
 from io_advanced_gltf2.Advanced import Settings
 import bpy
@@ -20,11 +21,11 @@ def based_on_object(bucket: Bucket, objName, worldSpace=None, checkRedundancies=
         checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
 
     if checkRedundancies:
-        redundant, nodeID = RM.smart_redundancy(bucket, (obj.name, obj.library), BUCKET_DATA_NODES)
+        redundant, nodeID = RM.smart_redundancy(bucket, get_object_getter(obj), BUCKET_DATA_NODES)
         if redundant:
             return nodeID
         else:
-            bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, (obj.name, obj.library), worldSpace)))
+            bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_getter(obj), worldSpace)))
             return nodeID
     else:
         nodeID = RM.reserve_untracked_id(bucket, BUCKET_DATA_NODES)
@@ -42,7 +43,7 @@ def based_on_hierarchy(bucket: Bucket, topObjName, blacklist = [], topObjWorldSp
                 childrenIDs.append(childID)
 
         if checkRedundancies:
-            redundant, nodeID = RM.smart_redundancy(bucket, (obj.name, obj.library), BUCKET_DATA_NODES)
+            redundant, nodeID = RM.smart_redundancy(bucket, get_object_getter(obj), BUCKET_DATA_NODES)
             if redundant:
                 return nodeID
         else:
@@ -51,7 +52,7 @@ def based_on_hierarchy(bucket: Bucket, topObjName, blacklist = [], topObjWorldSp
         for c in childrenIDs:
             bucket.commandQueue[COMMAND_QUEUE_LINKER].append((__linkChildCommand, (bucket, nodeID, c)))
         
-        bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, (obj.name, obj.library), worldSpace)))
+        bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_getter(obj), worldSpace)))
         return nodeID
 
     obj = try_get_object(topObjName)
