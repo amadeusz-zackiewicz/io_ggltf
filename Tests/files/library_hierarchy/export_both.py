@@ -8,19 +8,23 @@ if __name__ == "__main__" and len(sys.argv) == 1:
     import os
     sys.path.append(os.path.abspath(""))
     import Tests.LimitedTestUtil as T
-    T.run_test("hierarchy", "hierarchy", os.path.basename(__file__).replace(".py", ""))
+    T.run_test("library_hierarchy", "library_hierarchy", os.path.basename(__file__).replace(".py", ""))
 else:
     from io_advanced_gltf2.Advanced import Node
     from io_advanced_gltf2.Advanced import File
 
+
     from io_advanced_gltf2.Keywords import FILE_TYPE_GLTF_EMBEDDED, FILE_TYPE_GLB, FILE_TYPE_GLTF
 
     filePath = "//..\\..\\output\\"
-    fileName = "hierarchy_blacklist_self"
+    fileName = "library_hierarchy_export_both"
     binPath = ""
 
+
     def test(bucket):
-        Node.based_on_hierarchy(bucket, "0-0", blacklist={"0-0"})
+        lib = "//..\..\lib_files\hierarchy.blend"
+        Node.based_on_object(bucket, "0-0")
+        Node.based_on_hierarchy(bucket, ("0-0", lib))
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))

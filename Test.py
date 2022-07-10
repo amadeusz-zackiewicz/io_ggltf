@@ -5,6 +5,7 @@ import subprocess
 import io
 import traceback
 import sys
+import getopt
 
 blenderPath = None
 addonName = "io_advanced_gltf2"
@@ -50,26 +51,77 @@ if __name__ == "__main__":
     testComparisonOutputPath = os.path.dirname(os.path.abspath(__file__)) + f"{pathSplit}Tests{pathSplit}expected_output{pathSplit}"
 
     testList = []
+    testFolders = [""]
+    blendFiles = []
+    pythonFiles = []
 
-    testFolders = os.listdir(testFilesRootPath)
+    cmdOptions, _ = getopt.gnu_getopt(sys.argv[1:], "f:b:t:", ["folder=", "blend=", "test="])
+
+    for o, a in cmdOptions:
+        if o == "-f" or o == "--folder":
+            folders = a.split(" ")
+            if len(folders) > 1:
+                raise Exception("Multiple folders are not supported by this operation. If the folder has space in its name it will be treated as multiple folders.")
+            else:
+                testFolders[0] = folders[0]
+        if o == "-b" or o == "--blend":
+            bFiles = a.split(" ")
+            for bFile in bFiles:
+                blendFiles.append(bFile)
+        if o == "-t" or o == "--test":
+            tFiles = a.split(" ")
+            for tFile in tFiles:
+                pythonFiles.append(tFile)
+    
+    if testFolders[0] == "":
+        testFolders = os.listdir(testFilesRootPath)
 
     for folder in testFolders:
         absFolderPath = f"{testFilesRootPath}{folder}{pathSplit}"
+
         if os.path.isdir(absFolderPath):
-            blendFiles = []
-            pythonFiles = []
-            filesInFolder = os.listdir(absFolderPath)
-            for file in filesInFolder:
-                absFilePath = f"{absFolderPath}{file}"
-                if os.path.isfile(absFilePath):
-                    if re.search("\.blend$", file):
-                        blendFiles.append(absFilePath)
-                    if re.search("\.py$", file):
-                        pythonFiles.append(absFilePath)
-            
+            if len(blendFiles) == 0: # if -b/--blend arg was not used
+                filesInFolder = os.listdir(absFolderPath)
+                for file in filesInFolder:
+                    absFilePath = f"{absFolderPath}{file}"
+                    if os.path.isfile(absFilePath):
+                        if re.search("\.blend$", file):
+                            blendFiles.append(absFilePath)
+            else:                
+                for i, blFile in enumerate(blendFiles):
+                        absFilePath = f"{absFolderPath}{blFile}.blend" # convert to absolute path
+                        if os.path.isfile(absFilePath) and os.path.exists(absFilePath):
+                            blendFiles[i] = absFilePath
+                        else:
+                            print(f"{blFile}.blend does not exist in {folder} and will be ignored.")
+                            blendFiles[i] = None
+
+            if len(pythonFiles) == 0: # if -t/--test arg was not used
+                filesInFolder = os.listdir(absFolderPath)
+                for file in filesInFolder:
+                    absFilePath = f"{absFolderPath}{file}"
+                    if os.path.isfile(absFilePath):
+                        if re.search("\.py$", file):
+                            pythonFiles.append(absFilePath)
+            else:
+                for i, pyFile in enumerate(pythonFiles):
+                    absFilePath = f"{absFolderPath}{pyFile}.py" # convert to absolute path
+                    if os.path.isfile(absFilePath) and os.path.exists(absFilePath):
+                        pythonFiles[i] = absFilePath
+                    else:
+                        print(f"{pyFile}.py does not exist in {folder} and will be ignored.")
+                        pythonFiles[i] = None
+
             for blFile in blendFiles:
+                if blFile == None:
+                    continue
                 for pyFile in pythonFiles:
+                    if pyFile == None:
+                        continue
                     testList.append((blFile, pyFile))
+
+            blendFiles = []
+            pythonFiles = [] # clear the lists
 
     for file in os.listdir(testOutputPath):
         absFilePath = testOutputPath + file
