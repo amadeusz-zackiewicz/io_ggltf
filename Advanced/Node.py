@@ -21,7 +21,7 @@ def based_on_object(bucket: Bucket, objName, worldSpace=None, checkRedundancies=
         checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
 
     if checkRedundancies:
-        redundant, nodeID = RM.smart_redundancy(bucket, get_object_getter(obj), BUCKET_DATA_NODES)
+        redundant, nodeID = RM.smart_redundancy(bucket, get_object_getter(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
         if redundant:
             return nodeID
         else:
@@ -46,7 +46,7 @@ def based_on_hierarchy(bucket: Bucket, topObjName, blacklist = {}, topObjWorldSp
                     childrenIDs.append(childID)
 
         if checkRedundancies:
-            redundant, nodeID = RM.smart_redundancy(bucket, get_object_getter(obj), BUCKET_DATA_NODES)
+            redundant, nodeID = RM.smart_redundancy(bucket, get_object_getter(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
             if redundant:
                 return nodeID
         else:
