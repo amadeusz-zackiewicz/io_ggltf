@@ -31,16 +31,19 @@ def based_on_object(bucket: Bucket, objName, worldSpace=None, checkRedundancies=
         nodeID = RM.reserve_untracked_id(bucket, BUCKET_DATA_NODES)
 
 
-def based_on_hierarchy(bucket: Bucket, topObjName, blacklist = [], topObjWorldSpace=None, checkRedundancies=None) -> int:
+def based_on_hierarchy(bucket: Bucket, topObjName, blacklist = {}, topObjWorldSpace=None, checkRedundancies=None) -> int:
     def __recursive(bucket: Bucket, obj, blacklist, worldSpace, checkRedundancies):
         if obj.name in blacklist:
             return None
 
         childrenIDs = []
-        for c in obj.children:
-            childID = __recursive(bucket, c, blacklist, False, checkRedundancies)
-            if childID != None:
-                childrenIDs.append(childID)
+        if __object_is_collection_instance(obj):
+            childrenIDs.extend(based_on_collection(bucket=bucket, collectionName=get_object_getter(obj.instance_collection), blacklist=blacklist, worldSpace=False, checkRedundancies=checkRedundancies))
+        else:
+            for c in obj.children:
+                childID = __recursive(bucket, c, blacklist, False, checkRedundancies)
+                if childID != None:
+                    childrenIDs.append(childID)
 
         if checkRedundancies:
             redundant, nodeID = RM.smart_redundancy(bucket, get_object_getter(obj), BUCKET_DATA_NODES)
@@ -64,3 +67,29 @@ def based_on_hierarchy(bucket: Bucket, topObjName, blacklist = [], topObjWorldSp
         checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
 
     return __recursive(bucket, obj, blacklist, topObjWorldSpace, checkRedundancies)
+
+def __object_is_collection_instance(obj) -> bool:
+    return obj.instance_type == BLENDER_INSTANCE_TYPE_COLLECTION
+
+def __get_collection_top_objects(collection, blacklist={}):
+    topObjects = []
+    for obj in collection.objects:
+        if obj.parent == None and not obj.name in blacklist:
+            topObjects.append(obj)
+    return topObjects
+
+def based_on_collection(bucket: Bucket, collectionName, blacklist={}, worldSpace=None, checkRedundancies=None) -> list:
+    if worldSpace == None:
+        worldSpace = Settings.get_setting(bucket, BUCKET_SETTING_NODE_DEFAULT_WORLD_SPACE)
+    if checkRedundancies == None:
+        checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
+
+    collection = bpy.data.collections.get(collectionName)
+
+    topObjects = __get_collection_top_objects(collection)
+
+    nodeIDs = []
+    for topObj in topObjects:
+        nodeIDs.append(based_on_hierarchy(bucket, get_object_getter(topObj), blacklist, worldSpace, checkRedundancies))
+
+    return nodeIDs
