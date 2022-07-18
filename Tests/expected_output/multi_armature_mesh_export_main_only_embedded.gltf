@@ -13,11 +13,7 @@
                 3,
                 4,
                 5,
-                6,
-                7,
-                8,
-                9,
-                10
+                6
             ]
         }
     ],
@@ -154,82 +150,6 @@
                 0.9999999403953552,
                 1.0
             ]
-        },
-        {
-            "name": "Top.L",
-            "translation": [
-                -2.656597375869751,
-                2.451892375946045,
-                0.09441535174846649
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "name": "Top.R",
-            "translation": [
-                1.8001124858856201,
-                4.650766849517822,
-                -0.06261889636516571
-            ],
-            "rotation": [
-                0.0041045560501515865,
-                0.021706748753786087,
-                0.14694195985794067,
-                0.9888983964920044
-            ],
-            "scale": [
-                0.9999999403953552,
-                0.9999999403953552,
-                0.9999999403953552
-            ]
-        },
-        {
-            "name": "Bottom.L",
-            "translation": [
-                -4.187908172607422,
-                -0.4420924186706543,
-                0.18886253237724304
-            ],
-            "rotation": [
-                -0.05331019312143326,
-                0.010192967019975185,
-                0.3610175848007202,
-                0.9309782385826111
-            ],
-            "scale": [
-                0.9999999403953552,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "name": "Bottom.R",
-            "translation": [
-                5.327012062072754,
-                1.1466805934906006,
-                -0.18326695263385773
-            ],
-            "rotation": [
-                -0.014132385142147541,
-                0.025536486878991127,
-                -0.14413224160671234,
-                0.9891279339790344
-            ],
-            "scale": [
-                1.0,
-                0.9999999403953552,
-                1.0
-            ]
         }
     ],
     "materials": [
@@ -258,11 +178,7 @@
                 3,
                 4,
                 5,
-                6,
-                7,
-                8,
-                9,
-                10
+                6
             ],
             "inverseBindMatrices": 0
         }
@@ -271,8 +187,8 @@
         {
             "componentType": 5126,
             "type": "MAT4",
-            "count": 11,
-            "name": "Armature_Cubes-Skin-Inverse-Binds",
+            "count": 7,
+            "name": "Armature_Main-Skin-Inverse-Binds",
             "bufferView": 0
         }
     ],
@@ -280,13 +196,13 @@
         {
             "buffer": 0,
             "byteOffset": 0,
-            "byteLength": 704
+            "byteLength": 448
         }
     ],
     "buffers": [
         {
-            "byteLength": 704,
-            "uri": "data:application/octet-stream;base64,ML07swAAAIAAAIC/AAAAAAAAgL8AAAAAML07MwAAAAAAAAAAAQCAPwAAAAAAAAAAAQAAqQAAQMABAODAAACAPy69O7MAAACAAACAvwAAAAAAAIC/AAAAAC69OzMAAAAAAAAAAAEAgD8AAAAAAAAAAAAAAIAAAIC/AQDgwAAAgD+0URkoAQCAP7MQUTQAAAAAAACAPwAAAAAwvTuzAAAAADC9O7O1EFE0AACAvwAAAAABAODAAABAwJ/utrUAAIA/b8xtpwEAgD9pIaKzAAAAAAAAgD8AAAAALr07swAAAAAuvTuzaiGiswAAgL8AAAAAAQDgwAAAgL893Q01AACAPy69O7MAAACAAACAvwAAAAAAAACAAQCAPwAAAIAAAAAAAACAPwAAAIAuvTuzAAAAAAAAAIABAIDAAAAAAAAAgD8uvTuzAAAAgAAAgL8AAAAAAAAAgAEAgD8AAACAAAAAAAAAgD8AAACALr07swAAAAAAAACAAAAAwAAAAAAAAIA/Lr07swAAAIAAAIC/AAAAAAAAAIABAIA/AAAAgAAAAAAAAIA/AAAAgC69O7MAAAAAAAAAgAAAAIAAAAAAAACAPwAAgD8AAACAAAAAAAAAAAAAAACAAACAPwAAAIAAAAAAAAAAAAAAAIAAAIA/AAAAAAAAQEAAAIDAAAAAgAAAgD8AAIA/AAAAgAAAAAAAAAAAAAAAgAAAgD8AAACAAAAAAAAAAAAAAACAAACAPwAAAAAAAEDAAACAwAAAAIAAAIA/AACAPwAAAIAAAAAAAAAAAAAAAIAAAIA/AAAAgAAAAAAAAAAAAAAAgAAAgD8AAAAAAACgQAAAAMAAAACAAACAPwAAgD8AAACAAAAAAAAAAAAAAACAAACAPwAAAIAAAAAAAAAAAAAAAIAAAIA/AAAAAAAAoMAAAADAAAAAgAAAgD8="
+            "byteLength": 448,
+            "uri": "data:application/octet-stream;base64,ML07swAAAIAAAIC/AAAAAAAAgL8AAAAAML07MwAAAAAAAAAAAQCAPwAAAAAAAAAAAQAAqQAAQMABAODAAACAPy69O7MAAACAAACAvwAAAAAAAIC/AAAAAC69OzMAAAAAAAAAAAEAgD8AAAAAAAAAAAAAAIAAAIC/AQDgwAAAgD+0URkoAQCAP7MQUTQAAAAAAACAPwAAAAAwvTuzAAAAADC9O7O1EFE0AACAvwAAAAABAODAAABAwJ/utrUAAIA/b8xtpwEAgD9pIaKzAAAAAAAAgD8AAAAALr07swAAAAAuvTuzaiGiswAAgL8AAAAAAQDgwAAAgL893Q01AACAPy69O7MAAACAAACAvwAAAAAAAACAAQCAPwAAAIAAAAAAAACAPwAAAIAuvTuzAAAAAAAAAIABAIDAAAAAAAAAgD8uvTuzAAAAgAAAgL8AAAAAAAAAgAEAgD8AAACAAAAAAAAAgD8AAACALr07swAAAAAAAACAAAAAwAAAAAAAAIA/Lr07swAAAIAAAIC/AAAAAAAAAIABAIA/AAAAgAAAAAAAAIA/AAAAgC69O7MAAAAAAAAAgAAAAIAAAAAAAACAPw=="
         }
     ],
     "scene": 0
