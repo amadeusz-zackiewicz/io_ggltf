@@ -9,12 +9,15 @@ def collect(bucket: Bucket):
     bucket.data[BUCKET_DATA_NODES] = [None] * bucket.preScoopCounts[BUCKET_DATA_NODES]
     try:
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_SETUP])
+        bucket.currentDependencyGraph.update()
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_SKIN])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_MESH])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NODE])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_LINKER])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_ANIM_SETUP])
+        bucket.currentDependencyGraph.update()
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP], True)
+        bucket.currentDependencyGraph.update()
     except Exception as e:
         print("Encountered exception during command execution:",e)
         del bucket
