@@ -17,6 +17,8 @@ def reserve_bone_ids(bucket: Bucket, objGetters, blacklist = set()) -> int:
         
         boneCount[0] += 1
 
+    print(objGetters)
+    [print(o) for o in objGetters]
     objects = [bpy.data.objects.get(o) for o in objGetters]
     bones = []
     rootBones = []

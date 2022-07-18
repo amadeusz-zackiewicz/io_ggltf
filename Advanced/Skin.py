@@ -32,8 +32,8 @@ def based_on_object(
             bucket.commandQueue[COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, objName, BLENDER_ARMATURE_REST_MODE)))
             bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, objName, BLENDER_ARMATURE_POSE_MODE)))
 
-    boneOffset = Skin.reserve_bone_ids(bucket, (obj.name, obj.library), boneBlackList) 
-    bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, (obj.name, obj.library), getInverseBinds, boneBlackList, boneOffset)))
+    boneOffset = Skin.reserve_bone_ids(bucket, [(obj.name, obj.library)], boneBlackList) 
+    bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [(obj.name, obj.library)], getInverseBinds, boneBlackList, boneOffset)))
     return skinID
 
 
