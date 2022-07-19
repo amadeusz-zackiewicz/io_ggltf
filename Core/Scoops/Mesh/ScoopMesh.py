@@ -10,7 +10,7 @@ from io_advanced_gltf2.Core.Bucket import Bucket
 
 def scoop_from_obj(
     bucket: Bucket,
-    objName,
+    objAccessor,
     normals = False,
     tangents = False,
     uvMaps = [],
@@ -36,7 +36,7 @@ def scoop_from_obj(
         tuple: Tuple containing index of the mesh and weights (None if shape keys are not included)
     """
     # TODO: make sure every mesh mode is supported, only triangles for now
-    obj = bpy.data.objects.get(objName)
+    obj = bpy.data.objects.get(objAccessor)
     return Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, normals, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences=4)
 
 def scoop_base_mesh(

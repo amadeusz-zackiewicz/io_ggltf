@@ -7,7 +7,7 @@ from mathutils import Matrix, Vector
 from io_advanced_gltf2.Core.Bucket import Bucket
 from io_advanced_gltf2.Core.Managers import AccessorManager
 
-def reserve_bone_ids(bucket: Bucket, objGetters, blacklist = set()) -> int:
+def reserve_bone_ids(bucket: Bucket, objAccessors, blacklist = set()) -> int:
     def bone_counter(bone, blacklist, boneCount):
         if bone.name in blacklist:
             return
@@ -17,9 +17,8 @@ def reserve_bone_ids(bucket: Bucket, objGetters, blacklist = set()) -> int:
         
         boneCount[0] += 1
 
-    print(objGetters)
-    [print(o) for o in objGetters]
-    objects = [bpy.data.objects.get(o) for o in objGetters]
+    [print(o) for o in objAccessors]
+    objects = [bpy.data.objects.get(o) for o in objAccessors]
     bones = []
     rootBones = []
     boneCount = [0] # just so i can pass it as reference, im lazy
@@ -53,9 +52,9 @@ class Joint:
         self.nodeID = -1
         self.jointID = -1
 
-def scoop_skin(bucket: Bucket, objGetters: tuple, getInversedBinds = False, blacklist = set(), mainArmature = 0, nodeIDOffset = 0, skinID = 0):
+def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, blacklist = set(), mainArmature = 0, nodeIDOffset = 0, skinID = 0):
 
-    objects = [bpy.data.objects.get(o) for o in objGetters]
+    objects = [bpy.data.objects.get(o) for o in objAccessors]
     bones = []
 
     for obj in objects:

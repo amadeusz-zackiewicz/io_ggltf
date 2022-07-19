@@ -5,7 +5,7 @@ from io_advanced_gltf2.Simple import Skin
 import bpy
 from io_advanced_gltf2.Core.Bucket import Bucket
 
-def add_based_on_object(objName, 
+def add_based_on_object(objAccessor, 
     normals = False,
     tangents = False, 
     uv = False, 
@@ -23,10 +23,10 @@ def add_based_on_object(objName,
     bucket = get_current_bucket()
     depsGraph = bucket.currentDependencyGraph
 
-    obj = bpy.data.objects.get(objName)
+    obj = bpy.data.objects.get(objAccessor)
     if obj == None:
         lib_str = " from library: " + obj.library if obj.library != None else ""
-        print(f"Error: failed to find object with name {lib_str}{objName}")
+        print(f"Error: failed to find object with name {lib_str}{objAccessor}")
         return
 
     modifierReset = []
@@ -64,7 +64,7 @@ def add_based_on_object(objName,
                 modifierReset.append(None)
                 
         depsGraph.update()
-        obj = bpy.data.objects.get(objName) # get the reference again in case it became invalid
+        obj = bpy.data.objects.get(objAccessor) # get the reference again in case it became invalid
 
 
     meshID, weights = ScoopMesh.scoop_from_obj(bucket,

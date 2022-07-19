@@ -4,12 +4,12 @@ from io_advanced_gltf2.Simple import Node
 from io_advanced_gltf2.Simple.File import get_current_bucket
 import bpy
 
-def add_based_on_object(objName, getInverseBinds = False, forceRestPose = False, boneBlacklist = []):
+def add_based_on_object(objAccessor, getInverseBinds = False, forceRestPose = False, boneBlacklist = []):
 
     bucket = get_current_bucket()
     oldPose = BLENDER_ARMATURE_POSE_MODE
 
-    obj = bpy.data.objects.get(objName)
+    obj = bpy.data.objects.get(objAccessor)
     if obj == None:
         print("obj not found")
         return None
@@ -18,7 +18,7 @@ def add_based_on_object(objName, getInverseBinds = False, forceRestPose = False,
         oldPose = obj.data.pose_position
         obj.data.pose_position = BLENDER_ARMATURE_REST_MODE
         bucket.currentDependencyGraph.update()
-        obj = bpy.data.objects.get(objName) # we get the object again just in case reference is lost
+        obj = bpy.data.objects.get(objAccessor) # we get the object again just in case reference is lost
 
     nodeID = Node.add_based_on_object((obj.name, obj.library), False)
     skinID, rootNodes = Skin.scoop_skin(bucket, obj, blacklist=boneBlacklist, getInversedBinds=getInverseBinds)

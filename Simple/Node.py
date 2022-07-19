@@ -23,17 +23,17 @@ def make_new(name: str, position, rotation, scale, convertToYup = False):
 
     return nodeID
 
-def add_based_on_object(objName, includeData = True, useLocalSpace = False):
+def add_based_on_object(objAccessor, includeData = True, useLocalSpace = False):
 
-    obj = bpy.data.objects.get(objName)
+    obj = bpy.data.objects.get(objAccessor)
     if obj == None:
-        raise Exception(f"{objName} not found within blend data, please double check your spelling and library")
+        raise Exception(f"{objAccessor} not found within blend data, please double check your spelling and library")
 
     return Node.scoop_object(get_current_bucket(), obj, includeData, useLocalSpace)
 
-def add_object_hierarchy(objName, includeData = True, useLocalSpace = False, blacklist = []):
+def add_object_hierarchy(objAccessor, includeData = True, useLocalSpace = False, blacklist = []):
 
-    obj = bpy.data.objects.get(objName)
+    obj = bpy.data.objects.get(objAccessor)
     if obj != None:
         return Node.scoop_hierarchy(get_current_bucket(), 
         obj, 
