@@ -8,8 +8,8 @@
             "name": "scene",
             "nodes": [
                 2,
-                3,
-                4
+                5,
+                8
             ]
         }
     ],
@@ -78,6 +78,47 @@
             ]
         },
         {
+            "name": "Original_object_child",
+            "translation": [
+                0.0,
+                -2.4259445667266846,
+                -0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                -0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Original_object",
+            "translation": [
+                0.0,
+                0.0,
+                -0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                -0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "children": [
+                3
+            ]
+        },
+        {
             "name": "Instanced_collection.001",
             "translation": [
                 -3.118269443511963,
@@ -96,7 +137,48 @@
                 1.0
             ],
             "children": [
-                1
+                4
+            ]
+        },
+        {
+            "name": "Original_object_child",
+            "translation": [
+                0.0,
+                -2.4259445667266846,
+                -0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                -0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Original_object",
+            "translation": [
+                0.0,
+                0.0,
+                -0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                -0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "children": [
+                6
             ]
         },
         {
@@ -118,7 +200,7 @@
                 1.0
             ],
             "children": [
-                1
+                7
             ]
         }
     ],

@@ -24,11 +24,11 @@ def based_on_object(bucket: Bucket, objAccessor, worldSpace=None, checkRedundanc
         redundant, nodeID = RM.smart_redundancy(bucket, get_object_accessor(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
         if redundant:
             return nodeID
-        else:
-            bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), worldSpace)))
-            return nodeID
     else:
         nodeID = RM.reserve_untracked_id(bucket, BUCKET_DATA_NODES)
+        
+    bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), worldSpace)))
+    return nodeID
 
 
 def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, topObjWorldSpace=None, checkRedundancies=None) -> int:
