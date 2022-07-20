@@ -105,8 +105,7 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
         componentType=ACCESSOR_COMPONENT_TYPE_FLOAT,
         type=ACCESSOR_TYPE_MATRIX_4,
         packingFormat=PACKING_FORMAT_FLOAT,
-        data=inversedBinds,
-        name=obj.name + "-Skin-Inverse-Binds" # TODO: remove after testing is finished
+        data=inversedBinds
         )
     
     bucket.data[BUCKET_DATA_SKINS][skinID] = skinDict
