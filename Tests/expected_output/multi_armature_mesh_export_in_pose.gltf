@@ -19,15 +19,15 @@
         {
             "name": "Arm-02.L",
             "translation": [
-                0.0,
-                2.0,
-                4.76837158203125e-07
+                6.705522537231445e-08,
+                2.000000238418579,
+                -3.725290298461914e-08
             ],
             "rotation": [
-                0.0,
-                0.0,
-                3.552713678800501e-15,
-                1.0
+                -0.10576904565095901,
+                -0.00813854206353426,
+                0.030418304726481438,
+                0.9938920736312866
             ],
             "scale": [
                 1.0,
@@ -39,19 +39,19 @@
             "name": "Arm-01.L",
             "translation": [
                 0.0,
-                3.000000476837158,
-                -1.0
+                3.000000238418579,
+                -0.9999999403953552
             ],
             "rotation": [
-                -0.7071068286895752,
-                0.0,
-                0.0,
-                0.7071068286895752
+                -0.8156565427780151,
+                0.02520560473203659,
+                0.043620239943265915,
+                0.5763387680053711
             ],
             "scale": [
-                1.0,
-                1.0,
-                1.0
+                0.9999999403953552,
+                0.9999999403953552,
+                0.9999998807907104
             ],
             "children": [
                 0
@@ -60,39 +60,39 @@
         {
             "name": "Arm-02.R",
             "translation": [
-                4.76837158203125e-07,
-                2.0,
-                0.0
+                1.0058283805847168e-07,
+                1.9999995231628418,
+                -4.470348358154297e-08
             ],
             "rotation": [
-                3.552713678800501e-15,
-                1.351025389340066e-07,
-                2.92929878259155e-22,
-                1.0
+                0.04727965593338013,
+                0.012650001794099808,
+                -0.16439849138259888,
+                0.98517906665802
             ],
             "scale": [
                 1.0,
-                1.0,
-                1.0
+                0.9999999403953552,
+                0.9999999403953552
             ]
         },
         {
             "name": "Arm-01.R",
             "translation": [
-                0.0,
+                -6.05359673500061e-09,
                 3.000000476837158,
-                1.0
+                0.9999999403953552
             ],
             "rotation": [
-                0.5000000596046448,
-                0.5,
-                0.5,
-                0.5
+                0.3945861756801605,
+                0.6423403024673462,
+                0.3461266756057739,
+                0.558477520942688
             ],
             "scale": [
                 1.0,
-                1.0,
-                1.0
+                0.9999999403953552,
+                0.9999999403953552
             ],
             "children": [
                 2
@@ -101,15 +101,15 @@
         {
             "name": "Spine-03",
             "translation": [
-                0.0,
-                2.000000476837158,
-                0.0
+                -1.3969838619232178e-09,
+                2.000000238418579,
+                -2.0168954506516457e-08
             ],
             "rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
+                -0.06715082377195358,
+                0.019312025979161263,
+                0.005167014431208372,
+                0.9975425601005554
             ],
             "scale": [
                 1.0,
@@ -129,10 +129,10 @@
                 0.0
             ],
             "rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
+                -0.048155203461647034,
+                0.013849039562046528,
+                0.0037053695414215326,
+                0.9987369775772095
             ],
             "scale": [
                 1.0,
@@ -168,9 +168,9 @@
         {
             "name": "Top.L",
             "translation": [
-                -3.0,
-                4.0,
-                0.0
+                -2.656597375869751,
+                2.451892375946045,
+                0.09441535174846649
             ],
             "rotation": [
                 0.0,
@@ -187,37 +187,37 @@
         {
             "name": "Top.R",
             "translation": [
-                3.0,
-                4.0,
-                0.0
+                1.8001124858856201,
+                4.650766849517822,
+                -0.06261889636516571
             ],
             "rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
+                0.0041045560501515865,
+                0.021706748753786087,
+                0.14694195985794067,
+                0.9888983964920044
             ],
             "scale": [
-                1.0,
-                1.0,
-                1.0
+                0.9999999403953552,
+                0.9999999403953552,
+                0.9999999403953552
             ]
         },
         {
             "name": "Bottom.L",
             "translation": [
-                -5.0,
-                2.0,
-                0.0
+                -4.187908172607422,
+                -0.4420924186706543,
+                0.18886253237724304
             ],
             "rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
+                -0.05331019312143326,
+                0.010192967019975185,
+                0.3610175848007202,
+                0.9309782385826111
             ],
             "scale": [
-                1.0,
+                0.9999999403953552,
                 1.0,
                 1.0
             ]
@@ -225,19 +225,19 @@
         {
             "name": "Bottom.R",
             "translation": [
-                5.0,
-                2.0,
-                0.0
+                5.327012062072754,
+                1.1466805934906006,
+                -0.18326695263385773
             ],
             "rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
+                -0.014132385142147541,
+                0.025536486878991127,
+                -0.14413224160671234,
+                0.9891279339790344
             ],
             "scale": [
                 1.0,
-                1.0,
+                0.9999999403953552,
                 1.0
             ]
         }
@@ -297,7 +297,7 @@
     "buffers": [
         {
             "byteLength": 704,
-            "uri": "data:application/octet-stream;base64,ML07swAAAIAAAIC/AAAAAAAAgL8AAAAAML07MwAAAAAAAAAAAQCAPwAAAAAAAAAAAQAAqQAAQMABAODAAACAPy69O7MAAACAAACAvwAAAAAAAIC/AAAAAC69OzMAAAAAAAAAAAEAgD8AAAAAAAAAAAAAAIAAAIC/AQDgwAAAgD+0URkoAQCAP7MQUTQAAAAAAACAPwAAAAAwvTuzAAAAADC9O7O1EFE0AACAvwAAAAABAODAAABAwJ/utrUAAIA/b8xtpwEAgD9pIaKzAAAAAAAAgD8AAAAALr07swAAAAAuvTuzaiGiswAAgL8AAAAAAQDgwAAAgL893Q01AACAPy69O7MAAACAAACAvwAAAAAAAACAAQCAPwAAAIAAAAAAAACAPwAAAIAuvTuzAAAAAAAAAIABAIDAAAAAAAAAgD8uvTuzAAAAgAAAgL8AAAAAAAAAgAEAgD8AAACAAAAAAAAAgD8AAACALr07swAAAAAAAACAAAAAwAAAAAAAAIA/Lr07swAAAIAAAIC/AAAAAAAAAIABAIA/AAAAgAAAAAAAAIA/AAAAgC69O7MAAAAAAAAAgAAAAIAAAAAAAACAPwAAgD8AAACAAAAAAAAAAAAAAACAAACAPwAAAIAAAAAAAAAAAAAAAIAAAIA/AAAAAAAAQEAAAIDAAAAAgAAAgD8AAIA/AAAAgAAAAAAAAAAAAAAAgAAAgD8AAACAAAAAAAAAAAAAAACAAACAPwAAAAAAAEDAAACAwAAAAIAAAIA/AACAPwAAAIAAAAAAAAAAAAAAAIAAAIA/AAAAgAAAAAAAAAAAAAAAgAAAgD8AAAAAAACgQAAAAMAAAACAAACAPwAAgD8AAACAAAAAAAAAAAAAAACAAACAPwAAAIAAAAAAAAAAAAAAAIAAAIA/AAAAAAAAoMAAAADAAAAAgAAAgD8="
+            "uri": "multi_armature_mesh_export_in_pose_0.bin"
         }
     ],
     "scene": 0
