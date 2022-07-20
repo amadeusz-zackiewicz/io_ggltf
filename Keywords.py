@@ -160,6 +160,7 @@ BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV       = "get_skeys_uv"
 BUCKET_SETTING_REDUNDANCY_CHECK_SKIN        = "redundancy_check_skin"
 BUCKET_SETTING_INCLUDE_SKIN                 = "get_skin"
 BUCKET_SETTING_SKIN_GET_INVERSED_BINDS      = "get_inversed_binds"
+BUCKET_SETTING_SKIN_FORCE_REST_POSE         = "force_armature_rest"
 
 COMMAND_QUEUE_SETUP             = 0
 COMMAND_QUEUE_SKIN              = 1
