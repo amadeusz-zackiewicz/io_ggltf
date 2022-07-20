@@ -12,20 +12,31 @@ __scoopSkinCommand = lambda bucket, skinID, objAccessor, getInverse, boneBlackLi
 def based_on_object(
     bucket: Bucket, 
     objAccessor,
-    getInverseBinds=False,
-    forceRestPose=False,
+    getInverseBinds=None,
+    forceRestPose=None,
+    checkRedundancy=None,
     boneBlackList=[]
 ) -> int:
     
+    if checkRedundancy == None:
+        checkRedundancy = bucket.settings[BUCKET_SETTING_REDUNDANCY_CHECK_SKIN]
+    if getInverseBinds == None:
+        getInverseBinds = bucket.settings[BUCKET_SETTING_SKIN_GET_INVERSED_BINDS]
+    if forceRestPose == None:
+        forceRestPose = bucket.settings[BUCKET_SETTING_SKIN_FORCE_REST_POSE]
+
     try:
         obj = try_get_object(objAccessor)
     except Exception:
         return None
 
-    redundant, skinID = RM.smart_redundancy(bucket, (obj.name, obj.library), BUCKET_DATA_SKINS)
+    if checkRedundancy:
+        redundant, skinID = RM.smart_redundancy(bucket, (obj.name, obj.library), BUCKET_DATA_SKINS)
 
-    if redundant:
-        return skinID
+        if redundant:
+            return skinID
+    else:
+        skinID = RM.reserve_untracked_id(bucket, BUCKET_DATA_SKINS)
     
     if forceRestPose:
         if obj.data.pose_position != BLENDER_ARMATURE_REST_MODE:
@@ -40,10 +51,19 @@ def based_on_object(
 def based_on_object_modifiers(
     bucket: Bucket,
     objAccessor,
-    getInverseBinds=False,
-    forceRestPose=False,
+    getInverseBinds=None,
+    forceRestPose=None,
+    checkRedundancy=None,
     boneBlackList=[]
 ) -> int:
+
+    if checkRedundancy == None:
+        checkRedundancy = bucket.settings[BUCKET_SETTING_REDUNDANCY_CHECK_SKIN]
+    if getInverseBinds == None:
+        getInverseBinds = bucket.settings[BUCKET_SETTING_SKIN_GET_INVERSED_BINDS]
+    if forceRestPose == None:
+        forceRestPose = bucket.settings[BUCKET_SETTING_SKIN_FORCE_REST_POSE]
+
     try:
         obj = try_get_object(objAccessor)
     except Exception:
@@ -62,11 +82,13 @@ def based_on_object_modifiers(
         return None
 
     objectAccessors = tuple([(o.name, o.library) for o in armatureObjects])
+    if checkRedundancy:
+        redundant, skinID = RM.smart_redundancy(bucket, objectAccessors, BUCKET_DATA_SKINS)
 
-    redundant, skinID = RM.smart_redundancy(bucket, objectAccessors, BUCKET_DATA_SKINS)
-
-    if redundant:
-        return skinID
+        if redundant:
+            return skinID
+    else:
+        skinID = RM.reserve_untracked_id(bucket, BUCKET_DATA_SKINS)
 
     for armatureObj in armatureObjects:
         if forceRestPose:
