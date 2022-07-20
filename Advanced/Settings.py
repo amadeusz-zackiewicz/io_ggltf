@@ -10,8 +10,7 @@ def get_setting(bucket: Bucket, setting: str):
     else:
         return bucket.settings[setting]
 
-def get_default(setting: str):
-    default = {
+__default = {
         ####### NODE
         BUCKET_SETTING_REDUNDANCY_CHECK_NODE: False,
         BUCKET_SETTING_NODE_DEFAULT_WORLD_SPACE: True,
@@ -30,8 +29,12 @@ def get_default(setting: str):
         ####### SKIN
         BUCKET_SETTING_REDUNDANCY_CHECK_SKIN: True,
         BUCKET_SETTING_INCLUDE_SKIN: True,
-        BUCKET_SETTING_SKIN_GET_INVERSED_BINDS: True
+        BUCKET_SETTING_SKIN_GET_INVERSED_BINDS: True,
+        BUCKET_SETTING_SKIN_FORCE_REST_POSE: True
     }
 
-    while True:
-        yield default[setting]
+def get_default(setting: str):
+    return __default[setting]
+
+def get_default():
+    return __default
