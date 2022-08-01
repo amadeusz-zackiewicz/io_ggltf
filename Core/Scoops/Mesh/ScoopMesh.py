@@ -11,13 +11,16 @@ from io_advanced_gltf2.Core.Bucket import Bucket
 def scoop_from_obj(
     bucket: Bucket,
     objAccessor,
+    assignedID: int,
     normals = False,
     tangents = False,
     uvMaps = [],
     skinID = None,
     shapeKeys = [],
+    shapeKeyNormals=False,
     vertexColors = [],
-    mode = MESH_TYPE_TRIANGLES
+    mode = MESH_TYPE_TRIANGLES,
+    maxBoneInfluences = 4,
 ):
     """Add mesh data using object's modifier stack
 
@@ -37,15 +40,15 @@ def scoop_from_obj(
     """
     # TODO: make sure every mesh mode is supported, only triangles for now
     obj = bpy.data.objects.get(objAccessor)
-    return Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, normals, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences=4)
+    Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, normals, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, shapeKeyNormals, tangents, skinID, assignedID, maxInfluences=4)
 
-def scoop_base_mesh(
-    bucket,
-    mesh_name,
-    tangent = False,
-    uvMaps = None,
-    skin = True,
-    morphs = None,
-    mode = MESH_TYPE_TRIANGLES
-):
-    return 0
+# def scoop_base_mesh(
+#     bucket,
+#     mesh_name,
+#     tangent = False,
+#     uvMaps = None,
+#     skin = True,
+#     morphs = None,
+#     mode = MESH_TYPE_TRIANGLES
+# ):
+#     return 0

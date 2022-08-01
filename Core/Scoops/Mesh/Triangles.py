@@ -5,7 +5,7 @@ from io_advanced_gltf2.Core.Scoops.Mesh import MeshUtil
 from io_advanced_gltf2.Core.Bucket import Bucket
 from mathutils import Vector
 
-def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertexColors, shapeKeys, tangents, skinID, maxInfluences = 4):
+def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertexColors, shapeKeys, shapeKeyNormals, tangents, skinID, assignedID, maxInfluences = 4):
     """_summary_
 
     Args:
@@ -19,9 +19,6 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
         tangents (_type_): Should the tangent data be included.
         skinID (_type_): ID of the skin to be used when gathering bones, provide None if not needed.
         maxInfluences (int, optional): Maximum amount of bone influences, will be rounded up to the closest multiple of 4, ignored when skinID is None. Defaults to 4.
-
-    Returns:
-        tuple: a tuple containing index of the mesh and shape key weights (None if no shape key data is included)
     """
 
     if skinID != None:
@@ -120,9 +117,10 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
         for i_sk, skID in enumerate(shapeKeyIDs):
             morph = {}
             skPosAccessor = MeshUtil.get_accessor_positions(bucket, p.shapeKey[i_sk].positions)
-            skNmAccessor = MeshUtil.get_accessor_normals(bucket, p.shapeKey[i_sk].normals)
             morph[MESH_ATTRIBUTE_STR_POSITION] = skPosAccessor
-            morph[MESH_ATTRIBUTE_STR_NORMAL] = skNmAccessor # TODO: shape key normals should be optional
+            if shapeKeyNormals:
+                skNmAccessor = MeshUtil.get_accessor_normals(bucket, p.shapeKey[i_sk].normals)
+                morph[MESH_ATTRIBUTE_STR_NORMAL] = skNmAccessor
             targets.append(morph)
 
         if len(targets) > 0:
@@ -139,10 +137,5 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
 
         #meshDict[MESH_WEIGHTS] = weights
 
-    
 
-    meshID = len(bucket.data[BUCKET_DATA_MESHES])
-
-    bucket.data[BUCKET_DATA_MESHES].append(meshDict)
-
-    return (meshID, weights)
+    bucket.data[BUCKET_DATA_MESHES][assignedID] = meshDict

@@ -156,6 +156,7 @@ BUCKET_SETTING_MESH_GET_SHAPE_KEYS          = "get_skeys"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS  = "get_skeys_normals"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS = "get_skeys_tangents"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV       = "get_skeys_uv"
+BUCKET_SETTING_MESH_MAX_BONES               = "mesh_maximum_bones"
 ############## Skin specific settings
 BUCKET_SETTING_REDUNDANCY_CHECK_SKIN        = "redundancy_check_skin"
 BUCKET_SETTING_INCLUDE_SKIN                 = "get_skin"
