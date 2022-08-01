@@ -1,0 +1,123 @@
+{
+    "asset": {
+        "generator": "Blender Advanced GLTF2 I/O",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "scene",
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "MeshObj",
+            "translation": [
+                0.0,
+                0.0,
+                -0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                -0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "mesh": 0
+        }
+    ],
+    "materials": [
+        {
+            "name": "default_temp_material",
+            "doubleSided": false,
+            "alphaMode": "OPAQUE",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.8,
+                    0.8,
+                    0.8,
+                    1.0
+                ],
+                "metallicFactor": 0,
+                "roughnessFactor": 0.4
+            }
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Cube",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "material": 0,
+                    "indices": 1,
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 2
+                    }
+                }
+            ]
+        }
+    ],
+    "accessors": [
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 184,
+            "min": [
+                -5.0,
+                0.0,
+                -1.000000238418579
+            ],
+            "max": [
+                5.0,
+                8.0,
+                1.000000238418579
+            ],
+            "bufferView": 0
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 276,
+            "bufferView": 1
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 184,
+            "bufferView": 2
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 2208
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 2208,
+            "byteLength": 1104
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 3312,
+            "byteLength": 2208
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 5520,
+            "uri": "multi_armature_mesh_export_mesh_only_0.bin"
+        }
+    ],
+    "scene": 0
+}
