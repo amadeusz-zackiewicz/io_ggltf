@@ -97,6 +97,8 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
     del uvLoops
     del vcLoops
     del skData
+    del vertices
+    del loops
 
     compounds, compoundIndices = numpy.unique(compounds, return_inverse=True)
 
@@ -137,6 +139,10 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
                     p.shapeKey[i].positions.append(skc.position)
                     p.shapeKey[i].normals.append(skc.normal)
                     p.shapeKey[i].tangents.append(skc.tangent)
+                    
+    del compounds
+    del compoundIndices
+    del triangles
 
     return primitives
 
