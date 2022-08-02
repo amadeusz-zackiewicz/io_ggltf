@@ -31,8 +31,7 @@ def y_up_direction(org_dir: Vector) -> Vector:
     return Vector((org_dir[0], org_dir[2], -org_dir[1]))
 
 def correct_uv(org_uv: Vector) -> Vector:
-    org_uv[1] = 1 - org_uv[1]
-    return org_uv
+    return Vector((org_uv[0], 1 - org_uv[1]))
 
 def bl_math_to_gltf_list(obj):
     if isinstance(obj, Quaternion):
