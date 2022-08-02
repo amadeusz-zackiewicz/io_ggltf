@@ -39,7 +39,7 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
                     uvIDs.append(i)
                     break
         else:
-            print(uvName, " UV map not found inside ", originalName, " and will be ignored")
+            print(uvName, " UV map not found inside ", meshObj.name, " and will be ignored")
 
     # convert vertex color names into indices
     for vColorName in vertexColors: 
@@ -48,7 +48,7 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
                 if vColorName == vColorLayer.name:
                     vColorIDs.append(i)
         else:
-            print(vColorName, " Vertex Color not found inside ", originalName, " and will be ignored")
+            print(vColorName, " Vertex Color not found inside ", meshObj.name, " and will be ignored")
 
     # convert shape key names into indices
     for shapeKeyName in shapeKeys: 
@@ -57,7 +57,7 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
                 if shapeKeyName == sk.name:
                     shapeKeyIDs.append(i)
         else:
-            print(shapeKeyName, "Shape Key not found inside", originalName, "and will be ignored")
+            print(shapeKeyName, "Shape Key not found inside", meshObj.name, "and will be ignored")
 
     # get the skin definition (a dictionary of [BoneName : NodeID])
     skinDef = None if skinID == None else bucket.skinDefinition[skinID]
