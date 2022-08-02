@@ -113,4 +113,5 @@ def dump_raw_binary(path : str, bytes : bytearray):
     __prep_path(path)
     f = open(path, "wb")
     f.write(bytes)
+    f.write(__BINARY_PAD * (len(bytes) % 4))
     f.close()
