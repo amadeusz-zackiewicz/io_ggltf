@@ -90,7 +90,7 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
             vColor[i] = vcLoops[vColorIDs[i]][i_loop].color
         for i in range(len(shapeKey)):
             nm = skData[i].normals[i_loop]
-            pos = skData[i].positions[loop.vertex_index]
+            pos = skData[i].positions[loop.vertex_index] - position
             shapeKey[i] = ShapeKeyCompound(pos, nm, None)
         compounds.append(Compound(position, normal, tangent, uv, vColor, shapeKey, boneID, boneInflu))
 
