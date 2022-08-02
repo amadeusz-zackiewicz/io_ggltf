@@ -69,11 +69,12 @@ def __matrix_into_bytearray(format, data: list):
 
     return __scalar_into_bytearray(format, scalar)
 
-def __scalar_into_bytearray(format, data: list):
-    size = struct.calcsize(format)
-    bytes = bytearray(size * len(data))
-
+def __scalar_into_bytearray(_format, data: list):
+    size = struct.calcsize(_format)
+    _bytes = bytearray(size * len(data))
+    st = struct.Struct(_format)
+    
     for i, s in enumerate(data):
-        struct.pack_into(format, bytes, i * size, s)
+        st.pack_into(_bytes, i * size, s)
 
-    return bytes
+    return _bytes
