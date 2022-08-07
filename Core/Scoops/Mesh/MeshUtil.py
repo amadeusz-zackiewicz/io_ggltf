@@ -7,7 +7,7 @@ from bpy_extras import mesh_utils
 from mathutils import Vector
 import numpy
 
-def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvIDs, vColorIDs, shapeIDs, skinDefinition, maxInfluences):
+def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvIDs, vColorIDs, shapeIDs, skinDefinition, maxInfluences) -> list:
     """Decompose the mesh into primitives and remove any duplicate vertices based on the other arguments.
 
     Args:

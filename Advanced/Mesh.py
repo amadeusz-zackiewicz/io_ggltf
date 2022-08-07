@@ -7,10 +7,9 @@ from io_advanced_gltf2.Core.Scoops.Mesh import ScoopMesh
 from io_advanced_gltf2.Advanced import Settings
 import bpy
 
-__disable_armature_modifier = lambda bucket, objAccessor, modifierID: BlenderUtil.set_object_modifier(bucket=bucket, objAccessor=objAccessor, modifierID=modifierID, setActive=False)
-__enable_armature_modifier = lambda bucket, objAccessor, modifierID: BlenderUtil.set_object_modifier(bucket=bucket, objAccessor=objAccessor, modifierID=modifierID, setActive=True)
+__scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)
 __scoop_mesh_command = lambda bucket, objAccessor, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_from_obj(bucket=bucket, objAccessor=objAccessor, normals=normals, tangents=tangents, uvMaps=uvMaps, vertexColors=vertexColors, skinID=skinID, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, maxBoneInfluences=maxBones, assignedID=meshID)
-#TODO: implement rest of the settings on scoops
+
 
 def based_on_object(bucket: Bucket, objAccessor,
 normals=None,
@@ -54,12 +53,80 @@ checkRedundancy=None
     else:
         meshID = RM.reserve_untracked_id(bucket, BUCKET_DATA_MESHES)
 
-    for i, mod in enumerate(obj.modifiers):
-        if mod.type == BLENDER_MODIFIER_ARMATURE:
-            bucket.commandQueue[COMMAND_QUEUE_SETUP].append((__disable_armature_modifier,(bucket, BlenderUtil.get_object_accessor(obj), i)))
-            bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__enable_armature_modifier, (bucket, BlenderUtil.get_object_accessor(obj), i)))
+    BlenderUtil.queue_disable_modifier_type(bucket, obj, BLENDER_MODIFIER_ARMATURE)
     
     bucket.commandQueue[COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
 
     return meshID
+
+def merged_based_on_hierarchy(bucket: Bucket,
+topObjectAccessor,
+blacklist = {},
+name="NewMesh",
+normals=None,
+tangents=None,
+uvMaps=[],
+vertexColors=[],
+boneInfluences=None,
+skinID=None,
+shapeKeys=[],
+shapeKeyNormals=None,
+shapeKeyTangents=None,
+shapeKeyUVs=None
+) -> int:
+    def collect_mesh_objects(currentObject, collected: list, blacklist):
+        if currentObject.name in blacklist:
+            return
+
+        for c in currentObject.children:
+            collect_mesh_objects(c, collected, blacklist)
+
+        if currentObject.type == BLENDER_TYPE_MESH:
+            collected.append(currentObject)
+
+    if normals == None:
+        normals = bucket.settings[BUCKET_SETTING_MESH_GET_NORMALS]
+    if tangents == None:
+        tangents = bucket.settings[BUCKET_SETTING_MESH_GET_TANGENTS]
+    if boneInfluences == None:
+        boneInfluences = bucket.settings[BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
+    if shapeKeyNormals == None:
+        shapeKeyNormals = bucket.settings[BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS]
+    if shapeKeyTangents == None:
+        shapeKeyTangents = bucket.settings[BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS]
+    if shapeKeyUVs == None:
+        shapeKeyUVs = bucket.settings[BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
+
+    topObj = try_get_object(topObjectAccessor)
+
+    meshObjects = []
+
+    collect_mesh_objects(topObj, meshObjects, blacklist)
+
+    if len(meshObjects) > 0:
+        for obj in meshObjects:
+            BlenderUtil.queue_disable_modifier_type(bucket, obj, BLENDER_MODIFIER_ARMATURE)
+
+        if len(uvMaps) > 0:
+            for obj in meshObjects:
+                if not BlenderUtil.object_has_uv_maps(obj, uvMaps):
+                    print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified UV Maps")
+                    return None
+        if len(vertexColors) > 0:
+            for obj in meshObjects:
+                if not BlenderUtil.object_has_vertex_colors(obj, vertexColors):
+                    print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified Vertex Colors")
+                    return None
+        if len(shapeKeys) > 0:
+            for obj in meshObjects:
+                if not BlenderUtil.object_has_shape_keys(obj, shapeKeys):
+                    print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified Shape Keys")
+                    return None
+        meshID = RM.reserve_untracked_id(bucket, BUCKET_DATA_MESHES)
         
+        bucket.commandQueue[COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], BlenderUtil.get_object_accessor(topObj), name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
+
+        return meshID
+    else:
+        return None
+

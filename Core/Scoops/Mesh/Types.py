@@ -1,4 +1,5 @@
 import functools
+import mathutils
 
 @functools.total_ordering
 class Compound:
@@ -79,3 +80,23 @@ class Primitive:
         self.boneInfluence = [[]] * boneInfluenceDivisions
         for i in range(shapeKeyCount):
             self.shapeKey[i] = ShapeKeyData([], [], [])
+
+    def extend(self, other):
+        maxIndex = len(self.positions)
+        self.positions.extend(other.positions)
+        self.normals.extend(other.normals)
+        self.tangents.extend(other.tangents)
+        self.boneID.extend(other.boneID)
+        self.boneInfluence.extend(other.boneInfluence)
+
+        self.indices.extend([index + maxIndex for index in other.indices])
+
+        for i, uv, in enumerate(self.uv):
+            uv.extend(other.uv[i])
+        for i, vc, in enumerate(self.vertexColor):
+            vc.extend(other.vertexColor[i])
+
+        for i, shape in enumerate(self.shapeKey):
+            shape.positions.extend(other.shapeKey[i].positions)
+            shape.normals.extend(other.shapeKey[i].normals)
+            shape.tangents.extend(other.shapeKey[i].tangents)
