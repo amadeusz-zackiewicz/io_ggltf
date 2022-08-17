@@ -1,6 +1,6 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Bucket import Bucket
-from io_advanced_gltf2.Core import Linker
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Bucket import Bucket
+from io_ggltf.Core import Linker
 
 __node_to_node_command = lambda bucket, child, parent:  Linker.node_to_node(bucket=bucket, parentID=parent, childID=child)
 __mesh_to_node_command = lambda bucket, mesh, node, override: Linker.mesh_to_node(bucket=bucket, meshID=mesh, nodeID=node, override=override)

@@ -10,8 +10,8 @@ if __name__ == "__main__" and len(sys.argv) == 1:
     import Tests.LimitedTestUtil as T
     T.run_test("instanced_collection", "instanced_collection", os.path.basename(__file__).replace(".py", ""))
 else:
-    from io_advanced_gltf2.Advanced import *
-    from io_advanced_gltf2.Keywords import *
+    from io_ggltf.Advanced import *
+    from io_ggltf.Keywords import *
 
     filePath = "//..\\..\\output\\"
     fileName = "instanced_collection_export_original"

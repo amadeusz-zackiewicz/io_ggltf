@@ -1,7 +1,7 @@
 import struct
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core import Util
-from io_advanced_gltf2.Core.Managers import BufferViewManager
+from io_ggltf.Keywords import *
+from io_ggltf.Core import Util
+from io_ggltf.Core.Managers import BufferViewManager
 
 VECTOR_TYPES = [ACCESSOR_TYPE_VECTOR_2, ACCESSOR_TYPE_VECTOR_3, ACCESSOR_TYPE_VECTOR_4]
 MATRIX_TYPES = [ACCESSOR_TYPE_MATRIX_2, ACCESSOR_TYPE_MATRIX_3, ACCESSOR_TYPE_MATRIX_4]

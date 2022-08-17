@@ -1,4 +1,4 @@
-from io_advanced_gltf2.Keywords import *
+from io_ggltf.Keywords import *
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
 import bpy

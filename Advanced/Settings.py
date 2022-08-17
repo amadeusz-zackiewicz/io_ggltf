@@ -1,5 +1,5 @@
-from io_advanced_gltf2.Core.Bucket import Bucket
-from io_advanced_gltf2.Keywords import *
+from io_ggltf.Core.Bucket import Bucket
+from io_ggltf.Keywords import *
 
 def set_setting(bucket: Bucket, setting: str, value):
     bucket.settings[setting] = value

@@ -1,5 +1,5 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core import Writer
+from io_ggltf.Keywords import *
+from io_ggltf.Core import Writer
 import os
 import base64
 

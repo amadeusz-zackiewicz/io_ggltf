@@ -1,6 +1,6 @@
-from io_advanced_gltf2.Core.Bucket import Bucket
+from io_ggltf.Core.Bucket import Bucket
 import bpy
-from io_advanced_gltf2.Keywords import BUCKET_DATA_NODES
+from io_ggltf.Keywords import BUCKET_DATA_NODES
 
 def is_redundant(bucket: Bucket, objAccessor: tuple, getFunc = bpy.data.objects.get) -> bool:
     return get_eval(bucket.currentDependencyGraph, objAccessor, getFunc) in bucket.redundancies

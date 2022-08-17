@@ -1,9 +1,9 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Simple.File import get_current_bucket
-from io_advanced_gltf2.Core.Scoops.Mesh import ScoopMesh
-from io_advanced_gltf2.Simple import Skin
+from io_ggltf.Keywords import *
+from io_ggltf.Simple.File import get_current_bucket
+from io_ggltf.Core.Scoops.Mesh import ScoopMesh
+from io_ggltf.Simple import Skin
 import bpy
-from io_advanced_gltf2.Core.Bucket import Bucket
+from io_ggltf.Core.Bucket import Bucket
 
 def add_based_on_object(objAccessor, 
     normals = False,

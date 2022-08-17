@@ -1,6 +1,6 @@
 from platform import node
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Bucket import Bucket
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Bucket import Bucket
 
 class OutOfBoundsException(Exception):
     """Given Object ID is not valid"""

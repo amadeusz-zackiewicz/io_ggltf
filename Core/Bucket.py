@@ -1,4 +1,4 @@
-from io_advanced_gltf2.Keywords import *
+from io_ggltf.Keywords import *
 import bpy
 import os
 

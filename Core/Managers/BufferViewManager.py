@@ -1,5 +1,5 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Managers import BufferManager
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Managers import BufferManager
 
 def add_bytes(bucket, bytes: bytearray, name=None):
     """

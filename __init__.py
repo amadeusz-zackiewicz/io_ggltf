@@ -1,10 +1,10 @@
 bl_info = {
-    'name': 'Advanced glTF 2.0 Exporter',
+    'name': 'Game Engine glTF 2.0 Exporter',
     'author': 'Amadeusz Zackiewicz',
-    "version": (0, 1, 1),
+    "version": (0, 1, 0),
     'blender': (3, 0, 0),
     'location': 'Scripting',
-    'description': 'Export glTF 2.0 with python scripts',
+    'description': 'Export glTF 2.0 files and enjoy time saving functionality via python scripts',
     'warning': '',
     #'doc_url': "",
     #'tracker_url': "",

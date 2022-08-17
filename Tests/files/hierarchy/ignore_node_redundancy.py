@@ -1,8 +1,8 @@
-from io_advanced_gltf2.Advanced import Node
-from io_advanced_gltf2.Advanced import File
-from io_advanced_gltf2.Advanced import Settings
+from io_ggltf.Advanced import Node
+from io_ggltf.Advanced import File
+from io_ggltf.Advanced import Settings
 
-from io_advanced_gltf2.Keywords import FILE_TYPE_GLTF_EMBEDDED, FILE_TYPE_GLB, FILE_TYPE_GLTF, BUCKET_SETTING_REDUNDANCY_CHECK_NODE
+from io_ggltf.Keywords import FILE_TYPE_GLTF_EMBEDDED, FILE_TYPE_GLB, FILE_TYPE_GLTF, BUCKET_SETTING_REDUNDANCY_CHECK_NODE
 
 filePath = "//..\\..\\output\\"
 fileName = "hierarchy_ignore_node_redundancy"

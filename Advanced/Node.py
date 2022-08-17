@@ -1,11 +1,11 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Scoops import Node as NodeScoop
-from io_advanced_gltf2.Core.Managers import RedundancyManager as RM
-from io_advanced_gltf2.Core.Bucket import Bucket
-from io_advanced_gltf2.Core.Util import try_get_object
-from io_advanced_gltf2.Core.BlenderUtil import get_object_accessor
-from io_advanced_gltf2.Core import Linker
-from io_advanced_gltf2.Advanced import Settings
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Scoops import Node as NodeScoop
+from io_ggltf.Core.Managers import RedundancyManager as RM
+from io_ggltf.Core.Bucket import Bucket
+from io_ggltf.Core.Util import try_get_object
+from io_ggltf.Core.BlenderUtil import get_object_accessor
+from io_ggltf.Core import Linker
+from io_ggltf.Advanced import Settings
 import bpy
 
 __linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)

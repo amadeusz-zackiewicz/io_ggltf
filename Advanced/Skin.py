@@ -1,9 +1,9 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Bucket import Bucket
-from io_advanced_gltf2.Core.Util import try_get_object
-from io_advanced_gltf2.Core.Scoops import Skin
-from io_advanced_gltf2.Core.Managers import RedundancyManager as RM
-from io_advanced_gltf2.Core import BlenderUtil
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Bucket import Bucket
+from io_ggltf.Core.Util import try_get_object
+from io_ggltf.Core.Scoops import Skin
+from io_ggltf.Core.Managers import RedundancyManager as RM
+from io_ggltf.Core import BlenderUtil
 import bpy
 
 __setArmaturePoseCommand = lambda bucket, objAccessor, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objAccessor=objAccessor, poseMode=poseMode)

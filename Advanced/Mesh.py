@@ -1,10 +1,10 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Bucket import Bucket
-from io_advanced_gltf2.Core.Managers import RedundancyManager as RM
-from io_advanced_gltf2.Core import BlenderUtil
-from io_advanced_gltf2.Core.Util import try_get_object
-from io_advanced_gltf2.Core.Scoops.Mesh import ScoopMesh
-from io_advanced_gltf2.Advanced import Settings
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Bucket import Bucket
+from io_ggltf.Core.Managers import RedundancyManager as RM
+from io_ggltf.Core import BlenderUtil
+from io_ggltf.Core.Util import try_get_object
+from io_ggltf.Core.Scoops.Mesh import ScoopMesh
+from io_ggltf.Advanced import Settings
 import bpy
 
 __scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)

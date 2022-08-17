@@ -1,8 +1,8 @@
 import enum
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core import Util
-from io_advanced_gltf2.Core.Managers import AccessorManager
-from io_advanced_gltf2.Core.Scoops.Mesh.Types import *
+from io_ggltf.Keywords import *
+from io_ggltf.Core import Util
+from io_ggltf.Core.Managers import AccessorManager
+from io_ggltf.Core.Scoops.Mesh.Types import *
 from bpy_extras import mesh_utils
 from mathutils import Vector
 import numpy
@@ -21,7 +21,7 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
         maxInfluences (int): Maximum number of influences, must be multiple of 4, any vertex with less then max influences will be padded with empty data, and any vertex with more then max will only contain highest influences and will be normalised
 
     Returns:
-        list of io_advanced_gltf2.Scoops.Mesh.Types.Primitive
+        list of io_ggltf.Scoops.Mesh.Types.Primitive
     """
     
     if skinDefinition == None:

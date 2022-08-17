@@ -1,7 +1,7 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Scoops import Skin
-from io_advanced_gltf2.Simple import Node
-from io_advanced_gltf2.Simple.File import get_current_bucket
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Scoops import Skin
+from io_ggltf.Simple import Node
+from io_ggltf.Simple.File import get_current_bucket
 import bpy
 
 def add_based_on_object(objAccessor, getInverseBinds = False, forceRestPose = False, boneBlacklist = []):

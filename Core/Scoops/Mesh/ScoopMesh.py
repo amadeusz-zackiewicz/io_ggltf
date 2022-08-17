@@ -1,7 +1,7 @@
 import bpy
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Scoops.Mesh import Triangles
-from io_advanced_gltf2.Core.Bucket import Bucket
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Scoops.Mesh import Triangles
+from io_ggltf.Core.Bucket import Bucket
 
 # https://docs.blender.org/api/current/bpy.types.Mesh.html
 # https://docs.blender.org/api/current/bpy.types.Depsgraph.html

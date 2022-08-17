@@ -1,11 +1,11 @@
 from ctypes import util
 import bpy
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core import Util
-from io_advanced_gltf2.Core.Scoops import Node
+from io_ggltf.Keywords import *
+from io_ggltf.Core import Util
+from io_ggltf.Core.Scoops import Node
 from mathutils import Matrix, Vector
-from io_advanced_gltf2.Core.Bucket import Bucket
-from io_advanced_gltf2.Core.Managers import AccessorManager
+from io_ggltf.Core.Bucket import Bucket
+from io_ggltf.Core.Managers import AccessorManager
 
 def reserve_bone_ids(bucket: Bucket, objAccessors, blacklist = set()) -> int:
     def bone_counter(bone, blacklist, boneCount):

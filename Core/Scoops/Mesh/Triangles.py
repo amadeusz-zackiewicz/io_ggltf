@@ -1,10 +1,10 @@
 from math import ceil
-from io_advanced_gltf2.Core.Managers import AccessorManager
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core.Scoops.Mesh import MeshUtil
-from io_advanced_gltf2.Core.Bucket import Bucket
+from io_ggltf.Core.Managers import AccessorManager
+from io_ggltf.Keywords import *
+from io_ggltf.Core.Scoops.Mesh import MeshUtil
+from io_ggltf.Core.Bucket import Bucket
 from mathutils import Vector
-from io_advanced_gltf2.Core import Util
+from io_ggltf.Core import Util
 
 def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertexColors, shapeKeys, shapeKeyNormals, tangents, skinID, assignedID, maxInfluences = 4):
     """_summary_

@@ -1,7 +1,7 @@
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core import Util
-from io_advanced_gltf2.Simple.File import get_current_bucket
-from io_advanced_gltf2.Core.Scoops import Node
+from io_ggltf.Keywords import *
+from io_ggltf.Core import Util
+from io_ggltf.Simple.File import get_current_bucket
+from io_ggltf.Core.Scoops import Node
 import bpy
 
 def make_new(name: str, position, rotation, scale, convertToYup = False):

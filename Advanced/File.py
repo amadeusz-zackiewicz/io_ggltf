@@ -1,8 +1,8 @@
 import bpy
-from io_advanced_gltf2.Advanced import Settings
-from io_advanced_gltf2.Keywords import FILE_TYPE_GLTF_EMBEDDED
-from io_advanced_gltf2.Core.Bucket import Bucket as B
-from io_advanced_gltf2.Core import Collector, Writer
+from io_ggltf.Advanced import Settings
+from io_ggltf.Keywords import FILE_TYPE_GLTF_EMBEDDED
+from io_ggltf.Core.Bucket import Bucket as B
+from io_ggltf.Core import Collector, Writer
 
 
 def create_bucket(filePath: str, fileName: str, binPath="/bin", fileType=FILE_TYPE_GLTF_EMBEDDED):

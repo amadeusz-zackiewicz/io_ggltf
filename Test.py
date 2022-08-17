@@ -8,7 +8,7 @@ import sys
 import getopt
 
 blenderPath = None
-addonName = "io_advanced_gltf2"
+addonName = "io_ggltf"
 pathSplit = os.path.sep
 comparisonFileName = "Comparison.txt"
 

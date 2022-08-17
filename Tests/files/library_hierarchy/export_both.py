@@ -10,11 +10,8 @@ if __name__ == "__main__" and len(sys.argv) == 1:
     import Tests.LimitedTestUtil as T
     T.run_test("library_hierarchy", "library_hierarchy", os.path.basename(__file__).replace(".py", ""))
 else:
-    from io_advanced_gltf2.Advanced import Node
-    from io_advanced_gltf2.Advanced import File
-
-
-    from io_advanced_gltf2.Keywords import FILE_TYPE_GLTF_EMBEDDED, FILE_TYPE_GLB, FILE_TYPE_GLTF
+    from io_ggltf.Advanced import *
+    from io_ggltf.Keywords import *
 
     filePath = "//..\\..\\output\\"
     fileName = "library_hierarchy_export_both"

@@ -1,8 +1,8 @@
 from fileinput import filename
 from logging import exception
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Core import Writer
-from io_advanced_gltf2.Core.Bucket import Bucket
+from io_ggltf.Keywords import *
+from io_ggltf.Core import Writer
+from io_ggltf.Core.Bucket import Bucket
 
 global __bucket
 __bucket = None

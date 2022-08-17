@@ -1,9 +1,9 @@
 import bpy
 from mathutils import Quaternion, Vector
-from io_advanced_gltf2.Core import Util
-from io_advanced_gltf2.Keywords import *
-from io_advanced_gltf2.Simple import Mesh
-from io_advanced_gltf2.Core.Bucket import Bucket
+from io_ggltf.Core import Util
+from io_ggltf.Keywords import *
+from io_ggltf.Simple import Mesh
+from io_ggltf.Core.Bucket import Bucket
 
 def obj_to_node(
     name = None,
