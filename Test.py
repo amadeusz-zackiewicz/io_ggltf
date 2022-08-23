@@ -6,6 +6,7 @@ import io
 import traceback
 import sys
 import getopt
+import binascii
 
 blenderPath = None
 addonName = "io_ggltf"
@@ -157,10 +158,14 @@ if __name__ == "__main__":
     failures = []
     warnings = []
 
-    def compare_chunk(file1: io.FileIO, file2: io.FileIO, chunkSize):
+    def compare_chunk(file1: io.FileIO, file2: io.FileIO, chunkSize, isBinary):
         while True:
-            chunk1 = file1.read(chunkSize)
-            chunk2 = file2.read(chunkSize)
+            if isBinary:
+                chunk1 = binascii.b2a_hex(file1.read(chunkSize))
+                chunk2 = binascii.b2a_hex(file2.read(chunkSize))
+            else:
+                chunk1 = file1.read(chunkSize)
+                chunk2 = file2.read(chunkSize)
 
             if chunk1 and chunk2:
                 if chunk1 == chunk2:
@@ -182,10 +187,17 @@ if __name__ == "__main__":
 
             if newFileSize == oldFileSize:
                 try:
-                    newFile = open(testOutputPath + outputFileName)
-                    oldFile = open(testComparisonOutputPath + outputFileName)
+                    binExt = re.search("(.*\.bin$)|(.*\.glb$)", outputFileName)
+                    if binExt == None:
+                        isBinary = False
+                        newFile = open(testOutputPath + outputFileName, "r")
+                        oldFile = open(testComparisonOutputPath + outputFileName, "r")
+                    else:
+                        isBinary = True
+                        newFile = open(testOutputPath + outputFileName, "rb")
+                        oldFile = open(testComparisonOutputPath + outputFileName, "rb")
                     chunkSize = 256
-                    for comparison in compare_chunk(newFile, oldFile, chunkSize):
+                    for comparison in compare_chunk(newFile, oldFile, chunkSize, isBinary):
                         if comparison:
                             byteRange = (newFile.tell() - comparison, newFile.tell())
                             newFile.seek(newFile.tell() - comparison)
