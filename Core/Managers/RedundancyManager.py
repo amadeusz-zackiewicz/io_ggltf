@@ -1,33 +1,76 @@
 from io_ggltf.Core.Bucket import Bucket
 import bpy
-from io_ggltf.Keywords import BUCKET_DATA_NODES
+from io_ggltf import Keywords
 
-def is_redundant(bucket: Bucket, objAccessor: tuple, getFunc = bpy.data.objects.get) -> bool:
-    return get_eval(bucket.currentDependencyGraph, objAccessor, getFunc) in bucket.redundancies
+def __is_not_unique(bucket: Bucket, objAccessor, getFunc = bpy.data.objects.get) -> bool:
+    return __get_eval(bucket.currentDependencyGraph, objAccessor, getFunc) in bucket.redundancies
 
-def add_redundancy(bucket: Bucket, objAccessor: tuple, pID: int, getFunc = bpy.data.objects.get):
-    bucket.redundancies[get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)] = pID
+def __add_unique(bucket: Bucket, objAccessor, pID: int, getFunc = bpy.data.objects.get):
+    bucket.redundancies[__get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)] = pID
 
-def get_redundancy(bucket: Bucket, objAccessor: tuple, getFunc = bpy.data.objects.get) -> int:
-    return bucket.redundancies[get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)]
+def fetch_unique(bucket: Bucket, objAccessor, getFunc = bpy.data.objects.get) -> int:
+    return bucket.redundancies[__get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)]
 
-def smart_redundancy(bucket: Bucket, objAccessor: tuple, bucketDataType: str, getFunc = bpy.data.objects.get):
-    if is_redundant(bucket, objAccessor, getFunc):
-        return (True, get_redundancy(bucket, objAccessor, getFunc))
+def register_unique(bucket: Bucket, objAccessor, bucketDataType: str, getFunc = bpy.data.objects.get):
+    if __is_not_unique(bucket, objAccessor, getFunc):
+        return (True, fetch_unique(bucket, objAccessor, getFunc))
     else:
         newID = bucket.preScoopCounts[bucketDataType]
         bucket.preScoopCounts[bucketDataType] += 1
-        add_redundancy(bucket, objAccessor, newID, getFunc)
+        __add_accessor(bucket, objAccessor, bucketDataType, newID)
+        __add_unique(bucket, objAccessor, newID, getFunc)
         return (False, newID)
 
-def get_eval(depsGraph, objAccessor: tuple, getFunc = bpy.data.objects.get):
-    if type(objAccessor[0]) == str: # we guess that if the element is a string, then its tuple of (obj.name, obj.library)
-        eval = id(depsGraph.id_eval_get(getFunc(objAccessor)))
-    else:
+def __get_eval(depsGraph, objAccessor, getFunc = bpy.data.objects.get):
+    if type(objAccessor) == list:
         eval = tuple([id(depsGraph.id_eval_get(getFunc(o))) for o in objAccessor])
+    elif type(objAccessor) == str:
+        eval = id(depsGraph.id_eval_get(getFunc(objAccessor)))
+    elif type(objAccessor) == tuple:
+        if len(objAccessor) == 3: ## if the accessor has 3 elements, then its a bone, we assume that the getFunc is getting an object
+            eval = id(depsGraph.id_eval_get(getFunc((objAccessor[0], objAccessor[1])).pose.bones[objAccessor[2]]))
+        else:
+            eval = id(depsGraph.id_eval_get(getFunc(objAccessor)))
+    else:
+        raise Exception(f"Invalid accessor type, expected string, tuple or list, got: {type(objAccessor)}")
     return eval
 
-def reserve_untracked_id(bucket: Bucket, dataType: str):
+def register_unsafe(bucket: Bucket, accessor, dataType: str):
     oldCount = bucket.preScoopCounts[dataType]
+    __add_accessor(bucket, accessor, dataType, oldCount) 
     bucket.preScoopCounts[dataType] += 1
     return oldCount
+
+def __add_accessor(bucket, accessor, dataType, id):
+    if type(accessor) == list:
+        accessor = tuple(accessor) 
+        
+    if accessor in bucket.accessors[dataType]:
+        if type(bucket.accessors[dataType][accessor]) != list:
+            bucket.accessors[dataType][accessor] = [bucket.accessors[dataType][accessor], id]
+        else:
+            bucket.accessors[dataType][accessor].append(id)
+    else:
+        bucket.accessors[dataType][accessor] = id
+
+def fetch_id_from_unsafe(bucket, accessor, dataType) -> int or list[int]:
+    if type(accessor) == list:
+        accessor = tuple(accessor)
+        
+    if accessor in bucket.accessors[dataType]:
+        return bucket.accessors[dataType][accessor]
+    else:
+        raise Exception(f"{accessor} has no assigned ID, please make sure you add the desired object to the bucket first.")
+
+def fetch_first_id_from_unsafe(bucket, accessor, dataType) -> int:
+    if type(accessor) == list:
+        accessor = tuple(accessor)
+
+    if accessor in bucket.accessors[dataType]:
+        id = bucket.accessors[dataType][accessor]
+        if type(id) == list:
+            return id[0]
+        else:
+            return id
+    else:
+        raise Exception(f"{accessor} has no assigned ID, please make sure you add the desired object to the bucket first.")

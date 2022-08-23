@@ -1,39 +1,45 @@
-from ctypes import util
 import bpy
-from io_ggltf.Keywords import *
+from io_ggltf import Keywords as k
 from io_ggltf.Core import Util
+from io_ggltf.Core import BlenderUtil
 from io_ggltf.Core.Scoops import Node
 from mathutils import Matrix, Vector
 from io_ggltf.Core.Bucket import Bucket
-from io_ggltf.Core.Managers import AccessorManager
+from io_ggltf.Core.Managers import AccessorManager, RedundancyManager as RM
 
 def reserve_bone_ids(bucket: Bucket, objAccessors, blacklist = set()) -> int:
-    def bone_counter(bone, blacklist, boneCount):
+    def bone_counter(bone, objAcc, blacklist, offset):
         if bone.name in blacklist:
             return
         
         for c in bone.children:
-            bone_counter(c, blacklist, boneCount)
+            bone_counter(c, objAcc, blacklist, offset)
         
-        boneCount[0] += 1
+        RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), k.BUCKET_DATA_NODES)
 
     objects = [bpy.data.objects.get(o) for o in objAccessors]
     bones = []
+    accessors = []
     rootBones = []
-    boneCount = [0] # just so i can pass it as reference, im lazy
 
     for obj in objects:
-        bones.extend([b for b in obj.pose.bones])
+        for bone in obj.pose.bones:
+            objAcc = BlenderUtil.get_object_accessor(obj)
+            bones.append(bone)
+            accessors.append(objAcc)
+
 
     for i, bone in enumerate(bones):
         if bone.parent == None:
             rootBones.append(i)
 
-    for r in rootBones:
-        bone_counter(bones[r], blacklist, boneCount)
+    nodeIDOffset = bucket.preScoopCounts[k.BUCKET_DATA_NODES]
 
-    nodeIDOffset = bucket.preScoopCounts[BUCKET_DATA_NODES]
-    bucket.preScoopCounts[BUCKET_DATA_NODES] = nodeIDOffset + boneCount[0]
+    for r in rootBones:
+        bone_counter(bones[r], accessors[r], blacklist, nodeIDOffset)
+
+    
+    #bucket.preScoopCounts[BUCKET_DATA_NODES] = nodeIDOffset + boneCount[0]
 
     return nodeIDOffset
 
@@ -66,7 +72,7 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
     joints = []
 
     skinDict = {}
-    skinDict[SKIN_NAME] = objects[0].name
+    skinDict[k.SKIN_NAME] = objects[0].name
 
     for i, b in enumerate(bones):
         bone = b[0]
@@ -90,10 +96,10 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
         skeleton.append(rootJoint.jointID)
     del jointCounter
 
-    skinDict[SKIN_JOINTS] = joints
+    skinDict[k.SKIN_JOINTS] = joints
 
     if len(skeleton) == 1:
-        skinDict[SKIN_SKELETON] = skeleton[0]
+        skinDict[k.SKIN_SKELETON] = skeleton[0]
 
     if getInversedBinds:
         inversedBinds = []
@@ -101,14 +107,14 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
             __calculate_inverse_binds(rootJoint, obj.matrix_world)
             __inverse_binds_to_list(rootJoint, inversedBinds)
 
-        skinDict[SKIN_INVERSE_BIND_MATRICES] = AccessorManager.add_accessor(bucket,
-        componentType=ACCESSOR_COMPONENT_TYPE_FLOAT,
-        type=ACCESSOR_TYPE_MATRIX_4,
-        packingFormat=PACKING_FORMAT_FLOAT,
+        skinDict[k.SKIN_INVERSE_BIND_MATRICES] = AccessorManager.add_accessor(bucket,
+        componentType=k.ACCESSOR_COMPONENT_TYPE_FLOAT,
+        type=k.ACCESSOR_TYPE_MATRIX_4,
+        packingFormat=k.PACKING_FORMAT_FLOAT,
         data=inversedBinds
         )
     
-    bucket.data[BUCKET_DATA_SKINS][skinID] = skinDict
+    bucket.data[k.BUCKET_DATA_SKINS][skinID] = skinDict
     bucket.skinDefinition[skinID] = (skinDefinition)
 
     return rootNodes
@@ -168,7 +174,7 @@ def __joint_hierarchy_to_nodes(bucket: Bucket, joint: Joint):
             children=children
         )
 
-        bucket.data[BUCKET_DATA_NODES][joint.nodeID] = node
+        bucket.data[k.BUCKET_DATA_NODES][joint.nodeID] = node
 
         return joint.nodeID
 

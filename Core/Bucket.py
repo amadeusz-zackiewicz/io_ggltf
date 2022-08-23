@@ -30,6 +30,11 @@ class Bucket():
             BUCKET_DATA_MESHES: 0,
             BUCKET_DATA_SKINS: 0
         }
+        self.accessors = { # to get accessor from the assigned ID
+            BUCKET_DATA_NODES: {},
+            BUCKET_DATA_MESHES: {},
+            BUCKET_DATA_SKINS: {}
+        }
 
     def __fill_in_data(self) -> dict:
         self.data = {

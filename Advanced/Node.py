@@ -6,6 +6,7 @@ from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.BlenderUtil import get_object_accessor
 from io_ggltf.Core import Linker
 from io_ggltf.Advanced import Settings
+from io_ggltf.Core import Util
 import bpy
 
 __linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
@@ -21,11 +22,17 @@ def based_on_object(bucket: Bucket, objAccessor, worldSpace=None, checkRedundanc
         checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
 
     if checkRedundancies:
-        redundant, nodeID = RM.smart_redundancy(bucket, get_object_accessor(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
+        redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
         if redundant:
             return nodeID
     else:
-        nodeID = RM.reserve_untracked_id(bucket, BUCKET_DATA_NODES)
+        nodeID = RM.register_unsafe(bucket, get_object_accessor(obj), BUCKET_DATA_NODES)
+
+    if rename != None:
+        if type(rename) == str:
+            bucket.commandQueue[COMMAND_QUEUE_NAMING].append((Util.rename_node, (bucket, nodeID, rename)))
+        else:
+            raise Exception(f"based_on_object: 'rename' is expected to be a string, got {type(rename)} instead.")
         
     bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), worldSpace)))
     return nodeID
@@ -46,11 +53,11 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, topObjWor
                     childrenIDs.append(childID)
 
         if checkRedundancies:
-            redundant, nodeID = RM.smart_redundancy(bucket, get_object_accessor(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
+            redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
             if redundant:
                 return nodeID
         else:
-            nodeID = RM.reserve_untracked_id(bucket, BUCKET_DATA_NODES)
+            nodeID = RM.register_unsafe(bucket, get_object_accessor(obj), BUCKET_DATA_NODES)
 
         for c in childrenIDs:
             bucket.commandQueue[COMMAND_QUEUE_LINKER].append((__linkChildCommand, (bucket, nodeID, c)))

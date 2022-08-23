@@ -46,12 +46,12 @@ checkRedundancy=None
         return None
     
     if checkRedundancy:
-        redundant, meshID = RM.smart_redundancy(bucket, BlenderUtil.get_object_accessor(obj), BUCKET_DATA_MESHES)
+        redundant, meshID = RM.register_unique(bucket, BlenderUtil.get_object_accessor(obj), BUCKET_DATA_MESHES)
 
         if redundant:
             return meshID
     else:
-        meshID = RM.reserve_untracked_id(bucket, BUCKET_DATA_MESHES)
+        meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), BUCKET_DATA_MESHES)
 
     BlenderUtil.queue_disable_modifier_type(bucket, obj, BLENDER_MODIFIER_ARMATURE)
     
@@ -122,7 +122,7 @@ shapeKeyUVs=None
                 if not BlenderUtil.object_has_shape_keys(obj, shapeKeys):
                     print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified Shape Keys")
                     return None
-        meshID = RM.reserve_untracked_id(bucket, BUCKET_DATA_MESHES)
+        meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), BUCKET_DATA_MESHES)
         
         bucket.commandQueue[COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], BlenderUtil.get_object_accessor(topObj), name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
 

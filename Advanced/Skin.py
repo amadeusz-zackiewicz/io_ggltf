@@ -31,12 +31,12 @@ def based_on_object(
         return None
 
     if checkRedundancy:
-        redundant, skinID = RM.smart_redundancy(bucket, (obj.name, obj.library), BUCKET_DATA_SKINS)
+        redundant, skinID = RM.register_unique(bucket, (obj.name, obj.library), BUCKET_DATA_SKINS)
 
         if redundant:
             return skinID
     else:
-        skinID = RM.reserve_untracked_id(bucket, BUCKET_DATA_SKINS)
+        skinID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), BUCKET_DATA_SKINS)
     
     if forceRestPose:
         if obj.data.pose_position != BLENDER_ARMATURE_REST_MODE:
@@ -81,14 +81,14 @@ def based_on_object_modifiers(
         print("No armature modifiers found")
         return None
 
-    objectAccessors = tuple([(o.name, o.library) for o in armatureObjects])
+    objectAccessors = [(o.name, o.library) for o in armatureObjects]
     if checkRedundancy:
-        redundant, skinID = RM.smart_redundancy(bucket, objectAccessors, BUCKET_DATA_SKINS)
+        redundant, skinID = RM.register_unique(bucket, objectAccessors, BUCKET_DATA_SKINS)
 
         if redundant:
             return skinID
     else:
-        skinID = RM.reserve_untracked_id(bucket, BUCKET_DATA_SKINS)
+        skinID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), BUCKET_DATA_SKINS)
 
     for armatureObj in armatureObjects:
         if forceRestPose:
