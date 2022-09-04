@@ -1,6 +1,6 @@
 {
     "asset": {
-        "generator": "Blender Advanced GLTF2 I/O",
+        "generator": "Blender ggltf",
         "version": "2.0"
     },
     "scenes": [
@@ -77,30 +77,12 @@
             "mesh": 2
         }
     ],
-    "materials": [
-        {
-            "name": "default_temp_material",
-            "doubleSided": false,
-            "alphaMode": "OPAQUE",
-            "pbrMetallicRoughness": {
-                "baseColorFactor": [
-                    0.8,
-                    0.8,
-                    0.8,
-                    1.0
-                ],
-                "metallicFactor": 0,
-                "roughnessFactor": 0.4
-            }
-        }
-    ],
     "meshes": [
         {
             "name": "helicopter_mesh",
             "primitives": [
                 {
                     "mode": 4,
-                    "material": 0,
                     "indices": 1,
                     "attributes": {
                         "POSITION": 0,
@@ -109,7 +91,6 @@
                 },
                 {
                     "mode": 4,
-                    "material": 0,
                     "indices": 4,
                     "attributes": {
                         "POSITION": 3,
@@ -123,7 +104,6 @@
             "primitives": [
                 {
                     "mode": 4,
-                    "material": 0,
                     "indices": 7,
                     "attributes": {
                         "POSITION": 6,
@@ -137,7 +117,6 @@
             "primitives": [
                 {
                     "mode": 4,
-                    "material": 0,
                     "indices": 10,
                     "attributes": {
                         "POSITION": 9,

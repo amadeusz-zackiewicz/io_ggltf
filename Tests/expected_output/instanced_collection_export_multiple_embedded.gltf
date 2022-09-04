@@ -1,6 +1,6 @@
 {
     "asset": {
-        "generator": "Blender Advanced GLTF2 I/O",
+        "generator": "Blender ggltf",
         "version": "2.0"
     },
     "scenes": [
@@ -202,23 +202,6 @@
             "children": [
                 7
             ]
-        }
-    ],
-    "materials": [
-        {
-            "name": "default_temp_material",
-            "doubleSided": false,
-            "alphaMode": "OPAQUE",
-            "pbrMetallicRoughness": {
-                "baseColorFactor": [
-                    0.8,
-                    0.8,
-                    0.8,
-                    1.0
-                ],
-                "metallicFactor": 0,
-                "roughnessFactor": 0.4
-            }
         }
     ],
     "scene": 0

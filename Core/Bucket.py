@@ -41,27 +41,12 @@ class Bucket():
             BUCKET_DATA_EXTENSIONS_USED : [],
             BUCKET_DATA_EXTENSIONS_REQUIRED : [],
             BUCKET_DATA_ANIMATIONS : [],
-            BUCKET_DATA_ASSET : {"generator": "Blender Advanced GLTF2 I/O", "version" : "2.0"},
+            BUCKET_DATA_ASSET : {"generator": "Blender ggltf", "version" : "2.0"},
             BUCKET_DATA_SCENES : [],
             BUCKET_DATA_NODES : [],
             BUCKET_DATA_CAMERAS : [],
             BUCKET_DATA_IMAGES : [],
-            BUCKET_DATA_MATERIALS : [{
-                MATERIAL_NAME: "default_temp_material",
-                MATERIAL_DOUBLE_SIDED: False,
-                MATERIAL_ALPHA_MODE: "OPAQUE",
-                "pbrMetallicRoughness":{
-                    "baseColorFactor":
-                    [
-                        0.8,
-                        0.8,
-                        0.8,
-                        1.0
-                    ],
-                    "metallicFactor": 0,
-                    "roughnessFactor": 0.4
-                }
-            }],# TODO: remember to delete the temp material creation when materials are supported
+            BUCKET_DATA_MATERIALS : [],
             BUCKET_DATA_MESHES : [],
             BUCKET_DATA_SAMPLERS : [],
             BUCKET_DATA_SKINS : [],

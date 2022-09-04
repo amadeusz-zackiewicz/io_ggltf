@@ -78,8 +78,7 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
     for i, p in enumerate(primitives): 
         # prepare the dictionary for this primitive
         primitiveDict = { 
-            MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES,
-            MESH_PRIMITIVE_MATERIAL: 0, # TODO: materials are not yet supported
+            MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES
             }
 
         positionsAccessor = MeshUtil.get_accessor_positions(bucket, p.positions)
@@ -266,8 +265,7 @@ assignedID: int
     for p in primitives:
         # prepare the dictionary for this primitive
         primitiveDict = { 
-            MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES,
-            MESH_PRIMITIVE_MATERIAL: 0, # TODO: materials are not yet supported
+            MESH_PRIMITIVE_MODE: MESH_TYPE_TRIANGLES
             }
 
         positionsAccessor = MeshUtil.get_accessor_positions(bucket, p.positions)
