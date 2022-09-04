@@ -26,7 +26,7 @@ def run_test(folderName: str, blendFiles: None or list or str, pythonFiles: None
     testScriptPath = "Test"
 
     print(f'{python} -m "{testScriptPath}" -f {folderName} {blendFiles} {pythonFiles}')
-    errno = subprocess.call(f'{python} -m "{testScriptPath}" -f {folderName} {blendFiles} {pythonFiles}')
+    errno = subprocess.call(f'{python} -m "{testScriptPath}" -f {folderName} {blendFiles} {pythonFiles} -p')
     print("Limited Test exited with error number:", errno)
 
 if __name__ == "__main__":
