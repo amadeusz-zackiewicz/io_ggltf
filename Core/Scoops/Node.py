@@ -102,9 +102,9 @@ def obj_to_node(
 #     weights=weights
 #     )
 
-def scoop_object(bucket: Bucket, assignedID, objID, worldSpace = False):
+def scoop_object(bucket: Bucket, assignedID, objAccessor, worldSpace = False):
 
-    obj = bpy.data.objects.get(objID)
+    obj = bpy.data.objects.get(objAccessor)
 
     m = obj.matrix_world if worldSpace else obj.matrix_local
     loc, rot, sc = m.decompose()

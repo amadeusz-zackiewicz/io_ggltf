@@ -2,6 +2,7 @@ from io_ggltf.Keywords import *
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
 import bpy
+import re
 
 class ObjectNameInvalidException(Exception):
     def __init__(self, objAccessor):
@@ -56,26 +57,6 @@ def cleanup_keys(d: dict):
     for p in to_pop:
         d.pop(p)
 
-def validate_filter_list(obj, filter, expected_type = str) -> list:
-    if type(obj) != list:
-        if obj == None: 
-            if filter == LIST_FILTER_WHITELIST:
-                return None
-            else:
-                obj = []
-        else:
-            obj = [obj]
-
-    for o in enumerate(obj):
-        if type(o[1]) != expected_type:
-            print(str(o[1]) + f" is a wrong variable type, expected: {expected_type}, got: {type(o[1])}")
-            obj.pop(o[0])
-
-    if len(obj) == 0 and filter == LIST_FILTER_WHITELIST:
-        return None
-
-    return obj
-
 def get_basis_matrix_conversion():
     convert = axis_conversion(from_forward="-Y", from_up="Z", to_forward="Z", to_up="Y")
     convert.resize_4x4()
@@ -92,3 +73,33 @@ def try_get_object(objAccessor):
         print(e)
         return None
     
+def name_passes_filters(filter: list[tuple], name: str) -> bool:
+    for f in filter:
+        print(f"Filter: {f[0]} | Name: {name} | Whitelist: {f[1]} | Match: {re.search(f[0], name)}")
+        match = re.search(f[0], name)
+        if f[1] == True: # if its a white list
+            if match == None: # and we failed to find a match
+                return False 
+        else: # if its a blacklist
+            if match != None: # and we found a match
+                return False
+    return True
+
+def rename_node(bucket, nodeID: int, newName: str):
+    node = bucket.data[BUCKET_DATA_NODES][nodeID]
+    node[NODE_NAME] = newName
+
+def rename_node(bucket, nodeName: str, newName: str):
+    for n in bucket.data[BUCKET_DATA_NODES]:
+        if nodeName == n[NODE_NAME]:
+            n[NODE_NAME] = newName
+
+def pattern_replace(bucket, dataType: str, pattern: str, newStr: str):
+    objects = bucket.data[dataType]
+    for obj in objects:
+        matches = re.search(pattern, obj["name"])
+        for group in matches.groups():
+            obj["name"] = obj["name"].replace(group, newStr)
+
+def create_filter(pattern: str, whitelist: bool):
+    return (pattern, whitelist)

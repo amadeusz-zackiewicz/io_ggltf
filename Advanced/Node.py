@@ -10,9 +10,9 @@ from io_ggltf.Core import Util
 import bpy
 
 __linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
-__scoopCommand = lambda bucket, assignedID, objID, space: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objID=objID, worldSpace=space)
+__scoopCommand = lambda bucket, assignedID, objID, space: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objAccessor=objID, worldSpace=space)
 
-def based_on_object(bucket: Bucket, objAccessor, worldSpace=None, checkRedundancies=None) -> int:
+def based_on_object(bucket: Bucket, objAccessor, worldSpace=None, checkRedundancies=None, rename=None) -> int:
 
     obj = try_get_object(objAccessor)
     if worldSpace == None:
@@ -38,9 +38,9 @@ def based_on_object(bucket: Bucket, objAccessor, worldSpace=None, checkRedundanc
     return nodeID
 
 
-def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, topObjWorldSpace=None, checkRedundancies=None) -> int:
-    def __recursive(bucket: Bucket, obj, blacklist, worldSpace, checkRedundancies):
-        if obj.name in blacklist:
+def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, topObjWorldSpace=None, checkRedundancies=None, filters=[]) -> int:
+    def __recursive(bucket: Bucket, obj, blacklist, worldSpace, checkRedundancies, filters):
+        if obj.name in blacklist or not Util.name_passes_filters(filters, obj.name):
             return None
 
         childrenIDs = []
@@ -48,7 +48,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, topObjWor
             childrenIDs.extend(based_on_collection(bucket=bucket, collectionName=get_object_accessor(obj.instance_collection), blacklist=blacklist, worldSpace=False, checkRedundancies=checkRedundancies))
         else:
             for c in obj.children:
-                childID = __recursive(bucket, c, blacklist, False, checkRedundancies)
+                childID = __recursive(bucket, c, blacklist, False, checkRedundancies, filters)
                 if childID != None:
                     childrenIDs.append(childID)
 
@@ -73,7 +73,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, topObjWor
     if checkRedundancies == None:
         checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
 
-    return __recursive(bucket, obj, blacklist, topObjWorldSpace, checkRedundancies)
+    return __recursive(bucket, obj, blacklist, topObjWorldSpace, checkRedundancies, filters)
 
 def __object_is_collection_instance(obj) -> bool:
     return obj.instance_type == BLENDER_INSTANCE_TYPE_COLLECTION
@@ -85,7 +85,7 @@ def __get_collection_top_objects(collection, blacklist={}):
             topObjects.append(obj)
     return topObjects
 
-def based_on_collection(bucket: Bucket, collectionName, blacklist={}, worldSpace=None, checkRedundancies=None) -> list:
+def based_on_collection(bucket: Bucket, collectionName, blacklist={}, worldSpace=None, checkRedundancies=None, filters=[]) -> list:
     if worldSpace == None:
         worldSpace = Settings.get_setting(bucket, BUCKET_SETTING_NODE_DEFAULT_WORLD_SPACE)
     if checkRedundancies == None:
@@ -97,6 +97,7 @@ def based_on_collection(bucket: Bucket, collectionName, blacklist={}, worldSpace
 
     nodeIDs = []
     for topObj in topObjects:
-        nodeIDs.append(based_on_hierarchy(bucket, get_object_accessor(topObj), blacklist, worldSpace, checkRedundancies))
+        if not topObj.name in blacklist and Util.name_passes_filters(filters, topObj.name):
+            nodeIDs.append(based_on_hierarchy(bucket, get_object_accessor(topObj), blacklist, worldSpace, checkRedundancies, filters=filters))
 
     return nodeIDs
