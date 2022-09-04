@@ -11,12 +11,12 @@ import binascii
 blenderPath = None
 addonName = "io_ggltf"
 pathSplit = os.path.sep
-comparisonFileName = "Comparison.txt"
+comparisonReportFilename = "Comparison.txt"
 
 if __name__ == "__main__":
 
-    if os.path.exists(comparisonFileName):
-        os.remove(comparisonFileName)
+    if os.path.exists(comparisonReportFilename):
+        os.remove(comparisonReportFilename)
 
     if blenderPath == None:
         # get the path to the blender executable
@@ -55,8 +55,10 @@ if __name__ == "__main__":
     testFolders = [""]
     blendFiles = []
     pythonFiles = []
+    _print = False
+    report = False
 
-    cmdOptions, _ = getopt.gnu_getopt(sys.argv[1:], "f:b:t:", ["folder=", "blend=", "test="])
+    cmdOptions, _ = getopt.gnu_getopt(sys.argv[1:], "f:b:t:pr", ["folder=", "blend=", "test=", "print", "report"])
 
     for o, a in cmdOptions:
         if o == "-f" or o == "--folder":
@@ -73,6 +75,10 @@ if __name__ == "__main__":
             tFiles = a.split(" ")
             for tFile in tFiles:
                 pythonFiles.append(tFile)
+        if o == "-p" or o == "--print":
+            _print = True
+        if o == "-r" or o == "--report":
+            report = True
     
     if testFolders[0] == "":
         testFolders = os.listdir(testFilesRootPath)
@@ -140,9 +146,11 @@ if __name__ == "__main__":
         finally:
             errString = process.stderr
             outString = process.stdout
-            if len(errString) > 0:
-                print("\tFailed, please check the .txt file for details")
-                outputFilePath = f"{testOutputPath}{testName}.txt"
+            if len(errString) > 0 or _print:
+                if not _print:
+                    print("\tFailed, please check the .txt file for details")
+
+                outputFilePath = f"{testOutputPath}_{testName}.txt"
 
                 if os.path.exists(outputFilePath):
                     outputFile = open(outputFilePath, "w")
@@ -214,7 +222,7 @@ if __name__ == "__main__":
                             failures.append((outputFileName, f"Failed to match chunk between {format(byteRange[0], ',')} - {format(byteRange[1], ',')}bytes\n\t\tChunk diff: \n\t\t\t{newFileChunk}\n\t\t\t{oldFileChunk}\n\t\t\t{diff.getvalue()}"))
                             diff.close()
                             del diff
-                            print(f"\tFailed due to chunk mismatch, check the {comparisonFileName} file for details")
+                            print(f"\tFailed due to chunk mismatch, check the {comparisonReportFilename} file for details")
                             break
                 except:
                     print(outputFileName, traceback.format_exc())
@@ -223,16 +231,16 @@ if __name__ == "__main__":
                     oldFile.close
             else:
                 failures.append((outputFileName, f"File size does not match: {format(newFileSize, ',')} bytes vs {format(oldFileSize, ',')} bytes"))
-                print(f"\t\tFailed due to file size mismatch, check the {comparisonFileName} file for details")
+                print(f"\t\tFailed due to file size mismatch, check the {comparisonReportFilename} file for details")
         else:
             warnings.append((outputFileName, "Failed to find comparison file"))
             continue
 
     if len(warnings) > 0 or len(failures) > 0:
-        if os.path.exists(comparisonFileName):
-            output = open(comparisonFileName, "w")
+        if os.path.exists(comparisonReportFilename):
+            output = open(comparisonReportFilename, "w")
         else:
-            output = open(comparisonFileName, "x")
+            output = open(comparisonReportFilename, "x")
         try:
             if len(warnings) > 0:
                 output.write("Warnings:\n")
@@ -251,5 +259,6 @@ if __name__ == "__main__":
                     output.write("\n")
         finally:
             output.close()
-            if platform.system() == "Windows":
-                os.startfile(comparisonFileName)
+            if report:
+                if platform.system() == "Windows":
+                    os.startfile(comparisonReportFilename)
