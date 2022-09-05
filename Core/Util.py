@@ -75,7 +75,7 @@ def try_get_object(objAccessor):
     
 def name_passes_filters(filter: list[tuple], name: str) -> bool:
     for f in filter:
-        print(f"Filter: {f[0]} | Name: {name} | Whitelist: {f[1]} | Match: {re.search(f[0], name)}")
+        #print(f"Filter: {f[0]} | Name: {name} | Whitelist: {f[1]} | Match: {re.search(f[0], name)}")
         match = re.search(f[0], name)
         if f[1] == True: # if its a white list
             if match == None: # and we failed to find a match
