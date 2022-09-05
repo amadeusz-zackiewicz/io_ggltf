@@ -70,8 +70,6 @@ def obj_to_node(
 #     if len(children) == 0:
 #         children = None
 
-#     # TODO: if armature, get joints and scoop them
-
 #     # if its not a child of something, then we take the world coordinates
 #     m = obj.matrix_local if localSpace else obj.matrix_world
 #     loc, rot, sc = m.decompose()
@@ -102,11 +100,27 @@ def obj_to_node(
 #     weights=weights
 #     )
 
-def scoop_object(bucket: Bucket, assignedID, objAccessor, worldSpace = False):
+def scoop_object(bucket: Bucket, assignedID, objAccessor, parent = False):
 
     obj = bpy.data.objects.get(objAccessor)
 
-    m = obj.matrix_world if worldSpace else obj.matrix_local
+    if parent == False:
+        m = obj.matrix_world
+    elif parent == True:
+        m = obj.matrix_local
+    else: # we assume that this is an accessor
+        parentObj = Util.try_get_object(parent)
+        try:
+            bone = Util.try_get_bone(parent)
+        except:
+            bone = None
+
+        if bone != None:
+            pMatrix = parentObj.matrix_world @ bone.matrix
+            m = pMatrix.inverted_safe() @ obj.matrix_world
+        else:
+            m = parentObj.matrix_world.inverted_safe() @ m.matrix_world
+
     loc, rot, sc = m.decompose()
 
     loc = Util.y_up_location(loc)

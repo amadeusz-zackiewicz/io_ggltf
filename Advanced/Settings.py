@@ -13,7 +13,7 @@ def get_setting(bucket: Bucket, setting: str):
 __default = {
         ####### NODE
         BUCKET_SETTING_REDUNDANCY_CHECK_NODE: False,
-        BUCKET_SETTING_NODE_DEFAULT_WORLD_SPACE: True,
+        BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE: True,
         ####### MESH
         BUCKET_SETTING_REDUNDANCY_CHECK_MESH: True,
         BUCKET_SETTING_INCLUDE_MESH: True,

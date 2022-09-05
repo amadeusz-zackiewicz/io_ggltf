@@ -74,3 +74,16 @@ def fetch_first_id_from_unsafe(bucket, accessor, dataType) -> int:
             return id
     else:
         raise Exception(f"{accessor} has no assigned ID, please make sure you add the desired object to the bucket first.")
+
+def fetch_last_id_from_unsafe(bucket, accessor, dataType) -> int:
+    if type(accessor) == list:
+        accessor = tuple(accessor)
+
+    if accessor in bucket.accessors[dataType]:
+        id = bucket.accessors[dataType][accessor]
+        if type(id) == list:
+            return id[-1]
+        else:
+            return id
+    else:
+        raise Exception(f"{accessor} has no assigned ID, please make sure you add the desired object to the bucket first.")

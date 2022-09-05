@@ -18,15 +18,15 @@ else:
     binPath = ""
 
     def test(bucket):
-        heliNode = Node.based_on_object(bucket, "Helicopter")
+        heliNode = Node.based_on_object(bucket, "Helicopter", parent=False)
         heliMesh = Mesh.merged_based_on_hierarchy(bucket, "Helicopter",
         name="helicopter_mesh",
         blacklist={"Rear_Rotor", "Rotor"}
         )
         rotorMesh = Mesh.based_on_object(bucket, "Rotor")
-        rotorNode = Node.based_on_object(bucket, "Rotor", worldSpace=False)
+        rotorNode = Node.based_on_object(bucket, "Rotor", parent=True)
         rearRotMesh = Mesh.based_on_object(bucket, "Rear_Rotor")
-        rearRotNode = Node.based_on_object(bucket, "Rear_Rotor", worldSpace=False)
+        rearRotNode = Node.based_on_object(bucket, "Rear_Rotor", parent=True)
         Linker.mesh_to_node(bucket, heliMesh, heliNode)
         Linker.mesh_to_node(bucket, rotorMesh, rotorNode)
         Linker.mesh_to_node(bucket, rearRotMesh, rearRotNode)

@@ -1,10 +1,10 @@
-from io_ggltf.Keywords import *
+from io_ggltf import Keywords as __k
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
 import bpy
 import re
 
-class ObjectNameInvalidException(Exception):
+class ObjectNotFoundException(Exception):
     def __init__(self, objAccessor):
         if type(objAccessor) == tuple:
             print(f"{objAccessor[1]}::{objAccessor[0]} not found within blend file, please check if the library path is correct and linked correctly")
@@ -12,6 +12,13 @@ class ObjectNameInvalidException(Exception):
             print(f"{objAccessor} not found within blend file")
         else:
             print(f"Invalid format used while getting object, expected tuple(object name, library) or string, got: {objAccessor}")
+
+class BoneNotFoundException(Exception):
+    def __init__(self, accessor):
+        self.accessor = accessor
+
+    def __str__(self):
+        return f"Bone '{self.accessor[2]}' not found in '{self.accessor[0]}'"
 
 def y_up_matrix(org_mat : Matrix) -> Matrix:
     return get_basis_matrix_conversion() @ org_mat
@@ -62,12 +69,35 @@ def get_basis_matrix_conversion():
     convert.resize_4x4()
     return convert
 
-def try_get_object(objAccessor):
+def try_get_object(accessor):
     try:
-        obj = bpy.data.objects.get(objAccessor)
-        if obj == None:
-            raise ObjectNameInvalidException(objAccessor)
-        return obj
+        if type(accessor) == str or (type(accessor) == tuple and len(accessor) == 2):
+            obj = bpy.data.objects.get(accessor)
+            if obj == None:
+                raise ObjectNotFoundException(accessor)
+            return obj
+        else: # in case we get a bone accessor
+            obj = bpy.data.objects.get((accessor[0], accessor[1])) # strip the bone name
+            if obj == None:
+                raise ObjectNotFoundException(accessor)
+            return obj
+
+    except Exception as e:
+        print(e)
+        return None
+
+def try_get_bone(accessor):
+    try:
+        if type(accessor) == str or (type(accessor) == tuple and len(accessor) == 2):
+            raise Exception(f"Invalid accessor for bone: {accessor}")
+        else:
+            obj = bpy.data.objects.get((accessor[0], accessor[1]))
+            if obj == None:
+                raise ObjectNotFoundException(accessor)
+            bone = obj.pose.bones[accessor[2]]
+            if bone == None:
+                raise BoneNotFoundException(accessor)
+            return bone
 
     except Exception as e:
         print(e)
@@ -86,13 +116,13 @@ def name_passes_filters(filter: list[tuple], name: str) -> bool:
     return True
 
 def rename_node(bucket, nodeID: int, newName: str):
-    node = bucket.data[BUCKET_DATA_NODES][nodeID]
-    node[NODE_NAME] = newName
+    node = bucket.data[__k.BUCKET_DATA_NODES][nodeID]
+    node[__k.NODE_NAME] = newName
 
 def rename_node(bucket, nodeName: str, newName: str):
-    for n in bucket.data[BUCKET_DATA_NODES]:
-        if nodeName == n[NODE_NAME]:
-            n[NODE_NAME] = newName
+    for n in bucket.data[__k.BUCKET_DATA_NODES]:
+        if nodeName == n[__k.NODE_NAME]:
+            n[__k.NODE_NAME] = newName
 
 def pattern_replace(bucket, dataType: str, pattern: str, newStr: str):
     objects = bucket.data[dataType]

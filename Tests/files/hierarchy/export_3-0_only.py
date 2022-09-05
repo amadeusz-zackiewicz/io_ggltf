@@ -20,7 +20,7 @@ else:
     binPath = ""
 
     def test(bucket):
-        Node.based_on_hierarchy(bucket, "3-0")
+        Node.based_on_hierarchy(bucket, "3-0", parent=False)
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))
