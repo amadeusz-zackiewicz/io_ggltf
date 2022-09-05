@@ -219,7 +219,7 @@ if __name__ == "__main__":
                                     diff.write(" ")
                                 else:
                                     diff.write("^")
-                            failures.append((outputFileName, f"Failed to match chunk between {format(byteRange[0], ',')} - {format(byteRange[1], ',')}bytes\n\t\tChunk diff: \n\t\t\t{newFileChunk}\n\t\t\t{oldFileChunk}\n\t\t\t{diff.getvalue()}"))
+                            failures.append((outputFileName, f"Failed to match chunk between {format(byteRange[0], ',')} - {format(byteRange[1], ',')}bytes\n\t\tChunk diff: \n\t\t\t{oldFileChunk}\n\t\t\t{newFileChunk}\n\t\t\t{diff.getvalue()}"))
                             diff.close()
                             del diff
                             print(f"\tFailed due to chunk mismatch, check the {comparisonReportFilename} file for details")
