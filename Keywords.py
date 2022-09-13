@@ -171,6 +171,7 @@ BUCKET_SETTING_REDUNDANCY_CHECK_SKIN        = "redundancy_check_skin"
 BUCKET_SETTING_INCLUDE_SKIN                 = "get_skin"
 BUCKET_SETTING_SKIN_GET_INVERSED_BINDS      = "get_inversed_binds"
 BUCKET_SETTING_SKIN_FORCE_REST_POSE         = "force_armature_rest"
+BUCKET_SETTING_SKIN_RIGIFY_FLAGS            = "rigify_flags"
 
 COMMAND_QUEUE_SETUP             = 0
 COMMAND_QUEUE_SKIN              = 1

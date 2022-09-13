@@ -73,7 +73,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
         checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
 
     if type(parent) != bool:
-        parent = try_get_object(parent)
+        parObj = try_get_object(parent)
 
     return __recursive(bucket, obj, blacklist, parent, checkRedundancies, filters)
 

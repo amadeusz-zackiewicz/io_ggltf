@@ -1,5 +1,6 @@
 from io_ggltf import Keywords as __k
 from io_ggltf.Core.Bucket import Bucket
+from io_ggltf.Core.Managers import RedundancyManager as RM
 import bpy
 
 def set_object_pose_mode(bucket: Bucket, objAccessor, poseMode):
@@ -17,7 +18,7 @@ def get_object_accessor(obj):
     return (obj.name, obj.library.filepath if obj.library != None else None)
 
 def get_bone_accessor(armatureObj, bone):
-    return (armatureObj.name, armatureObj.library.filepath if armatureObj.library != None else None, bone.name)
+    return (armatureObj.name, armatureObj.library.filepath if armatureObj.library != None else None, bone)
 
 def object_has_uv_maps(obj, uvMaps: list[str]) -> bool:
     for map in uvMaps:
@@ -63,16 +64,18 @@ def create_rigify_filters(rigifyFlags):
             whitelist = True
             if rigifyFlags & __k.RIGIFY_INCLUDE_ORIGINAL == __k.RIGIFY_INCLUDE_ORIGINAL:
                 filters.append("(^ORG-)")
-            if rigifyFlags & __k.RIGIFY_INCLUDE_DEFORMS == __k.RIGIFY_INCLUDE_CONTROLS:
-                filters.append("^DEF-)")
+            if rigifyFlags & __k.RIGIFY_INCLUDE_DEFORMS == __k.RIGIFY_INCLUDE_DEFORMS:
+                filters.append("(^DEF-)")
             if rigifyFlags & __k.RIGIFY_INCLUDE_ROOT:
-                rootFilter = ("^root$", True)
+                rootFilter = "(^root$)"
         if len(filters) > 0:
-            return [("|".join(filters), whitelist), rootFilter] if rootFilter != None else [("|".join(filters), whitelist)]
-        
-        
-    else:
-        return []
+            if rootFilter != None:
+                filters.extend([rootFilter])
+            return [("|".join(filters), whitelist)]
+        else:
+            if rootFilter != None:
+                return [rootFilter]
+    return []
 
 def rigify_rename(bucket, rigifyFlags):
     if rigifyFlags & __k.RIGIFY_TRIM_NAMES == 0 or rigifyFlags & __k.RIGIFY_INCLUDE_CONTROLS != 0:
@@ -92,7 +95,7 @@ def rigify_rename(bucket, rigifyFlags):
 def get_parent_accessor(obj):
     if obj.parent != None:
         if obj.parent_type == __k.BLENDER_TYPE_BONE:
-            return get_bone_accessor(obj, obj.parent_bone)
+            return get_bone_accessor(obj.parent, obj.parent_bone)
         else:
             return get_object_accessor(obj.parent)
     else:

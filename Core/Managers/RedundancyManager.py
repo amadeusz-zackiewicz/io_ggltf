@@ -43,8 +43,10 @@ def register_unsafe(bucket: Bucket, accessor, dataType: str):
 
 def __add_accessor(bucket, accessor, dataType, id):
     if type(accessor) == list:
-        accessor = tuple(accessor) 
-        
+        accessor = tuple(accessor)
+    elif type(accessor) == str:
+        accessor = (accessor, None)
+
     if accessor in bucket.accessors[dataType]:
         if type(bucket.accessors[dataType][accessor]) != list:
             bucket.accessors[dataType][accessor] = [bucket.accessors[dataType][accessor], id]
@@ -56,6 +58,8 @@ def __add_accessor(bucket, accessor, dataType, id):
 def fetch_id_from_unsafe(bucket, accessor, dataType) -> int or list[int]:
     if type(accessor) == list:
         accessor = tuple(accessor)
+    elif type(accessor) == str:
+        accessor = (accessor, None)
         
     if accessor in bucket.accessors[dataType]:
         return bucket.accessors[dataType][accessor]
@@ -65,6 +69,8 @@ def fetch_id_from_unsafe(bucket, accessor, dataType) -> int or list[int]:
 def fetch_first_id_from_unsafe(bucket, accessor, dataType) -> int:
     if type(accessor) == list:
         accessor = tuple(accessor)
+    elif type(accessor) == str:
+        accessor = (accessor, None)
 
     if accessor in bucket.accessors[dataType]:
         id = bucket.accessors[dataType][accessor]
@@ -78,6 +84,8 @@ def fetch_first_id_from_unsafe(bucket, accessor, dataType) -> int:
 def fetch_last_id_from_unsafe(bucket, accessor, dataType) -> int:
     if type(accessor) == list:
         accessor = tuple(accessor)
+    elif type(accessor) == str:
+        accessor = (accessor, None)
 
     if accessor in bucket.accessors[dataType]:
         id = bucket.accessors[dataType][accessor]
@@ -86,4 +94,4 @@ def fetch_last_id_from_unsafe(bucket, accessor, dataType) -> int:
         else:
             return id
     else:
-        raise Exception(f"{accessor} has no assigned ID, please make sure you add the desired object to the bucket first.")
+        raise Exception(f"{accessor} ({dataType}) has no assigned ID, please make sure you add the desired object to the bucket first.")

@@ -54,52 +54,6 @@ def obj_to_node(
 
     return node
 
-
-# def scoop_hierarchy(bucket, obj, includeData, useLocalSpace, blacklist = []):
-#         return __scoop_hierarchy(bucket, obj, includeData=includeData, localSpace=useLocalSpace, blacklist=blacklist)
-
-
-# def __scoop_hierarchy(bucket, obj, includeData, blacklist = [], localSpace = False) -> int:
-
-#     children = []
-#     #children are added first since the parent needs to know their id
-#     for c in obj.children:
-#         if c.name not in blacklist:
-#             children.append(__scoop_hierarchy(bucket, c, includeData=includeData, blacklist = blacklist, localSpace = True))
-
-#     if len(children) == 0:
-#         children = None
-
-#     # if its not a child of something, then we take the world coordinates
-#     m = obj.matrix_local if localSpace else obj.matrix_world
-#     loc, rot, sc = m.decompose()
-
-#     # auto conversion to Y up if required
-#     loc = Util.y_up_location(loc)
-#     rot = Util.y_up_rotation(rot)
-#     sc = Util.y_up_scale(sc)
-
-#     mesh = None
-#     skin = None
-#     weights = None
-
-#     if includeData:
-#         mesh, skin , weights = __include_data(bucket, obj)
-
-#     tracker = Tracer.make_object_tracker(obj.name, obj.library, localSpace)
-
-#     return __obj_to_node(bucket,
-#     tracker=tracker, 
-#     name=obj.name, 
-#     children=children, 
-#     translation=loc, 
-#     rotation=rot, 
-#     scale=sc,
-#     mesh=mesh,
-#     skin=skin,
-#     weights=weights
-#     )
-
 def scoop_object(bucket: Bucket, assignedID, objAccessor, parent = False):
 
     obj = bpy.data.objects.get(objAccessor)

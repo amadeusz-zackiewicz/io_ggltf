@@ -1,5 +1,5 @@
 import bpy
-from io_ggltf import Keywords as k
+from io_ggltf import Keywords as __k
 from io_ggltf.Core import Util
 from io_ggltf.Core import BlenderUtil
 from io_ggltf.Core.Scoops import Node
@@ -7,17 +7,18 @@ from mathutils import Matrix, Vector
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import AccessorManager, RedundancyManager as RM
 
-def reserve_bone_ids(bucket: Bucket, objAccessors, blacklist = set()) -> int:
-    def bone_counter(bone, objAcc, blacklist, offset):
-        if bone.name in blacklist:
+def reserve_bone_ids(bucket: Bucket, armatureAccessors, blacklist = set(), filters=[], stitchedHierarchy = False) -> int:
+    def reserve_bones(bone, objAcc, blacklist, offset, filters):
+        print("\n", bone.name, " - ",  end="")
+        if bone.name in blacklist or not Util.name_passes_filters(filters, bone.name):
             return
-        
+        print("Passed", end="")
         for c in bone.children:
-            bone_counter(c, objAcc, blacklist, offset)
+            reserve_bones(c, objAcc, blacklist, offset, filters)
         
-        RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), k.BUCKET_DATA_NODES)
+        RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __k.BUCKET_DATA_NODES)
 
-    objects = [bpy.data.objects.get(o) for o in objAccessors]
+    objects = [bpy.data.objects.get(o) for o in armatureAccessors]
     bones = []
     accessors = []
     rootBones = []
@@ -33,15 +34,30 @@ def reserve_bone_ids(bucket: Bucket, objAccessors, blacklist = set()) -> int:
         if bone.parent == None:
             rootBones.append(i)
 
-    nodeIDOffset = bucket.preScoopCounts[k.BUCKET_DATA_NODES]
+    nodeIDOffset = bucket.preScoopCounts[__k.BUCKET_DATA_NODES]
 
     for r in rootBones:
-        bone_counter(bones[r], accessors[r], blacklist, nodeIDOffset)
+        reserve_bones(bones[r], accessors[r], blacklist, nodeIDOffset, filters)
 
     
     #bucket.preScoopCounts[BUCKET_DATA_NODES] = nodeIDOffset + boneCount[0]
 
     return nodeIDOffset
+
+def get_attachments(armatureAccessors, boneBlacklist = set(), boneFilters = [], attachmentBlacklist = set(), attachmentFilters=[]):
+    attachments = []
+    for acc in armatureAccessors:
+        armObj = Util.try_get_object(acc)
+        for c in armObj.children:
+            if c.name in attachmentBlacklist or not Util.name_passes_filters(attachmentFilters, c.name):
+                continue
+
+            parent = BlenderUtil.get_parent_accessor(c)
+            
+            if len(parent) == 3: # since this is a child, it has to have a parent, so we can skip the none check, and if it returns tuple of 3 then its a bone accessor, so it counts as attachment
+                if not parent[2] in boneBlacklist and Util.name_passes_filters(boneFilters, parent[2]):
+                    attachments.append(c)
+    return attachments
 
     
 
@@ -57,7 +73,7 @@ class Joint:
         self.nodeID = -1
         self.jointID = -1
 
-def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, blacklist = set(), mainArmature = 0, nodeIDOffset = 0, skinID = 0):
+def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, blacklist = set(), mainArmature = 0, nodeIDOffset = 0, skinID = 0, filters=[]):
 
     objects = [bpy.data.objects.get(o) for o in objAccessors]
     bones = []
@@ -72,7 +88,7 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
     joints = []
 
     skinDict = {}
-    skinDict[k.SKIN_NAME] = objects[0].name
+    skinDict[__k.SKIN_NAME] = objects[0].name
 
     for i, b in enumerate(bones):
         bone = b[0]
@@ -83,7 +99,7 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
     for root in rootBones:
         bone = bones[root][0]
         objWorldMatrix = bones[root][1]
-        __get_joint_hierarchy(bone, None, blacklist, jointTree, objWorldMatrix)
+        __get_joint_hierarchy(bone, None, blacklist, jointTree, objWorldMatrix, filters)
 
     jointCounter = [0] # temporary
     for rootJoint in jointTree:
@@ -96,10 +112,10 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
         skeleton.append(rootJoint.jointID)
     del jointCounter
 
-    skinDict[k.SKIN_JOINTS] = joints
+    skinDict[__k.SKIN_JOINTS] = joints
 
     if len(skeleton) == 1:
-        skinDict[k.SKIN_SKELETON] = skeleton[0]
+        skinDict[__k.SKIN_SKELETON] = skeleton[0]
 
     if getInversedBinds:
         inversedBinds = []
@@ -107,14 +123,14 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
             __calculate_inverse_binds(rootJoint, obj.matrix_world)
             __inverse_binds_to_list(rootJoint, inversedBinds)
 
-        skinDict[k.SKIN_INVERSE_BIND_MATRICES] = AccessorManager.add_accessor(bucket,
-        componentType=k.ACCESSOR_COMPONENT_TYPE_FLOAT,
-        type=k.ACCESSOR_TYPE_MATRIX_4,
-        packingFormat=k.PACKING_FORMAT_FLOAT,
+        skinDict[__k.SKIN_INVERSE_BIND_MATRICES] = AccessorManager.add_accessor(bucket,
+        componentType=__k.ACCESSOR_COMPONENT_TYPE_FLOAT,
+        type=__k.ACCESSOR_TYPE_MATRIX_4,
+        packingFormat=__k.PACKING_FORMAT_FLOAT,
         data=inversedBinds
         )
     
-    bucket.data[k.BUCKET_DATA_SKINS][skinID] = skinDict
+    bucket.data[__k.BUCKET_DATA_SKINS][skinID] = skinDict
     bucket.skinDefinition[skinID] = (skinDefinition)
 
     return rootNodes
@@ -129,8 +145,8 @@ def __get_joint_nodeIDs(joint: Joint, nodeIDoffset: int, jointCounter=[0]):
 
     get_ids(joint, nodeIDoffset, jointCounter)
 
-def __get_joint_hierarchy(bone, parentJoint, blacklist, jointTree, objWorldMatrix):
-    if bone.name in blacklist:
+def __get_joint_hierarchy(bone, parentJoint, blacklist, jointTree, objWorldMatrix, filters):
+    if bone.name in blacklist or not Util.name_passes_filters(filters, bone.name):
         return
 
     joint = Joint()
@@ -139,7 +155,7 @@ def __get_joint_hierarchy(bone, parentJoint, blacklist, jointTree, objWorldMatri
     joint.worldMatrix = Util.y_up_matrix(objWorldMatrix @ bone.matrix)
 
     for c in bone.children:
-        cJoint = __get_joint_hierarchy(c, joint, blacklist, jointTree, objWorldMatrix)
+        cJoint = __get_joint_hierarchy(c, joint, blacklist, jointTree, objWorldMatrix, filters)
         if cJoint != None:
             joint.children.append(cJoint)
 
@@ -174,7 +190,7 @@ def __joint_hierarchy_to_nodes(bucket: Bucket, joint: Joint):
             children=children
         )
 
-        bucket.data[k.BUCKET_DATA_NODES][joint.nodeID] = node
+        bucket.data[__k.BUCKET_DATA_NODES][joint.nodeID] = node
 
         return joint.nodeID
 
