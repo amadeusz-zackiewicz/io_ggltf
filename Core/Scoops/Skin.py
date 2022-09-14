@@ -7,16 +7,27 @@ from mathutils import Matrix, Vector
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import AccessorManager, RedundancyManager as RM
 
-def reserve_bone_ids(bucket: Bucket, armatureAccessors, blacklist = set(), filters=[], stitchedHierarchy = False) -> int:
-    def reserve_bones(bone, objAcc, blacklist, offset, filters):
-        print("\n", bone.name, " - ",  end="")
+def reserve_bone_ids(bucket: Bucket, armatureAccessors, blacklist = set(), filters=[], stitchedHierarchy = True) -> int:
+    def reserve_bones(bone, objAcc, blacklist, filters):
         if bone.name in blacklist or not Util.name_passes_filters(filters, bone.name):
             return
-        print("Passed", end="")
+
         for c in bone.children:
-            reserve_bones(c, objAcc, blacklist, offset, filters)
+            reserve_bones(c, objAcc, blacklist, filters)
         
         RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __k.BUCKET_DATA_NODES)
+        
+    def reserve_bones_stitch(bone, objAcc, blacklist, filters):
+        if bone.name in blacklist:
+            return
+
+        for c in bone.children:
+            reserve_bones_stitch(c, objAcc, blacklist, filters)
+
+        if Util.name_passes_filters(filters, bone.name):
+            RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __k.BUCKET_DATA_NODES)
+        
+
 
     objects = [bpy.data.objects.get(o) for o in armatureAccessors]
     bones = []
@@ -34,15 +45,18 @@ def reserve_bone_ids(bucket: Bucket, armatureAccessors, blacklist = set(), filte
         if bone.parent == None:
             rootBones.append(i)
 
-    nodeIDOffset = bucket.preScoopCounts[__k.BUCKET_DATA_NODES]
+    nodeOffset = bucket.preScoopCounts[__k.BUCKET_DATA_NODES]
 
-    for r in rootBones:
-        reserve_bones(bones[r], accessors[r], blacklist, nodeIDOffset, filters)
+    if stitchedHierarchy:
+        for r in rootBones:
+            reserve_bones_stitch(bones[r], accessors[r], blacklist, filters)
+    else:
+        for r in rootBones:
+            reserve_bones(bones[r], accessors[r], blacklist, filters)
 
-    
-    #bucket.preScoopCounts[BUCKET_DATA_NODES] = nodeIDOffset + boneCount[0]
+    return nodeOffset
 
-    return nodeIDOffset
+ 
 
 def get_attachments(armatureAccessors, boneBlacklist = set(), boneFilters = [], attachmentBlacklist = set(), attachmentFilters=[]):
     attachments = []
@@ -73,7 +87,7 @@ class Joint:
         self.nodeID = -1
         self.jointID = -1
 
-def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, blacklist = set(), mainArmature = 0, nodeIDOffset = 0, skinID = 0, filters=[]):
+def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, blacklist = set(), mainArmature = 0, nodeIDOffset = 0, skinID = 0, filters=[], stitch=True):
 
     objects = [bpy.data.objects.get(o) for o in objAccessors]
     bones = []
@@ -96,10 +110,18 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
         if not bone.parent:
             rootBones.append(i)
 
-    for root in rootBones:
-        bone = bones[root][0]
-        objWorldMatrix = bones[root][1]
-        __get_joint_hierarchy(bone, None, blacklist, jointTree, objWorldMatrix, filters)
+    if stitch:
+        boneDict = {}
+        matrices = {}
+        for bone in bones:
+            boneDict[bone[0].name] = bone[0]
+            matrices[bone[0].name] = bone[1]
+        __get_joint_hierarchy_stitched(blacklist=blacklist, jointTree=jointTree, objWorldMatrices=matrices, filters=filters, allBones=boneDict)
+    else:
+        for root in rootBones:
+            bone = bones[root][0]
+            objWorldMatrix = bones[root][1]
+            __get_joint_hierarchy(bone, None, blacklist, jointTree, objWorldMatrix, filters)
 
     jointCounter = [0] # temporary
     for rootJoint in jointTree:
@@ -166,6 +188,97 @@ def __get_joint_hierarchy(bone, parentJoint, blacklist, jointTree, objWorldMatri
         joint.parent = parentJoint
 
     return joint
+
+def __get_joint_hierarchy_stitched(blacklist, jointTree, objWorldMatrices, filters, allBones):
+    def __recusrive(bone, allJoints, filters, blacklist):
+        if bone.name in blacklist:
+            return
+        joint = None
+        if Util.name_passes_filters(filters, bone.name):
+            joint = Joint()
+            joint.name = bone.name
+            joint.blenderBone = bone
+            #joint.worldMatrix = Util.y_up_matrix(objWorldMatrix @ bone.matrix)
+
+            for c in bone.children:
+                __recusrive(c, blacklist=blacklist, allJoints=allJoints, filters=filters)
+
+        else:
+            for c in bone.children:
+                __recusrive(c, blacklist=blacklist, allJoints=allJoints, filters=filters)
+
+        if joint != None:
+            allJoints[joint.name] = joint
+
+    allJoints = {}
+    for bone in allBones.values():
+        if bone.parent == None:
+            __recusrive(bone=bone, allJoints=allJoints, filters=filters, blacklist=blacklist)
+
+    for j in allJoints.values():
+        __get_real_parent_of_joint(j, filters, allJoints, allBones)
+
+    for j in allJoints.values():
+        j.worldMatrix = Util.y_up_matrix(objWorldMatrices[j.name] @ j.blenderBone.matrix)
+        if j.parent == None:
+            jointTree.append(j)
+
+def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones):
+    def __get_parent(bone, filters, allJoints, allBones):
+
+        if bone.parent != None:
+            if Util.name_passes_filters(filters, bone.parent.name):
+                return bone.parent.name
+                
+        for c in bone.constraints:
+            if c.type == __k.BLENDER_CONSTRAINT_COPY_TRANSFORM:
+                try:
+                    target = allBones[c.subtarget]
+                    if Util.name_passes_filters(filters, target.name):
+                        return target.name
+
+                    parent = __get_parent(target, filters, allJoints, allBones)
+                    if parent != None:
+                        return parent
+                except Exception as e:
+                    print(e)
+            if c.type == __k.BLENDER_CONSTRAINT_ARMATURE:
+                try:
+                    target = allBones[c.targets[0].subtarget]
+                    if Util.name_passes_filters(filters, target.name):
+                        return target.name
+
+                    parent = __get_parent(target, filters, allJoints, allBones) # this contraint allows for parent switching and as far as i can tell target[0] is the real parent, if no parent is given
+                    if parent != None:
+                        return parent
+                except Exception as e:
+                    print(e)
+
+        if bone.parent != None:
+            return __get_parent(bone.parent, filters=filters, allJoints=allJoints, allBones=allBones)
+
+        return None
+
+    parent = __get_parent(joint.blenderBone, filters=filters, allJoints=allJoints, allBones=allBones)
+
+    if parent != None:
+        try:
+            if Util.name_passes_filters([("(^root$)", True)], parent):
+                if Util.name_passes_filters([("(^DEF-)", True)], joint.blenderBone.name):
+                    swappedName = joint.blenderBone.name.replace("DEF-", "ORG-")
+                    if swappedName in allBones:
+                        newParent = __get_parent(allBones[swappedName], filters=[("(^ORG-)", True)], allJoints=allJoints, allBones=allBones)
+                        if newParent != None:
+                            parent = newParent.replace("ORG-", "DEF-")
+        except Exception as e:
+            print(e)
+        if parent in allJoints:
+            joint.parent = allJoints[parent]
+            allJoints[parent].children.append(joint)
+
+    print(joint.name, "->", parent)
+
+
 
 def __calculate_local_matrices(joint: Joint, objectWorldMatrixInverse):
     if joint.parent == None:

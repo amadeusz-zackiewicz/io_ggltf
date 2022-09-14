@@ -22,7 +22,7 @@ def obj_to_node(
     if name == None:
         print("could not read the name of the object")
         name = ""
-
+        
     node = {}
     if name != None:
         node[NODE_NAME] = name
