@@ -223,9 +223,8 @@ def __get_joint_hierarchy_stitched(blacklist, jointTree, objWorldMatrices, filte
         if j.parent == None:
             jointTree.append(j)
 
-def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones):
+def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones): # there is probably a better way of doing this entire function, but I'm tired and it works
     def __get_parent(bone, filters, allJoints, allBones):
-
         if bone.parent != None:
             if Util.name_passes_filters(filters, bone.parent.name):
                 return bone.parent.name
@@ -240,8 +239,8 @@ def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones):
                     parent = __get_parent(target, filters, allJoints, allBones)
                     if parent != None:
                         return parent
-                except Exception as e:
-                    print(e)
+                except:
+                    pass
             if c.type == __k.BLENDER_CONSTRAINT_ARMATURE:
                 try:
                     target = allBones[c.targets[0].subtarget]
@@ -251,8 +250,8 @@ def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones):
                     parent = __get_parent(target, filters, allJoints, allBones) # this contraint allows for parent switching and as far as i can tell target[0] is the real parent, if no parent is given
                     if parent != None:
                         return parent
-                except Exception as e:
-                    print(e)
+                except:
+                    pass
 
         if bone.parent != None:
             return __get_parent(bone.parent, filters=filters, allJoints=allJoints, allBones=allBones)
@@ -261,22 +260,30 @@ def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones):
 
     parent = __get_parent(joint.blenderBone, filters=filters, allJoints=allJoints, allBones=allBones)
 
-    if parent != None:
+    if parent != None: 
         try:
-            if Util.name_passes_filters([("(^root$)", True)], parent):
+            if Util.name_passes_filters([("(^root$)", True)], parent) or parent not in allJoints:
                 if Util.name_passes_filters([("(^DEF-)", True)], joint.blenderBone.name):
                     swappedName = joint.blenderBone.name.replace("DEF-", "ORG-")
                     if swappedName in allBones:
+                        #print("Swapped Name:", swappedName)
                         newParent = __get_parent(allBones[swappedName], filters=[("(^ORG-)", True)], allJoints=allJoints, allBones=allBones)
+                        #print("New Parent:", newParent)
                         if newParent != None:
+                            newParentSwap = newParent.replace("ORG-", "DEF-")
+                            #print(newParentSwap, "in all joints:", (newParentSwap in allJoints))
+                            if newParentSwap not in allJoints:
+                                newParent = __get_parent(allBones[newParent], filters=[("(^ORG-)", True)], allJoints=allJoints, allBones=allBones)
+                               # print("New Parent:", newParent)
+                            
                             parent = newParent.replace("ORG-", "DEF-")
-        except Exception as e:
-            print(e)
+        except:
+            pass
         if parent in allJoints:
             joint.parent = allJoints[parent]
             allJoints[parent].children.append(joint)
 
-    print(joint.name, "->", parent)
+    #print(joint.name, "->", parent)
 
 
 
