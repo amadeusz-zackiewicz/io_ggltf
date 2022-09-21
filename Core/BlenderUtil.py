@@ -53,6 +53,7 @@ def queue_disable_modifier_type(bucket, obj, modType):
 def create_rigify_filters(rigifyFlags):
     if rigifyFlags & ~__k.RIGIFY_TRIM_NAMES != 0: # clear the RIGIFY_TRIM_NAMES flag
         filters = []
+        extraFilters = []
         rootFilter = None
         if rigifyFlags & __k.RIGIFY_INCLUDE_CONTROLS == __k.RIGIFY_INCLUDE_CONTROLS:
             whitelist = False
@@ -66,12 +67,15 @@ def create_rigify_filters(rigifyFlags):
                 filters.append("(^ORG-)")
             if rigifyFlags & __k.RIGIFY_INCLUDE_DEFORMS == __k.RIGIFY_INCLUDE_DEFORMS:
                 filters.append("(^DEF-)")
+                extraFilters.append(("(^DEF-eye_master.*)", False))
             if rigifyFlags & __k.RIGIFY_INCLUDE_ROOT:
                 rootFilter = "(^root$)"
         if len(filters) > 0:
             if rootFilter != None:
                 filters.extend([rootFilter])
-            return [("|".join(filters), whitelist)]
+            filters = [("|".join(filters), whitelist)]
+            filters.extend(extraFilters)
+            return filters
         else:
             if rootFilter != None:
                 return [rootFilter]
