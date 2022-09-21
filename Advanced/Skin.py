@@ -51,7 +51,8 @@ def based_on_object(
             bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, objAccessor, BLENDER_ARMATURE_POSE_MODE)))
 
     boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
-    boneOffset = Skin.reserve_bone_ids(bucket, [BlenderUtil.get_object_accessor(obj)], boneBlackList, boneFilters)
+    boneOffset, skinDefinition = Skin.get_skin_definition(bucket, [BlenderUtil.get_object_accessor(obj)], boneBlackList, boneFilters)
+    bucket.skinDefinition.append(skinDefinition)
     bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [BlenderUtil.get_object_accessor(obj)], getInverseBinds, boneBlackList, boneOffset, boneFilters)))
 
     __link_bone_attachments(bucket, Skin.get_attachments([BlenderUtil.get_object_accessor(obj)], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
@@ -108,7 +109,8 @@ def based_on_object_modifiers(
                 bucket.commandQueue[COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), BLENDER_ARMATURE_REST_MODE)))
                 bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), BLENDER_ARMATURE_POSE_MODE)))
 
-    boneOffset = Skin.reserve_bone_ids(bucket, objectAccessors, boneBlackList) 
+    boneOffset, skinDefinition = Skin.get_skin_definition(bucket, objectAccessors, boneBlackList)
+    bucket.skinDefinition.append(skinDefinition)
     bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectAccessors, getInverseBinds, boneBlackList, boneOffset, boneFilters)))
 
     return skinID

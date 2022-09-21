@@ -4,7 +4,6 @@ from io_ggltf.Keywords import *
 def collect(bucket: Bucket):
     bucket.data[BUCKET_DATA_SCENES] = [None] * bucket.preScoopCounts[BUCKET_DATA_SCENES]
     bucket.data[BUCKET_DATA_SKINS] = [None] * bucket.preScoopCounts[BUCKET_DATA_SKINS]
-    bucket.skinDefinition = [None] * bucket.preScoopCounts[BUCKET_DATA_SKINS]
     bucket.data[BUCKET_DATA_MESHES] = [None] * bucket.preScoopCounts[BUCKET_DATA_MESHES]
     bucket.data[BUCKET_DATA_NODES] = [None] * bucket.preScoopCounts[BUCKET_DATA_NODES]
     try:
