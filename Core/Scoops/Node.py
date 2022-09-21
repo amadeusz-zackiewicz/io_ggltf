@@ -58,6 +58,7 @@ def scoop_object(bucket: Bucket, assignedID, objAccessor, parent = False):
 
     obj = bpy.data.objects.get(objAccessor)
 
+    correctedMatrix = False
     if parent == False:
         m = obj.matrix_world
     elif parent == True:
@@ -70,16 +71,22 @@ def scoop_object(bucket: Bucket, assignedID, objAccessor, parent = False):
             bone = None
 
         if bone != None:
+            correctedMatrix = True
             pMatrix = parentObj.matrix_world @ bone.matrix
             m = pMatrix.inverted_safe() @ obj.matrix_world
+            m @= Util.get_basis_matrix_conversion().inverted_safe()
+            # This looks wrong, but it produces the correct result, good enough for now
         else:
-            m = parentObj.matrix_world.inverted_safe() @ m.matrix_world
+            m = parentObj.matrix_world.inverted_safe() @ obj.matrix_world
 
-    loc, rot, sc = m.decompose()
-
-    loc = Util.y_up_location(loc)
-    rot = Util.y_up_rotation(rot)
-    sc = Util.y_up_scale(sc)
+    if correctedMatrix:
+        loc, rot, sc = m.decompose()
+    else:
+        loc, rot, sc = m.decompose()
+        loc = Util.y_up_location(loc)
+        rot = Util.y_up_rotation(rot)
+        sc = Util.y_up_scale(sc)
+        
 
     bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(
     name=obj.name,
