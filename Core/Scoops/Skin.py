@@ -17,6 +17,7 @@ def get_skin_definition(bucket: Bucket, armatureAccessors, blacklist = set(), fi
         
         id = RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __k.BUCKET_DATA_NODES)
         skinDefinition[bone.name] = id - nodeOffset
+        print(id)
         
     def reserve_bones_stitch(bone, objAcc, blacklist, filters, nodeOffset, skinDefinition):
         if bone.name in blacklist:
@@ -85,6 +86,7 @@ class Joint:
         self.parent = None
         self.localMatrix = None
         self.worldMatrix = None
+        self.worldRestMatrix = None
         self.inverseBind = None
         self.nodeID = -1
         self.jointID = -1
@@ -116,17 +118,17 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
         matrices = {}
         for bone in bones:
             boneDict[bone[0].name] = bone[0]
-            matrices[bone[0].name] = bone[1]
+            matrices[bone[0].name] = Util.y_up_matrix(bone[1])
         __get_joint_hierarchy_stitched(blacklist=blacklist, jointTree=jointTree, objWorldMatrices=matrices, filters=filters, allBones=boneDict)
     else:
         for root in rootBones:
             bone = bones[root][0]
-            objWorldMatrix = bones[root][1]
+            objWorldMatrix = Util.y_up_matrix(bones[root][1])
             __get_joint_hierarchy(bone, None, blacklist, jointTree, objWorldMatrix, filters)
 
     __get_joint_nodeIDs(jointTree, nodeIDoffset=nodeIDOffset, skinDefinition=skinDefinition)
     for rootJoint in jointTree:
-        __calculate_local_matrices(rootJoint, objects[mainArmature].matrix_world.inverted_safe())
+        __calculate_local_matrices(rootJoint, objects[mainArmature].matrix_world)
         __joint_hierarchy_to_nodes(bucket, rootJoint)
         __get_joint_list(rootJoint, joints)
         __get_joint_dictionary(rootJoint, skinDefinition)
@@ -142,8 +144,8 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
     if getInversedBinds:
         inversedBinds = []
         for rootJoint in jointTree:
-            __calculate_inverse_binds(rootJoint, obj.matrix_world)
-            __inverse_binds_to_list(rootJoint, inversedBinds)
+            __calculate_inverse_binds(rootJoint, objects[mainArmature].matrix_world)
+            __inverse_binds_to_list(rootJoint, inversedBinds, nodeIDOffset)
 
         skinDict[__k.SKIN_INVERSE_BIND_MATRICES] = AccessorManager.add_accessor(bucket,
         componentType=__k.ACCESSOR_COMPONENT_TYPE_FLOAT,
@@ -153,7 +155,6 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
         )
     
     bucket.data[__k.BUCKET_DATA_SKINS][skinID] = skinDict
-    bucket.skinDefinition[skinID] = (skinDefinition)
 
     return rootNodes
 
@@ -174,7 +175,8 @@ def __get_joint_hierarchy(bone, parentJoint, blacklist, jointTree, objWorldMatri
     joint = Joint()
     joint.name = bone.name
     joint.blenderBone = bone
-    joint.worldMatrix = Util.y_up_matrix(objWorldMatrix @ bone.matrix)
+    joint.worldMatrix = objWorldMatrix @ bone.matrix
+    joint.worldRestMatrix = objWorldMatrix @ bone.bone.matrix_local
 
     for c in bone.children:
         cJoint = __get_joint_hierarchy(c, joint, blacklist, jointTree, objWorldMatrix, filters)
@@ -198,7 +200,7 @@ def __get_joint_hierarchy_stitched(blacklist, jointTree, objWorldMatrices, filte
             joint = Joint()
             joint.name = bone.name
             joint.blenderBone = bone
-            #joint.worldMatrix = Util.y_up_matrix(objWorldMatrix @ bone.matrix)
+            allJoints[joint.name] = joint
 
             for c in bone.children:
                 __recusrive(c, blacklist=blacklist, allJoints=allJoints, filters=filters)
@@ -206,9 +208,7 @@ def __get_joint_hierarchy_stitched(blacklist, jointTree, objWorldMatrices, filte
         else:
             for c in bone.children:
                 __recusrive(c, blacklist=blacklist, allJoints=allJoints, filters=filters)
-
-        if joint != None:
-            allJoints[joint.name] = joint
+            
 
     allJoints = {}
     for bone in allBones.values():
@@ -219,7 +219,9 @@ def __get_joint_hierarchy_stitched(blacklist, jointTree, objWorldMatrices, filte
         __get_real_parent_of_joint(j, filters, allJoints, allBones)
 
     for j in allJoints.values():
-        j.worldMatrix = Util.y_up_matrix(objWorldMatrices[j.name] @ j.blenderBone.matrix)
+        j.worldMatrix = objWorldMatrices[j.name] @ j.blenderBone.matrix
+        j.worldRestMatrix = objWorldMatrices[j.name] @ j.blenderBone.bone.matrix_local
+        print(j.name, j.parent)
         if j.parent == None:
             jointTree.append(j)
 
@@ -287,13 +289,13 @@ def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones): # th
 
 
 
-def __calculate_local_matrices(joint: Joint, objectWorldMatrixInverse):
+def __calculate_local_matrices(joint: Joint, objectWorldMatrix):
     if joint.parent == None:
-        joint.localMatrix = objectWorldMatrixInverse @ joint.worldMatrix
+        joint.localMatrix = objectWorldMatrix.inverted_safe() @ joint.worldMatrix
     else:
         joint.localMatrix = joint.parent.worldMatrix.inverted_safe() @ joint.worldMatrix
     for c in joint.children:
-        __calculate_local_matrices(c, objectWorldMatrixInverse)
+        __calculate_local_matrices(c, objectWorldMatrix)
 
 def __joint_hierarchy_to_nodes(bucket: Bucket, joint: Joint):
     def recursive_to_nodes(bucket: Bucket, joint: Joint):
@@ -333,22 +335,20 @@ def __calculate_inverse_binds(joint: Joint, objWorldMatrix):
     for c in joint.children:
         __calculate_inverse_binds(c, objWorldMatrix)
 
-    joint.inverseBind = Util.y_up_matrix(objWorldMatrix @ joint.blenderBone.bone.matrix_local).inverted_safe()
-    # I spend 3 days trying to figure out what I'm doing wrong and gave up
-    # I have absolutely no idea why I have to do this
-    # I even tried copying code from the official blender exporter and it still produced wrong results
-    # Maybe I missed something
-    # so it is what it is
-    joint.inverseBind[3][0] = joint.inverseBind[0][3]
-    joint.inverseBind[3][1] = joint.inverseBind[1][3]
-    joint.inverseBind[3][2] = joint.inverseBind[2][3]
+    joint.inverseBind = objWorldMatrix.inverted_safe() @ joint.worldRestMatrix.inverted_safe()
+    joint.inverseBind.transpose()
 
-    joint.inverseBind[0][3] = 0.0
-    joint.inverseBind[1][3] = 0.0
-    joint.inverseBind[2][3] = 0.0
-
-def __inverse_binds_to_list(joint: Joint, binds):
+def __inverse_binds_to_list(joint: Joint, binds, nodeIDOffset):
     for c in joint.children:
-        __inverse_binds_to_list(c, binds)
+        __inverse_binds_to_list(c, binds, nodeIDOffset)
 
-    binds.append(joint.inverseBind)
+    id = joint.nodeID - nodeIDOffset
+    if len(binds) <= id:
+        __scale_up_list(binds, id)
+    binds[id] = joint.inverseBind
+    #binds.append(joint.inverseBind)
+
+
+def __scale_up_list(l, target):
+    while len(l) != target + 1:
+        l.append(None)
