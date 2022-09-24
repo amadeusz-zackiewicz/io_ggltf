@@ -161,7 +161,7 @@ def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
         if group != None:
             try:
                 weight = group.weight(vertID)
-            except:
+            except RuntimeError:
                 weight = 0.0
             boneInfo.append((skinDefinition[boneName], weight))
 
@@ -173,7 +173,7 @@ def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
     boneInfo.sort(key=lambda k: k[1], reverse=True) # sort by weight, highest -> lowest
 
     if len(boneInfo) > maxInfleunces:
-        boneInfo = boneInfo[:maxInfleunces - 1] # slice the list
+        boneInfo = boneInfo[:maxInfleunces] # slice the list
 
     boneID = []
     boneInflu = []
@@ -186,10 +186,13 @@ def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
             boneInflu.append(bf[1])
 
     normalizer = sum(boneInflu)
-    normalizer = 1.0 / normalizer
-    for i, b in enumerate(boneInflu):
-        boneInflu[i] = b * normalizer
-
+    if normalizer != 0.0:
+        normalizer = 1.0 / normalizer
+        for i, b in enumerate(boneInflu):
+            boneInflu[i] = b * normalizer
+    else:
+        boneInflu[0] = 1.0
+    #print(vertID, boneID, boneInflu, boneInfo, sum(boneInflu))
     return boneID, boneInflu
 
 
