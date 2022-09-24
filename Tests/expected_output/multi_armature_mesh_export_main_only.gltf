@@ -7,7 +7,8 @@
         {
             "name": "scene",
             "nodes": [
-                6
+                6,
+                7
             ]
         }
     ],
@@ -160,6 +161,44 @@
             "children": [
                 5
             ]
+        },
+        {
+            "name": "MeshObj",
+            "translation": [
+                0.0,
+                0.0,
+                -0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                -0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "skin": 0,
+            "mesh": 0
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Cube",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 2,
+                    "attributes": {
+                        "POSITION": 1,
+                        "NORMAL": 3,
+                        "JOINTS_0": 4,
+                        "WEIGHTS_0": 5
+                    }
+                }
+            ]
         }
     ],
     "skins": [
@@ -184,6 +223,46 @@
             "type": "MAT4",
             "count": 7,
             "bufferView": 0
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 184,
+            "min": [
+                -5.0,
+                0.0,
+                -1.000000238418579
+            ],
+            "max": [
+                5.0,
+                8.0,
+                1.000000238418579
+            ],
+            "bufferView": 1
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 276,
+            "bufferView": 2
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 184,
+            "bufferView": 3
+        },
+        {
+            "componentType": 5123,
+            "type": "VEC4",
+            "count": 184,
+            "bufferView": 4
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC4",
+            "count": 184,
+            "bufferView": 5
         }
     ],
     "bufferViews": [
@@ -191,11 +270,36 @@
             "buffer": 0,
             "byteOffset": 0,
             "byteLength": 448
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 448,
+            "byteLength": 2208
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 2656,
+            "byteLength": 1104
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 3760,
+            "byteLength": 2208
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 5968,
+            "byteLength": 1472
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 7440,
+            "byteLength": 2944
         }
     ],
     "buffers": [
         {
-            "byteLength": 448,
+            "byteLength": 10384,
             "uri": "multi_armature_mesh_export_main_only_0.bin"
         }
     ],

@@ -18,7 +18,11 @@ else:
     binPath = ""
 
     def test(bucket):
-        Skin.based_on_object_modifiers(bucket, "MeshObj", getInverseBinds=True, forceRestPose=False)
+        skin = Skin.based_on_object_modifiers(bucket, "MeshObj", getInverseBinds=True, forceRestPose=False)
+        mesh = Mesh.based_on_object(bucket, "MeshObj", skinID=skin, boneInfluences=True)
+        node = Node.based_on_object(bucket, "MeshObj")
+        Linker.skin_to_node(bucket, skin, node)
+        Linker.mesh_to_node(bucket, mesh, node)
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))
