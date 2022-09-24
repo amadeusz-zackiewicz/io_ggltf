@@ -134,7 +134,6 @@ def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filt
     for attachment in attachments:
         attachID = Node.based_on_hierarchy(bucket, BlenderUtil.get_object_accessor(attachment), blacklist=blacklist, filters=filters, parent=BlenderUtil.get_parent_accessor(attachment))
         boneID = RM.fetch_last_id_from_unsafe(bucket, BlenderUtil.get_parent_accessor(attachment), BUCKET_DATA_NODES)
-        Linker.node_to_node(bucket, attachID, boneID)
 
 def __is_rigify(armatureObj):
     return armatureObj.data.get("rig_id") != None
