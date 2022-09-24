@@ -1,5 +1,5 @@
 from io_ggltf.Core.Bucket import Bucket
-from io_ggltf.Keywords import *
+from io_ggltf import Keywords as __k
 
 def set_setting(bucket: Bucket, setting: str, value):
     bucket.settings[setting] = value
@@ -12,27 +12,27 @@ def get_setting(bucket: Bucket, setting: str):
 
 __default = {
         ####### NODE
-        BUCKET_SETTING_REDUNDANCY_CHECK_NODE: False,
-        BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE: False,
+        __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE: False,
+        __k.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE: False,
         ####### MESH
-        BUCKET_SETTING_REDUNDANCY_CHECK_MESH: True,
-        BUCKET_SETTING_INCLUDE_MESH: True,
-        BUCKET_SETTING_MESH_GET_NORMALS: True,
-        BUCKET_SETTING_MESH_GET_TANGENTS: False,
-        BUCKET_SETTING_MESH_GET_UVS: True,
-        BUCKET_SETTING_MESH_GET_VERTEX_COLORS: False,
-        BUCKET_SETTING_MESH_GET_BONE_INFLUENCE: True,
-        BUCKET_SETTING_MESH_GET_SHAPE_KEYS: False,
-        BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS: False,
-        BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS: False,
-        BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV: False,
-        BUCKET_SETTING_MESH_MAX_BONES: 4,
+        __k.BUCKET_SETTING_REDUNDANCY_CHECK_MESH: True,
+        __k.BUCKET_SETTING_INCLUDE_MESH: True,
+        __k.BUCKET_SETTING_MESH_GET_NORMALS: True,
+        __k.BUCKET_SETTING_MESH_GET_TANGENTS: False,
+        __k.BUCKET_SETTING_MESH_GET_UVS: True,
+        __k.BUCKET_SETTING_MESH_GET_VERTEX_COLORS: False,
+        __k.BUCKET_SETTING_MESH_GET_BONE_INFLUENCE: True,
+        __k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS: False,
+        __k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS: False,
+        __k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS: False,
+        __k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV: False,
+        __k.BUCKET_SETTING_MESH_MAX_BONES: 4,
         ####### SKIN
-        BUCKET_SETTING_REDUNDANCY_CHECK_SKIN: True,
-        BUCKET_SETTING_INCLUDE_SKIN: True,
-        BUCKET_SETTING_SKIN_GET_INVERSED_BINDS: True,
-        BUCKET_SETTING_SKIN_FORCE_REST_POSE: True,
-        BUCKET_SETTING_SKIN_RIGIFY_FLAGS: RIGIFY_ONLY_DEFORMS
+        __k.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN: True,
+        __k.BUCKET_SETTING_INCLUDE_SKIN: True,
+        __k.BUCKET_SETTING_SKIN_GET_INVERSED_BINDS: True,
+        __k.BUCKET_SETTING_SKIN_FORCE_REST_POSE: True,
+        __k.BUCKET_SETTING_SKIN_RIGIFY_FLAGS: __k.RIGIFY_ONLY_DEFORMS
     }
 
 def get_default(setting: str):

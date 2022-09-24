@@ -1,4 +1,4 @@
-from io_ggltf.Keywords import *
+from io_ggltf import Keywords as __k
 from io_ggltf.Core.Scoops import Node as NodeScoop
 from io_ggltf.Core.Managers import RedundancyManager as RM
 from io_ggltf.Core.Bucket import Bucket
@@ -15,25 +15,25 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
 
     obj = try_get_object(objAccessor)
     if parent == None:
-        parent = Settings.get_setting(bucket, BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE)
+        parent = Settings.get_setting(bucket, __k.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE)
 
     if checkRedundancies == None:
-        checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
+        checkRedundancies = Settings.get_setting(bucket, __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
 
     if checkRedundancies:
-        redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
+        redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), __k.BUCKET_DATA_NODES, bpy.data.objects.get)
         if redundant:
             return nodeID
     else:
-        nodeID = RM.register_unsafe(bucket, get_object_accessor(obj), BUCKET_DATA_NODES)
+        nodeID = RM.register_unsafe(bucket, get_object_accessor(obj), __k.BUCKET_DATA_NODES)
 
     if rename != None:
         if type(rename) == str:
-            bucket.commandQueue[COMMAND_QUEUE_NAMING].append((Util.rename_node, (bucket, nodeID, rename)))
+            bucket.commandQueue[__k.COMMAND_QUEUE_NAMING].append((Util.rename_node, (bucket, nodeID, rename)))
         else:
             raise Exception(f"based_on_object: 'rename' is expected to be a string, got {type(rename)} instead.")
         
-    bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), parent)))
+    bucket.commandQueue[__k.COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), parent)))
 
     __auto_parent(bucket, obj, nodeID, parent)
 
@@ -55,24 +55,24 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
                     childrenIDs.append(childID)
 
         if checkRedundancies:
-            redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), BUCKET_DATA_NODES, bpy.data.objects.get)
+            redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), __k.BUCKET_DATA_NODES, bpy.data.objects.get)
             if redundant:
                 return nodeID
         else:
-            nodeID = RM.register_unsafe(bucket, get_object_accessor(obj), BUCKET_DATA_NODES)
+            nodeID = RM.register_unsafe(bucket, get_object_accessor(obj), __k.BUCKET_DATA_NODES)
 
         for c in childrenIDs:
             Linker.node_to_node(bucket, c, nodeID)
         
-        bucket.commandQueue[COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), parent)))
+        bucket.commandQueue[__k.COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), parent)))
         return nodeID
 
     obj = try_get_object(topObjAccessor)
 
     if parent == None:
-        parent = Settings.get_setting(bucket, BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE)
+        parent = Settings.get_setting(bucket, __k.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE)
     if checkRedundancies == None:
-        checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
+        checkRedundancies = Settings.get_setting(bucket, __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
 
     topNodeID = __recursive(bucket, obj, blacklist, parent, checkRedundancies, filters)
 
@@ -82,7 +82,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
 
 
 def __object_is_collection_instance(obj) -> bool:
-    return obj.instance_type == BLENDER_INSTANCE_TYPE_COLLECTION
+    return obj.instance_type == __k.BLENDER_INSTANCE_TYPE_COLLECTION
 
 def __get_collection_top_objects(collection, blacklist={}):
     topObjects = []
@@ -93,9 +93,9 @@ def __get_collection_top_objects(collection, blacklist={}):
 
 def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[]) -> list:
     if checkRedundancies == None:
-        checkRedundancies = Settings.get_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
+        checkRedundancies = Settings.get_setting(bucket, __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
     if parent == None:
-        parent = Settings.get_setting(bucket, BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE)
+        parent = Settings.get_setting(bucket, __k.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE)
 
     collection = bpy.data.collections.get(collectionName)
 
@@ -126,7 +126,7 @@ def __auto_parent(bucket: Bucket, childObj, childID, parent):
             return
 
     if type(parent) == int:
-        parent = bucket.accessors[BUCKET_DATA_NODES][parent] # this will trigger  == tuple below
+        parent = bucket.accessors[__k.BUCKET_DATA_NODES][parent] # this will trigger  == tuple below
 
     if type(parent) == tuple:
         parentID = __get_parent_id(bucket, parent)
@@ -137,11 +137,11 @@ def __auto_parent(bucket: Bucket, childObj, childID, parent):
 
 def __get_parent_id(bucket: Bucket, accessor):
     try:
-        id = RM.fetch_unique(bucket, accessor, BUCKET_DATA_NODES)
+        id = RM.fetch_unique(bucket, accessor, __k.BUCKET_DATA_NODES)
         return id
     except:
         try:
-            id = RM.fetch_last_id_from_unsafe(bucket, accessor, BUCKET_DATA_NODES)
+            id = RM.fetch_last_id_from_unsafe(bucket, accessor, __k.BUCKET_DATA_NODES)
             return id
         except:
             raise Exception(f"{accessor} needs to be added before it's children can access it")
