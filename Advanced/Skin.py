@@ -8,7 +8,7 @@ from io_ggltf.Advanced import Settings
 import bpy
 
 __setArmaturePoseCommand = lambda bucket, objAccessor, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objAccessor=objAccessor, poseMode=poseMode)
-__scoopSkinCommand = lambda bucket, skinID, objAccessor, getInverse, boneBlackList, boneOffset, filters: Skin.scoop_skin(bucket=bucket, objAccessors=objAccessor,getInversedBinds=getInverse, blacklist=boneBlackList, nodeIDOffset=boneOffset, skinID=skinID, filters=filters) # TODO: need to provide bone node offsets and skin id
+__scoopSkinCommand = lambda bucket, skinID, objAccessor, getInverse, boneBlackList, boneOffset, filters, rigify: Skin.scoop_skin(bucket=bucket, objAccessors=objAccessor,getInversedBinds=getInverse, blacklist=boneBlackList, nodeIDOffset=boneOffset, skinID=skinID, filters=filters, stitch=rigify) # TODO: need to provide bone node offsets and skin id
 
 def based_on_object(
     bucket: Bucket, 
@@ -50,10 +50,12 @@ def based_on_object(
             bucket.commandQueue[COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, objAccessor, BLENDER_ARMATURE_REST_MODE)))
             bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, objAccessor, BLENDER_ARMATURE_POSE_MODE)))
 
-    boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
+    rigify = __is_rigify(obj)
+    if rigify:
+        boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, [BlenderUtil.get_object_accessor(obj)], boneBlackList, boneFilters)
     bucket.skinDefinition.append(skinDefinition)
-    bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [BlenderUtil.get_object_accessor(obj)], getInverseBinds, boneBlackList, boneOffset, boneFilters)))
+    bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [BlenderUtil.get_object_accessor(obj)], getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
 
     __link_bone_attachments(bucket, Skin.get_attachments([BlenderUtil.get_object_accessor(obj)], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
 
@@ -61,13 +63,16 @@ def based_on_object(
 
 
 def based_on_object_modifiers(
-    bucket: Bucket,
+    bucket: Bucket, 
     objAccessor,
     getInverseBinds=None,
     forceRestPose=None,
     checkRedundancy=None,
     boneBlackList={},
-    boneFilters=[]
+    boneFilters=[],
+    attachmentBlacklist={},
+    attachmentFilters=[],
+    rigifyFlags = None
 ) -> int:
 
     if checkRedundancy == None:
@@ -103,15 +108,23 @@ def based_on_object_modifiers(
     else:
         skinID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), BUCKET_DATA_SKINS)
 
+    rigify = False
+
     for armatureObj in armatureObjects:
         if forceRestPose:
             if armatureObj.data.pose_position != BLENDER_ARMATURE_REST_MODE:
                 bucket.commandQueue[COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), BLENDER_ARMATURE_REST_MODE)))
                 bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), BLENDER_ARMATURE_POSE_MODE)))
+        if __is_rigify(armatureObj):
+            rigify = True
 
+    if rigify:
+        boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, objectAccessors, boneBlackList)
     bucket.skinDefinition.append(skinDefinition)
-    bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectAccessors, getInverseBinds, boneBlackList, boneOffset, boneFilters)))
+    bucket.commandQueue[COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectAccessors, getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
+
+    __link_bone_attachments(bucket, Skin.get_attachments(objectAccessors, boneBlacklist=boneBlackList, boneFilters=boneFilters, attachmentBlacklist=attachmentBlacklist, attachmentFilters=attachmentFilters))
 
     return skinID
 
@@ -122,3 +135,6 @@ def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filt
         attachID = Node.based_on_hierarchy(bucket, BlenderUtil.get_object_accessor(attachment), blacklist=blacklist, filters=filters, parent=BlenderUtil.get_parent_accessor(attachment))
         boneID = RM.fetch_last_id_from_unsafe(bucket, BlenderUtil.get_parent_accessor(attachment), BUCKET_DATA_NODES)
         Linker.node_to_node(bucket, attachID, boneID)
+
+def __is_rigify(armatureObj):
+    return armatureObj.data.get("rig_id") != None
