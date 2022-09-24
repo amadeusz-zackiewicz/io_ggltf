@@ -204,22 +204,25 @@ if __name__ == "__main__":
                         isBinary = True
                         newFile = open(testOutputPath + outputFileName, "rb")
                         oldFile = open(testComparisonOutputPath + outputFileName, "rb")
-                    chunkSize = 256
+                    chunkSize = 64
                     for comparison in compare_chunk(newFile, oldFile, chunkSize, isBinary):
                         if comparison:
-                            byteRange = (newFile.tell() - comparison, newFile.tell())
-                            newFile.seek(newFile.tell() - comparison)
-                            oldFile.seek(oldFile.tell() - comparison)
+                            byteRange = (max(newFile.tell() - comparison, 0), newFile.tell())
+                            newFile.seek(byteRange[0])
+                            oldFile.seek(byteRange[0])
                             newFileChunk = repr(str(newFile.read(comparison)))
                             oldFileChunk = repr(str(oldFile.read(comparison)))
                             diff = io.StringIO()
                             for i, b in enumerate(newFileChunk):
-                                match = b == oldFileChunk[i]
-                                if match:
-                                    diff.write(" ")
-                                else:
-                                    diff.write("^")
-                            failures.append((outputFileName, f"Failed to match chunk between {format(byteRange[0], ',')} - {format(byteRange[1], ',')}bytes\n\t\tChunk diff: \n\t\t\t{oldFileChunk}\n\t\t\t{newFileChunk}\n\t\t\t{diff.getvalue()}"))
+                                    try:
+                                        match = b == oldFileChunk[i]
+                                        if match:
+                                            diff.write(" ")
+                                        else:
+                                            diff.write("^")
+                                    except:
+                                        break
+                            failures.append((outputFileName, f"Failed to match chunk between {format(byteRange[0], ',')} - {format(byteRange[1], ',')} bytes\n\t\tChunk diff:\n\t\t\t{oldFileChunk}\n\t\t\t{newFileChunk}\n\t\t\t{diff.getvalue()}"))
                             diff.close()
                             del diff
                             print(f"\tFailed due to chunk mismatch, check the {comparisonReportFilename} file for details")
