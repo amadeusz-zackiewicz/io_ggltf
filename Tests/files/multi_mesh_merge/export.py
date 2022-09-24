@@ -30,8 +30,6 @@ else:
         Linker.mesh_to_node(bucket, heliMesh, heliNode)
         Linker.mesh_to_node(bucket, rotorMesh, rotorNode)
         Linker.mesh_to_node(bucket, rearRotMesh, rearRotNode)
-        Linker.node_to_node(bucket, rotorNode, heliNode)
-        Linker.node_to_node(bucket, rearRotNode, heliNode)
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))
