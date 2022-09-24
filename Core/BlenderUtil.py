@@ -2,6 +2,7 @@ from io_ggltf import Keywords as __k
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import RedundancyManager as RM
 import bpy
+import re
 
 def set_object_pose_mode(bucket: Bucket, objAccessor, poseMode):
     obj = bpy.data.objects.get(objAccessor)
@@ -105,3 +106,27 @@ def get_parent_accessor(obj):
     else:
         return None
 
+def rigify_get_potential_parent_name(childName: str) -> str or None:
+    match = re.search(r"\.[0-9]*$", childName)
+    
+    if match == None:
+        return None
+    
+    matchStr = match.group(0)
+    number = int(matchStr.replace(".", ""))
+
+    if number == 0:
+        return childName.replace(matchStr, "") # I believe this cannot happen, but just in case
+    else:
+        parentNumber = number - 1
+        if parentNumber == 0:
+            return childName.replace(matchStr, "")
+        if parentNumber < 0:
+            return None
+        newStr = str(parentNumber)
+
+        if len(newStr) < 3:
+            newStr = "." + ("0" * (3 - len(newStr))) + newStr
+
+        parentName = childName.replace(matchStr, newStr)
+        return parentName

@@ -17,7 +17,6 @@ def get_skin_definition(bucket: Bucket, armatureAccessors, blacklist = set(), fi
         
         id = RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __k.BUCKET_DATA_NODES)
         skinDefinition[bone.name] = id - nodeOffset
-        print(id)
         
     def reserve_bones_stitch(bone, objAcc, blacklist, filters, nodeOffset, skinDefinition):
         if bone.name in blacklist:
@@ -221,7 +220,6 @@ def __get_joint_hierarchy_stitched(blacklist, jointTree, objWorldMatrices, filte
     for j in allJoints.values():
         j.worldMatrix = objWorldMatrices[j.name] @ j.blenderBone.matrix
         j.worldRestMatrix = objWorldMatrices[j.name] @ j.blenderBone.bone.matrix_local
-        print(j.name, j.parent)
         if j.parent == None:
             jointTree.append(j)
 
@@ -230,6 +228,12 @@ def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones): # th
         if bone.parent != None:
             if Util.name_passes_filters(filters, bone.parent.name):
                 return bone.parent.name
+
+        potentialParent = BlenderUtil.rigify_get_potential_parent_name(bone.name)
+        if potentialParent != None:
+            if potentialParent in allJoints:
+                return potentialParent
+        del potentialParent
                 
         for c in bone.constraints:
             if c.type == __k.BLENDER_CONSTRAINT_COPY_TRANSFORM:
