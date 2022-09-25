@@ -18,6 +18,7 @@ else:
     binPath = ""
 
     def test(bucket):
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_LINK, False)
         heliNode = Node.based_on_object(bucket, "Helicopter", parent=False)
         heliMesh = Mesh.merged_based_on_hierarchy(bucket, "Helicopter",
         name="helicopter_mesh",

@@ -18,9 +18,11 @@ else:
     binPath = ""
 
     def test(bucket):
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_LINK, False)
+        Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_LINK, False)
+        node = Node.based_on_object(bucket, "MeshObj")
         skin = Skin.based_on_object_modifiers(bucket, "MeshObj", getInverseBinds=True, forceRestPose=True)
         mesh = Mesh.based_on_object(bucket, "MeshObj", skinID=skin, boneInfluences=True)
-        node = Node.based_on_object(bucket, "MeshObj")
         Linker.skin_to_node(bucket, skin, node)
         Linker.mesh_to_node(bucket, mesh, node)
         File.dump_bucket(bucket)

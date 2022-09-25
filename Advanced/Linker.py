@@ -31,4 +31,12 @@ def skin_to_node_unsafe(bucket: Bucket, skinAccessor, nodeAccessor):
     node = RM.fetch_last_id_from_unsafe(bucket, nodeAccessor, __k.BUCKET_DATA_NODES)
     skin_to_node(bucket, skin, node)
 
+def skin_to_unsafe_node(bucket: Bucket, skinID, nodeAccessor):
+    node = RM.fetch_last_id_from_unsafe(bucket, nodeAccessor, __k.BUCKET_DATA_NODES)
+    skin_to_node(bucket, skinID, node)
+
+def mesh_to_unsafe_node(bucket: Bucket, meshID, nodeAccessor):
+    node = RM.fetch_last_id_from_unsafe(bucket, nodeAccessor, __k.BUCKET_DATA_NODES)
+    mesh_to_node(bucket, meshID, node)
+
     

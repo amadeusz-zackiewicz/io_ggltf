@@ -169,12 +169,14 @@ BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS  = "get_skeys_normals"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS = "get_skeys_tangents"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV       = "get_skeys_uv"
 BUCKET_SETTING_MESH_MAX_BONES               = "mesh_maximum_bones"
+BUCKET_SETTING_MESH_AUTO_LINK               = "autolink_mesh"
 ############## Skin specific settings
 BUCKET_SETTING_REDUNDANCY_CHECK_SKIN        = "redundancy_check_skin"
 BUCKET_SETTING_INCLUDE_SKIN                 = "get_skin"
 BUCKET_SETTING_SKIN_GET_INVERSED_BINDS      = "get_inversed_binds"
 BUCKET_SETTING_SKIN_FORCE_REST_POSE         = "force_armature_rest"
 BUCKET_SETTING_SKIN_RIGIFY_FLAGS            = "rigify_flags"
+BUCKET_SETTING_SKIN_AUTO_LINK               = "autolink_skin"
 
 COMMAND_QUEUE_SETUP             = 0
 COMMAND_QUEUE_SKIN              = 1

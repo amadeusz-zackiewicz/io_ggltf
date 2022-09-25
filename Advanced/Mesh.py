@@ -4,7 +4,7 @@ from io_ggltf.Core.Managers import RedundancyManager as RM
 from io_ggltf.Core import BlenderUtil
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops.Mesh import ScoopMesh
-from io_ggltf.Advanced import Settings
+from io_ggltf.Advanced import Settings, Linker
 import bpy
 
 __scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)
@@ -22,7 +22,8 @@ shapeKeys=[],
 shapeKeyNormals=None,
 shapeKeyTangents=None,
 shapeKeyUVs=None,
-checkRedundancy=None
+checkRedundancy=None,
+autoLink=None
 ) -> int:
 
     if normals == None:
@@ -39,6 +40,8 @@ checkRedundancy=None
         shapeKeyUVs = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
     if checkRedundancy == None:
         checkRedundancy = bucket.settings[__k.BUCKET_SETTING_REDUNDANCY_CHECK_MESH]
+    if autoLink == None:
+        autoLink = bucket.settings[__k.BUCKET_SETTING_MESH_AUTO_LINK]
 
     try:
         obj = try_get_object(objAccessor)
@@ -59,6 +62,9 @@ checkRedundancy=None
     
     bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
 
+    if autoLink:
+        Linker.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
+
     return meshID
 
 def merged_based_on_hierarchy(bucket: Bucket,
@@ -74,7 +80,8 @@ skinID=None,
 shapeKeys=[],
 shapeKeyNormals=None,
 shapeKeyTangents=None,
-shapeKeyUVs=None
+shapeKeyUVs=None,
+autoLink=None
 ) -> int:
     def collect_mesh_objects(currentObject, collected: list, blacklist):
         if currentObject.name in blacklist:
@@ -98,6 +105,8 @@ shapeKeyUVs=None
         shapeKeyTangents = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS]
     if shapeKeyUVs == None:
         shapeKeyUVs = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
+    if autoLink == None:
+        autoLink = bucket.settings[__k.BUCKET_SETTING_MESH_AUTO_LINK]
 
     topObj = try_get_object(topObjectAccessor)
 
@@ -121,7 +130,8 @@ shapeKeyUVs=None
                 if not BlenderUtil.object_has_shape_keys(obj, shapeKeys):
                     print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified Shape Keys")
                     return None
-        meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), __k.BUCKET_DATA_MESHES)
+
+        meshID = RM.register_unsafe(bucket, [BlenderUtil.get_object_accessor(o) for o in meshObjects], __k.BUCKET_DATA_MESHES)
 
         for obj in meshObjects:
             BlenderUtil.queue_reset_modifier_changes(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE)
@@ -130,8 +140,12 @@ shapeKeyUVs=None
         BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_MESH)
         
         bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], BlenderUtil.get_object_accessor(topObj), name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
+        
+        if autoLink:
+            Linker.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
 
         return meshID
     else:
+        print(f"No meshes found under hierarchy of: {BlenderUtil.get_object_accessor(obj)}")
         return None
 

@@ -18,6 +18,8 @@ else:
     binPath = ""
 
     def test(bucket):
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_LINK, False)
+        Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_LINK, False)
         node = Node.based_on_object(bucket, "MeshObj")
         mesh = Mesh.based_on_object(bucket, "MeshObj",
         normals=True,
