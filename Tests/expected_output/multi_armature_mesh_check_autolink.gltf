@@ -1,0 +1,390 @@
+{
+    "asset": {
+        "generator": "Blender ggltf",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "scene",
+            "nodes": [
+                0,
+                7,
+                8,
+                9,
+                10,
+                11
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "MeshObj",
+            "translation": [
+                0.0,
+                0.0,
+                -0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                -0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "skin": 0,
+            "mesh": 0
+        },
+        {
+            "name": "Arm-02.L",
+            "translation": [
+                0.0,
+                2.0,
+                4.76837158203125e-07
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                3.552713678800501e-15,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Arm-01.L",
+            "translation": [
+                0.0,
+                3.000000476837158,
+                -1.0
+            ],
+            "rotation": [
+                -0.7071068286895752,
+                0.0,
+                0.0,
+                0.7071068286895752
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "children": [
+                1
+            ]
+        },
+        {
+            "name": "Arm-02.R",
+            "translation": [
+                4.76837158203125e-07,
+                2.0,
+                0.0
+            ],
+            "rotation": [
+                3.552713678800501e-15,
+                1.351025389340066e-07,
+                2.92929878259155e-22,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Arm-01.R",
+            "translation": [
+                0.0,
+                3.000000476837158,
+                1.0
+            ],
+            "rotation": [
+                0.5000000596046448,
+                0.5,
+                0.5,
+                0.5
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "children": [
+                3
+            ]
+        },
+        {
+            "name": "Spine-03",
+            "translation": [
+                0.0,
+                2.000000476837158,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "children": [
+                2,
+                4
+            ]
+        },
+        {
+            "name": "Spine-02",
+            "translation": [
+                0.0,
+                2.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "children": [
+                5
+            ]
+        },
+        {
+            "name": "Spine-01",
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.7071068286895752,
+                0.0,
+                0.7071068286895752
+            ],
+            "scale": [
+                1.0,
+                0.9999999403953552,
+                1.0
+            ],
+            "children": [
+                6
+            ]
+        },
+        {
+            "name": "Top.L",
+            "translation": [
+                -3.0,
+                4.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Top.R",
+            "translation": [
+                3.0,
+                4.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Bottom.L",
+            "translation": [
+                -5.0,
+                2.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Bottom.R",
+            "translation": [
+                5.0,
+                2.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Cube",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 2,
+                    "attributes": {
+                        "POSITION": 1,
+                        "NORMAL": 3,
+                        "JOINTS_0": 4,
+                        "WEIGHTS_0": 5
+                    }
+                }
+            ]
+        }
+    ],
+    "skins": [
+        {
+            "name": "Armature_Main",
+            "joints": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+            ],
+            "inverseBindMatrices": 0
+        }
+    ],
+    "accessors": [
+        {
+            "componentType": 5126,
+            "type": "MAT4",
+            "count": 11,
+            "bufferView": 0
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 184,
+            "min": [
+                -5.0,
+                0.0,
+                -1.000000238418579
+            ],
+            "max": [
+                5.0,
+                8.0,
+                1.000000238418579
+            ],
+            "bufferView": 1
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 276,
+            "bufferView": 2
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 184,
+            "bufferView": 3
+        },
+        {
+            "componentType": 5123,
+            "type": "VEC4",
+            "count": 184,
+            "bufferView": 4
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC4",
+            "count": 184,
+            "bufferView": 5
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 704
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 704,
+            "byteLength": 2208
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 2912,
+            "byteLength": 1104
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 4016,
+            "byteLength": 2208
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 6224,
+            "byteLength": 1472
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 7696,
+            "byteLength": 2944
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 10640,
+            "uri": "multi_armature_mesh_check_autolink_0.bin"
+        }
+    ],
+    "scene": 0
+}

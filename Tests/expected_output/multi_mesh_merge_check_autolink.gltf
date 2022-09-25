@@ -1,0 +1,312 @@
+{
+    "asset": {
+        "generator": "Blender ggltf",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "scene",
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "Helicopter",
+            "translation": [
+                -0.5481722354888916,
+                2.7261264324188232,
+                -1.3556444644927979
+            ],
+            "rotation": [
+                0.09761586040258408,
+                0.15307235717773438,
+                -0.14906291663646698,
+                0.9720186591148376
+            ],
+            "scale": [
+                2.0,
+                2.000000238418579,
+                2.0
+            ],
+            "children": [
+                1,
+                2
+            ],
+            "mesh": 0
+        },
+        {
+            "name": "Rotor",
+            "translation": [
+                -2.9802322387695312e-08,
+                1.9798669815063477,
+                0.06471841037273407
+            ],
+            "rotation": [
+                -3.725290298461914e-09,
+                -7.450580596923828e-09,
+                -0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "mesh": 1
+        },
+        {
+            "name": "Rear_Rotor",
+            "translation": [
+                -0.2088913917541504,
+                1.4660370349884033,
+                -1.7473599910736084
+            ],
+            "rotation": [
+                0.2004842758178711,
+                -7.604985086118177e-09,
+                -7.604985086118177e-09,
+                0.9796969294548035
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.9999999403953552
+            ],
+            "mesh": 2
+        }
+    ],
+    "meshes": [
+        {
+            "name": "helicopter_mesh",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 1,
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 2
+                    }
+                },
+                {
+                    "mode": 4,
+                    "indices": 4,
+                    "attributes": {
+                        "POSITION": 3,
+                        "NORMAL": 5
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Rotor_Mesh",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 7,
+                    "attributes": {
+                        "POSITION": 6,
+                        "NORMAL": 8
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Rear_Rotor_Mesh",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 10,
+                    "attributes": {
+                        "POSITION": 9,
+                        "NORMAL": 11
+                    }
+                }
+            ]
+        }
+    ],
+    "accessors": [
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 304,
+            "min": [
+                -0.8395063877105713,
+                0.2157292366027832,
+                -2.018939971923828
+            ],
+            "max": [
+                0.8395063877105713,
+                1.8300265073776245,
+                1.0005760192871094
+            ],
+            "bufferView": 0
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 456,
+            "bufferView": 1
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 304,
+            "bufferView": 2
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 640,
+            "min": [
+                -0.6632910966873169,
+                -0.02166604995727539,
+                -0.8841961622238159
+            ],
+            "max": [
+                0.6632910370826721,
+                0.5330419540405273,
+                0.8126474618911743
+            ],
+            "bufferView": 3
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 888,
+            "bufferView": 4
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 640,
+            "bufferView": 5
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 576,
+            "min": [
+                -1.649429202079773,
+                -0.23728793859481812,
+                -1.6494288444519043
+            ],
+            "max": [
+                1.6494284868240356,
+                0.08694947510957718,
+                1.6494288444519043
+            ],
+            "bufferView": 6
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 804,
+            "bufferView": 7
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 576,
+            "bufferView": 8
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 576,
+            "min": [
+                -0.08694946765899658,
+                -0.4113272428512573,
+                -0.4113272428512573
+            ],
+            "max": [
+                0.08694952726364136,
+                0.4113272428512573,
+                0.4113272428512573
+            ],
+            "bufferView": 9
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 804,
+            "bufferView": 10
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 576,
+            "bufferView": 11
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 3648
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 3648,
+            "byteLength": 1824
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 5472,
+            "byteLength": 3648
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 9120,
+            "byteLength": 7680
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 16800,
+            "byteLength": 3552
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 20352,
+            "byteLength": 7680
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 28032,
+            "byteLength": 6912
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 34944,
+            "byteLength": 3216
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 38160,
+            "byteLength": 6912
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 45072,
+            "byteLength": 6912
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 51984,
+            "byteLength": 3216
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 55200,
+            "byteLength": 6912
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 62112,
+            "uri": "multi_mesh_merge_check_autolink_0.bin"
+        }
+    ],
+    "scene": 0
+}
