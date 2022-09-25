@@ -53,7 +53,9 @@ checkRedundancy=None
     else:
         meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), __k.BUCKET_DATA_MESHES)
 
-    BlenderUtil.queue_disable_modifier_type(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE)
+    BlenderUtil.queue_reset_modifier_changes(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE)
+    BlenderUtil.queue_disable_modifier_type(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE, __k.COMMAND_QUEUE_MESH)
+    BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_MESH)
     
     bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
 
@@ -104,9 +106,6 @@ shapeKeyUVs=None
     collect_mesh_objects(topObj, meshObjects, blacklist)
 
     if len(meshObjects) > 0:
-        for obj in meshObjects:
-            BlenderUtil.queue_disable_modifier_type(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE)
-
         if len(uvMaps) > 0:
             for obj in meshObjects:
                 if not BlenderUtil.object_has_uv_maps(obj, uvMaps):
@@ -123,6 +122,12 @@ shapeKeyUVs=None
                     print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified Shape Keys")
                     return None
         meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), __k.BUCKET_DATA_MESHES)
+
+        for obj in meshObjects:
+            BlenderUtil.queue_reset_modifier_changes(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE)
+            BlenderUtil.queue_disable_modifier_type(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE, __k.COMMAND_QUEUE_MESH)
+            
+        BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_MESH)
         
         bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], BlenderUtil.get_object_accessor(topObj), name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
 

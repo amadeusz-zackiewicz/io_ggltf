@@ -47,8 +47,9 @@ def based_on_object(
     
     if forceRestPose:
         if obj.data.pose_position != __k.BLENDER_ARMATURE_REST_MODE:
-            bucket.commandQueue[__k.COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, objAccessor, __k.BLENDER_ARMATURE_REST_MODE)))
-            bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, objAccessor, __k.BLENDER_ARMATURE_POSE_MODE)))
+            BlenderUtil.queue_reset_armature_pose(bucket, obj)
+            bucket.commandQueue[__k.COMMAND_QUEUE_SKIN].append((__setArmaturePoseCommand, (bucket, objAccessor, __k.BLENDER_ARMATURE_REST_MODE)))
+            BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_SKIN)
 
     rigify = __is_rigify(obj)
     if rigify:
@@ -113,11 +114,13 @@ def based_on_object_modifiers(
     for armatureObj in armatureObjects:
         if forceRestPose:
             if armatureObj.data.pose_position != __k.BLENDER_ARMATURE_REST_MODE:
-                bucket.commandQueue[__k.COMMAND_QUEUE_SETUP].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), __k.BLENDER_ARMATURE_REST_MODE)))
-                bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), __k.BLENDER_ARMATURE_POSE_MODE)))
+                BlenderUtil.queue_reset_armature_pose(bucket, obj)
+                bucket.commandQueue[__k.COMMAND_QUEUE_SKIN].append((__setArmaturePoseCommand, (bucket, (armatureObj.name, armatureObj.library), __k.BLENDER_ARMATURE_REST_MODE)))
+        
         if __is_rigify(armatureObj):
             rigify = True
-
+            
+    BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_SKIN)
     if rigify:
         boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, objectAccessors, boneBlackList)

@@ -45,11 +45,27 @@ def object_has_shape_keys(obj, shapeKeys: list[str]) -> bool:
 __disable_modifier_command = lambda bucket, objAccessor, modifierID: set_object_modifier(bucket=bucket, objAccessor=objAccessor, modifierID=modifierID, setActive=False)
 __enable_modifier_command = lambda bucket, objAccessor, modifierID: set_object_modifier(bucket=bucket, objAccessor=objAccessor, modifierID=modifierID, setActive=True)
 
-def queue_disable_modifier_type(bucket, obj, modType):
+def queue_disable_modifier_type(bucket, obj, modType, queue):
     for i, mod in enumerate(obj.modifiers):
         if mod.type == modType:
-            bucket.commandQueue[__k.COMMAND_QUEUE_SETUP].append((__disable_modifier_command,(bucket, get_object_accessor(obj), i)))
-            bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((__enable_modifier_command, (bucket, get_object_accessor(obj), i)))
+            if mod.show_viewport:
+                bucket.commandQueue[__k.queue].append((__disable_modifier_command,(bucket, get_object_accessor(obj), i)))
+
+
+def queue_reset_modifier_changes(bucket, obj, modType):
+    for i, mod in enumerate(obj.modifiers):
+        if mod.type == modType:
+            if mod.show_viewport:
+                bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((__enable_modifier_command, (bucket, get_object_accessor(obj), i)))
+            else:
+                bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((__disable_modifier_command, (bucket, get_object_accessor(obj), i)))
+
+def queue_update_depsgraph(bucket: Bucket, queue):
+    bucket.commandQueue[queue].append((bucket.currentDependencyGraph.update, ()))
+
+def queue_reset_armature_pose(bucket: Bucket, obj):
+    bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((set_object_pose_mode, (bucket, get_object_accessor(obj), obj.data.pose_position)))
+    
 
 def create_rigify_filters(rigifyFlags):
     if rigifyFlags & ~__k.RIGIFY_TRIM_NAMES != 0: # clear the RIGIFY_TRIM_NAMES flag

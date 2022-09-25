@@ -15,7 +15,6 @@ def collect(bucket: Bucket):
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NAMING])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_LINKER])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_ANIM_SETUP])
-        bucket.currentDependencyGraph.update()
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP], True)
         bucket.currentDependencyGraph.update()
     except Exception as e:
