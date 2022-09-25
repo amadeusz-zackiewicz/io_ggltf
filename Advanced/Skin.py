@@ -125,7 +125,7 @@ def based_on_object_modifiers(
     for armatureObj in armatureObjects:
         if forceRestPose:
             if armatureObj.data.pose_position != __k.BLENDER_ARMATURE_REST_MODE:
-                BlenderUtil.queue_reset_armature_pose(bucket, obj)
+                BlenderUtil.queue_reset_armature_pose(bucket, armatureObj)
                 bucket.commandQueue[__k.COMMAND_QUEUE_SKIN].append((__setArmaturePoseCommand, (bucket, BlenderUtil.get_object_accessor(armatureObj), __k.BLENDER_ARMATURE_REST_MODE)))
         
         if __is_rigify(armatureObj):

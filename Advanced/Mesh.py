@@ -142,10 +142,10 @@ autoLink=None
         bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], BlenderUtil.get_object_accessor(topObj), name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
         
         if autoLink:
-            Linker.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
+            Linker.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(topObj))
 
         return meshID
     else:
-        print(f"No meshes found under hierarchy of: {BlenderUtil.get_object_accessor(obj)}")
+        print(f"No meshes found under hierarchy of: {BlenderUtil.get_object_accessor(topObj)}")
         return None
 

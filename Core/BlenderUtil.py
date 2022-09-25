@@ -49,7 +49,7 @@ def queue_disable_modifier_type(bucket, obj, modType, queue):
     for i, mod in enumerate(obj.modifiers):
         if mod.type == modType:
             if mod.show_viewport:
-                bucket.commandQueue[__k.queue].append((__disable_modifier_command,(bucket, get_object_accessor(obj), i)))
+                bucket.commandQueue[queue].append((__disable_modifier_command,(bucket, get_object_accessor(obj), i)))
 
 
 def queue_reset_modifier_changes(bucket, obj, modType):
