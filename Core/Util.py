@@ -89,14 +89,14 @@ def try_get_object(accessor):
 def try_get_bone(accessor):
     try:
         if type(accessor) == str or (type(accessor) == tuple and len(accessor) == 2):
-            raise Exception(f"Invalid accessor for bone: {accessor}")
+            return None
         else:
             obj = bpy.data.objects.get((accessor[0], accessor[1]))
             if obj == None:
-                raise ObjectNotFoundException(accessor)
+                return None
             bone = obj.pose.bones[accessor[2]]
             if bone == None:
-                raise BoneNotFoundException(accessor)
+                return None
             return bone
 
     except Exception as e:

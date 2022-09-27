@@ -149,15 +149,15 @@ def __auto_parent(bucket: Bucket, childObj, childID, parent):
     raise Exception(f"Failed to resolve parent for '{BlenderUtil.get_object_accessor(childObj)}', parent accessor was: '{parent}'. Make sure that parent is added before the child")
 
 def __get_parent_id(bucket: Bucket, accessor):
-    try:
-        id = RM.fetch_unique(bucket, accessor, __k.BUCKET_DATA_NODES)
+    id = RM.fetch_unique(bucket, accessor)
+    if id != None:
         return id
-    except:
-        try:
-            id = RM.fetch_last_id_from_unsafe(bucket, accessor, __k.BUCKET_DATA_NODES)
-            return id
-        except:
-            raise Exception(f"{accessor} needs to be added before it's children can access it")
+
+    id = RM.fetch_last_id_from_unsafe(bucket, accessor, __k.BUCKET_DATA_NODES)
+    if id != None:
+        return id
+
+    raise Exception(f"{accessor} needs to be added before it's children can access it")
 
 def __add_mesh(bucket, obj):
     if Settings.get_setting(bucket, __k.BUCKET_SETTING_INCLUDE_MESH):

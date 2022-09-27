@@ -9,7 +9,11 @@ def __add_unique(bucket: Bucket, objAccessor, pID: int, getFunc = bpy.data.objec
     bucket.redundancies[__get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)] = pID
 
 def fetch_unique(bucket: Bucket, objAccessor, getFunc = bpy.data.objects.get) -> int:
-    return bucket.redundancies[__get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)]
+    eval = __get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)
+    if eval in bucket.redundancies:
+        return bucket.redundancies[eval]
+    else:
+        return None
 
 def register_unique(bucket: Bucket, objAccessor, bucketDataType: str, getFunc = bpy.data.objects.get):
     if __is_not_unique(bucket, objAccessor, getFunc):
