@@ -170,9 +170,14 @@ def scoop_indexed_and_merge(bucket: Bucket, meshObjects, meshWorldMatrix, name, 
             shapeKeyIDs = []
             materialNames = []
 
-            for material in meshCopy.materials:
-                materialNames.append(material.name)
-                allMatNames.add(material.name)
+            for i, material in enumerate(meshCopy.materials):
+                if material == None:
+                    tempMatName = f"::TEMP::{meshObj.name}__{i}"
+                    materialNames.append(tempMatName)
+                    allMatNames.add(tempMatName)
+                else:
+                    materialNames.append(material.name)
+                    allMatNames.add(material.name)
 
             # convert UV map names into indices
             for uvName in uvMaps: 
