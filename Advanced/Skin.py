@@ -147,10 +147,10 @@ def based_on_object_modifiers(
 
 
 def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filters = []):
-    from io_ggltf.Advanced import Node, Linker
+    from io_ggltf.Advanced import Node
     for attachment in attachments:
-        attachID = Node.based_on_hierarchy(bucket, BlenderUtil.get_object_accessor(attachment), blacklist=blacklist, filters=filters, parent=BlenderUtil.get_parent_accessor(attachment))
-        boneID = RM.fetch_last_id_from_unsafe(bucket, BlenderUtil.get_parent_accessor(attachment), __k.BUCKET_DATA_NODES)
+        Node.based_on_hierarchy(bucket, BlenderUtil.get_object_accessor(attachment), blacklist=blacklist, filters=filters, parent=BlenderUtil.get_parent_accessor(attachment))
+        RM.fetch_last_id_from_unsafe(bucket, BlenderUtil.get_parent_accessor(attachment), __k.BUCKET_DATA_NODES)
 
 def __is_rigify(armatureObj):
     return armatureObj.data.get("rig_id") != None

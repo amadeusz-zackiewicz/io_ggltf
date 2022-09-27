@@ -18,6 +18,7 @@ else:
     binPath = ""
 
     def test(bucket):
+        Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_LINK_DATA, False)
         node = Node.based_on_object(bucket, "Plane")
         mesh = Mesh.based_on_object(bucket, "Plane",
         uvMaps=["UVMap"]

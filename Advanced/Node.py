@@ -11,7 +11,7 @@ import bpy
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
 __scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objAccessor=objID, parent=parent)
 
-def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, rename=None) -> int:
+def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, rename=None, autoLinkData=None) -> int:
 
     obj = try_get_object(objAccessor)
     if parent == None:
@@ -19,6 +19,8 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
 
     if checkRedundancies == None:
         checkRedundancies = Settings.get_setting(bucket, __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
+    if autoLinkData == None:
+        autoLinkData = Settings.get_setting(bucket, __k.BUCKET_SETTING_NODE_AUTO_LINK_DATA)
 
     if checkRedundancies:
         redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), __k.BUCKET_DATA_NODES, bpy.data.objects.get)
@@ -35,13 +37,17 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
         
     bucket.commandQueue[__k.COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), parent)))
 
+    if autoLinkData:
+        __add_mesh(bucket, obj)
+        __add_skin(bucket, obj, filters=[Util.create_filter(".*", False)], blacklist={})
+
     __auto_parent(bucket, obj, nodeID, parent)
 
     return nodeID
 
 
-def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=None, checkRedundancies=None, filters=[]) -> int:
-    def __recursive(bucket: Bucket, obj, blacklist, parent, checkRedundancies, filters):
+def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=None, checkRedundancies=None, filters=[], autoLinkData=None) -> int:
+    def __recursive(bucket: Bucket, obj, blacklist, parent, checkRedundancies, filters, autoLinkData):
         if obj.name in blacklist or not Util.name_passes_filters(filters, obj.name):
             return None
 
@@ -50,7 +56,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
             childrenIDs.extend(based_on_collection(bucket=bucket, collectionName=get_object_accessor(obj.instance_collection), blacklist=blacklist, parent=True, checkRedundancies=checkRedundancies))
         else:
             for c in obj.children:
-                childID = __recursive(bucket, c, blacklist, True, checkRedundancies, filters)
+                childID = __recursive(bucket, c, blacklist, True, checkRedundancies, filters, autoLinkData)
                 if childID != None:
                     childrenIDs.append(childID)
 
@@ -65,6 +71,9 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
             Linker.node_to_node(bucket, c, nodeID)
         
         bucket.commandQueue[__k.COMMAND_QUEUE_NODE].append((__scoopCommand, (bucket, nodeID, get_object_accessor(obj), parent)))
+        if autoLinkData:
+            __add_mesh(bucket, obj)
+            __add_skin(bucket, obj, blacklist, filters)
         return nodeID
 
     obj = try_get_object(topObjAccessor)
@@ -73,8 +82,10 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
         parent = Settings.get_setting(bucket, __k.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE)
     if checkRedundancies == None:
         checkRedundancies = Settings.get_setting(bucket, __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
+    if autoLinkData == None:
+        autoLinkData = Settings.get_setting(bucket, __k.BUCKET_SETTING_NODE_AUTO_LINK_DATA)
 
-    topNodeID = __recursive(bucket, obj, blacklist, parent, checkRedundancies, filters)
+    topNodeID = __recursive(bucket, obj, blacklist, parent, checkRedundancies, filters, autoLinkData)
 
     __auto_parent(bucket, obj, topNodeID, parent)
 
@@ -91,11 +102,13 @@ def __get_collection_top_objects(collection, blacklist={}):
             topObjects.append(obj)
     return topObjects
 
-def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[]) -> list:
+def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[], autoLinkData=None) -> list:
     if checkRedundancies == None:
         checkRedundancies = Settings.get_setting(bucket, __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
     if parent == None:
         parent = Settings.get_setting(bucket, __k.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE)
+    if autoLinkData == None:
+        autoLinkData = Settings.get_setting(bucket, __k.BUCKET_SETTING_NODE_AUTO_LINK_DATA)
 
     collection = bpy.data.collections.get(collectionName)
 
@@ -145,3 +158,15 @@ def __get_parent_id(bucket: Bucket, accessor):
             return id
         except:
             raise Exception(f"{accessor} needs to be added before it's children can access it")
+
+def __add_mesh(bucket, obj):
+    if Settings.get_setting(bucket, __k.BUCKET_SETTING_INCLUDE_MESH):
+        if BlenderUtil.object_is_meshlike(obj):
+            from io_ggltf.Advanced import Mesh
+            Mesh.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True)
+
+def __add_skin(bucket, obj, blacklist, filters):
+    if Settings.get_setting(bucket, __k.BUCKET_SETTING_INCLUDE_SKIN):
+        if BlenderUtil.object_is_armature(obj):
+            from io_ggltf.Advanced import Skin
+            Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True, attachmentBlacklist=blacklist, attachmentFilters=filters)

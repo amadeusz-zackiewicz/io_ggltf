@@ -146,3 +146,9 @@ def rigify_get_potential_parent_name(childName: str) -> str or None:
 
         parentName = childName.replace(matchStr, newStr)
         return parentName
+
+def object_is_meshlike(obj):
+    return obj.type in __k.BLENDER_MESH_CONVERTIBLE
+
+def object_is_armature(obj):
+    return obj.type == __k.BLENDER_TYPE_ARMATURE

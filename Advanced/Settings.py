@@ -14,6 +14,7 @@ __default = {
         ####### NODE
         __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE: False,
         __k.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE: False,
+        __k.BUCKET_SETTING_NODE_AUTO_LINK_DATA: False,
         ####### MESH
         __k.BUCKET_SETTING_REDUNDANCY_CHECK_MESH: True,
         __k.BUCKET_SETTING_INCLUDE_MESH: True,

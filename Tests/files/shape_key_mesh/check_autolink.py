@@ -18,6 +18,7 @@ else:
     binPath = ""
 
     def test(bucket):
+        Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_LINK_DATA, False)
         Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_LINK, True)
         Node.based_on_object(bucket, "Cube")
         Mesh.based_on_object(bucket, "Cube",

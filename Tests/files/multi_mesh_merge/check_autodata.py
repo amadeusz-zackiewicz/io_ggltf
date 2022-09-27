@@ -8,26 +8,20 @@ if __name__ == "__main__" and len(sys.argv) == 1:
     import os
     sys.path.append(os.path.abspath(""))
     import Tests.LimitedTestUtil as T
-    T.run_test("multi_armature_mesh", "multi_armature_mesh", os.path.basename(__file__).replace(".py", ""))
+    T.run_test("multi_mesh_merge", "multi_mesh_merge", os.path.basename(__file__).replace(".py", ""))
 else:
     from io_ggltf.Advanced import *
     from io_ggltf.Keywords import *
 
     filePath = "//..\\..\\output\\"
-    fileName = "multi_armature_mesh_export_mesh_only"
+    fileName = "multi_mesh_merge_check_autodata"
     binPath = ""
 
     def test(bucket):
-        Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_LINK_DATA, False)
-        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_LINK, False)
-        Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_LINK, False)
-        node = Node.based_on_object(bucket, "MeshObj")
-        mesh = Mesh.based_on_object(bucket, "MeshObj",
-        normals=True,
-        tangents=False,
-        boneInfluences=False 
-        )
-        Linker.mesh_to_node(bucket, mesh, node)
+        Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_LINK_DATA, True)
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_LINK, True)
+
+        Node.based_on_hierarchy(bucket, "Helicopter", blacklist="ThisShouldNotExport")
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))
