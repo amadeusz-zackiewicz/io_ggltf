@@ -11,6 +11,7 @@ from io_ggltf.Core.Bucket import Bucket
 def scoop_from_obj(
     bucket: Bucket,
     objAccessor,
+    name,
     assignedID: int,
     normals = False,
     tangents = False,
@@ -40,7 +41,7 @@ def scoop_from_obj(
     """
     # TODO: make sure every mesh mode is supported, only triangles for now
     obj = bpy.data.objects.get(objAccessor)
-    Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, normals, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, shapeKeyNormals, tangents, skinID, assignedID, maxInfluences=4)
+    Triangles.scoop_indexed(bucket, bucket.currentDependencyGraph.id_eval_get(obj).data, normals, obj.vertex_groups, uvMaps, vertexColors, shapeKeys, shapeKeyNormals, tangents, skinID, assignedID, name, maxInfluences=4)
 
 def scoop_and_merge(
     bucket: Bucket,

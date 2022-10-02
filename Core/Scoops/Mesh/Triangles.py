@@ -6,7 +6,7 @@ from io_ggltf.Core.Bucket import Bucket
 from mathutils import Vector
 from io_ggltf.Core import Util
 
-def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertexColors, shapeKeys, shapeKeyNormals, tangents, skinID, assignedID, maxInfluences = 4):
+def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertexColors, shapeKeys, shapeKeyNormals, tangents, skinID, assignedID, name, maxInfluences = 4):
     """_summary_
 
     Args:
@@ -70,7 +70,7 @@ def scoop_indexed(bucket: Bucket, meshObj, normals, vertexGroups, uvMaps, vertex
 
     # prepare the dictionary object
     meshDict = {
-        MESH_NAME: meshObj.original.name,
+        MESH_NAME: name,
         MESH_PRIMITIVES: []
         }
 
