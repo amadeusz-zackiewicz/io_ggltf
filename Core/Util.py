@@ -128,8 +128,9 @@ def pattern_replace(bucket, dataType: str, pattern: str, newStr: str):
     objects = bucket.data[dataType]
     pattern = re.compile(pattern)
     for obj in objects:
-        for m in re.finditer(pattern, obj[__k.__VAR_NAME]):
-            obj[__k.__VAR_NAME] = obj[__k.__VAR_NAME].replace(m.group(), newStr)
+        if __k.__VAR_NAME in obj: # the object here is a dictionary
+            for m in re.finditer(pattern, obj[__k.__VAR_NAME]):
+                obj[__k.__VAR_NAME] = obj[__k.__VAR_NAME].replace(m.group(), newStr)
                 
 
 def create_filter(pattern: str, whitelist: bool):
