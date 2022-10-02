@@ -126,10 +126,11 @@ def rename_node(bucket, nodeName: str, newName: str):
 
 def pattern_replace(bucket, dataType: str, pattern: str, newStr: str):
     objects = bucket.data[dataType]
+    pattern = re.compile(pattern)
     for obj in objects:
-        matches = re.search(pattern, obj["name"])
-        for group in matches.groups():
-            obj["name"] = obj["name"].replace(group, newStr)
+        for m in re.finditer(pattern, obj[__k.__VAR_NAME]):
+            obj[__k.__VAR_NAME] = obj[__k.__VAR_NAME].replace(m.group(), newStr)
+                
 
 def create_filter(pattern: str, whitelist: bool):
     return (pattern, whitelist)
