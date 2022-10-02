@@ -1,14 +1,14 @@
 from io_ggltf import Keywords as __k
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import RedundancyManager as RM
-from io_ggltf.Core import BlenderUtil
+from io_ggltf.Core import BlenderUtil, Util
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops.Mesh import ScoopMesh
 from io_ggltf.Advanced import Settings, Linker
 import bpy
 
 __scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)
-__scoop_mesh_command = lambda bucket, objAccessor, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_from_obj(bucket=bucket, objAccessor=objAccessor, normals=normals, tangents=tangents, uvMaps=uvMaps, vertexColors=vertexColors, skinID=skinID, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, maxBoneInfluences=maxBones, assignedID=meshID)
+__scoop_mesh_command = lambda bucket, objAccessor, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones, name: ScoopMesh.scoop_from_obj(bucket=bucket, objAccessor=objAccessor, normals=normals, tangents=tangents, uvMaps=uvMaps, vertexColors=vertexColors, skinID=skinID, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, maxBoneInfluences=maxBones, assignedID=meshID, name=name)
 
 
 def based_on_object(bucket: Bucket, objAccessor,
@@ -23,7 +23,8 @@ shapeKeyNormals=None,
 shapeKeyTangents=None,
 shapeKeyUVs=None,
 checkRedundancy=None,
-autoLink=None
+autoLink=None,
+name=None
 ) -> int:
 
     if normals == None:
@@ -59,8 +60,11 @@ autoLink=None
     BlenderUtil.queue_reset_modifier_changes(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE)
     BlenderUtil.queue_disable_modifier_type(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE, __k.COMMAND_QUEUE_MESH)
     BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_MESH)
+
+    if name == None:
+        name = obj.data.name
     
-    bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
+    bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0, name)))
 
     if autoLink:
         Linker.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
@@ -81,14 +85,15 @@ shapeKeys=[],
 shapeKeyNormals=None,
 shapeKeyTangents=None,
 shapeKeyUVs=None,
+filters=[],
 autoLink=None
 ) -> int:
-    def collect_mesh_objects(currentObject, collected: list, blacklist):
-        if currentObject.name in blacklist:
+    def collect_mesh_objects(currentObject, collected: list, blacklist, filters):
+        if currentObject.name in blacklist or not Util.name_passes_filters(filters, currentObject.name):
             return
 
         for c in currentObject.children:
-            collect_mesh_objects(c, collected, blacklist)
+            collect_mesh_objects(c, collected, blacklist, filters)
 
         if currentObject.type == __k.BLENDER_TYPE_MESH:
             collected.append(currentObject)
@@ -112,7 +117,7 @@ autoLink=None
 
     meshObjects = []
 
-    collect_mesh_objects(topObj, meshObjects, blacklist)
+    collect_mesh_objects(topObj, meshObjects, blacklist, filters)
 
     if len(meshObjects) > 0:
         if len(uvMaps) > 0:
