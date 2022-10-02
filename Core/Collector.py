@@ -12,9 +12,9 @@ def collect(bucket: Bucket):
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_SKIN])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_MESH])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NODE])
-        __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NAMING])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_LINKER])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_ANIM_SETUP])
+        __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NAMING])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP], True)
         bucket.currentDependencyGraph.update()
     except Exception as e:
