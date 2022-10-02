@@ -54,6 +54,10 @@ def obj_to_node(
 
     return node
 
+def make_dummy(bucket: Bucket, assignedID, name):
+    bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(name)
+
+
 def scoop_object(bucket: Bucket, assignedID, objAccessor, parent = False):
 
     obj = bpy.data.objects.get(objAccessor)

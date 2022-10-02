@@ -99,3 +99,8 @@ def fetch_last_id_from_unsafe(bucket, accessor, dataType) -> int:
             return id
     else:
         raise Exception(f"{accessor} ({dataType}) has no assigned ID, please make sure you add the desired object to the bucket first.")
+
+def register_dummy(bucket:Bucket, dataType: str):
+    oldCount = bucket.preScoopCounts[dataType]
+    bucket.preScoopCounts[dataType] += 1
+    return oldCount

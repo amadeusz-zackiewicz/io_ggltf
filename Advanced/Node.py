@@ -170,3 +170,8 @@ def __add_skin(bucket, obj, blacklist, filters):
         if BlenderUtil.object_is_armature(obj):
             from io_ggltf.Advanced import Skin
             Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
+
+def dummy(bucket: Bucket, name: str):
+    id = RM.register_dummy(bucket, __k.BUCKET_DATA_NODES)
+    bucket.commandQueue[__k.COMMAND_QUEUE_NODE].append((NodeScoop.make_dummy, (bucket, id, name)))
+    return id
