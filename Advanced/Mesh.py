@@ -86,7 +86,8 @@ shapeKeyNormals=None,
 shapeKeyTangents=None,
 shapeKeyUVs=None,
 filters=[],
-autoLink=None
+autoLink=None,
+origin=None
 ) -> int:
     def collect_mesh_objects(currentObject, collected: list, blacklist, filters):
         if currentObject.name in blacklist or not Util.name_passes_filters(filters, currentObject.name):
@@ -144,10 +145,16 @@ autoLink=None
             
         BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_MESH)
         
-        bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], BlenderUtil.get_object_accessor(topObj), name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
+        if origin == None:
+            origin = BlenderUtil.get_object_accessor(topObj)
+        else:
+            originObj = try_get_object(origin)
+            origin = BlenderUtil.get_object_accessor(originObj)
+
+        bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
         
         if autoLink:
-            Linker.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(topObj))
+            Linker.mesh_to_unsafe_node(bucket, meshID, origin)
 
         return meshID
     else:
