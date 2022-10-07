@@ -11,7 +11,7 @@ import bpy
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
 __scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objAccessor=objID, parent=parent)
 
-def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, rename=None, autoLinkData=None, inSpace=None) -> int:
+def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoLinkData=None, inSpace=None) -> int:
 
     obj = try_get_object(objAccessor)
     if parent == None:
@@ -29,11 +29,11 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
     else:
         nodeID = RM.register_unsafe(bucket, get_object_accessor(obj), __k.BUCKET_DATA_NODES)
 
-    if rename != None:
-        if type(rename) == str:
-            bucket.commandQueue[__k.COMMAND_QUEUE_NAMING].append((Util.rename_node, (bucket, nodeID, rename)))
+    if name != None:
+        if type(name) == str:
+            bucket.commandQueue[__k.COMMAND_QUEUE_NAMING].append((Util.rename_node, (bucket, nodeID, name)))
         else:
-            raise Exception(f"based_on_object: 'rename' is expected to be a string, got {type(rename)} instead.")
+            raise Exception(f"based_on_object: 'name' is expected to be a string, got {type(name)} instead.")
 
     if type(parent) != bool and type(parent) != int:
         parent = BlenderUtil.get_object_accessor(Util.try_get_object(parent))
