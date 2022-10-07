@@ -18,9 +18,9 @@ else:
     binPath = ""
 
     def test(bucket):
-        Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_LINK_DATA, False)
-        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_LINK, False)
-        Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_LINK, False)
+        Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_ATTACH_DATA, False)
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_ATTACH, False)
+        Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_ATTACH, False)
         skin = Skin.based_on_object(bucket, "Armature_Main", getInverseBinds=True, forceRestPose=True)
         mesh = Mesh.based_on_object(bucket, "MeshObj", skinID=skin, boneInfluences=True)
         node = Node.based_on_object(bucket, "MeshObj")

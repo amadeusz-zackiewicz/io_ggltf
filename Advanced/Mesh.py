@@ -23,7 +23,7 @@ shapeKeyNormals=None,
 shapeKeyTangents=None,
 shapeKeyUVs=None,
 checkRedundancy=None,
-autoLink=None,
+autoAttach=None,
 name=None
 ) -> int:
 
@@ -41,8 +41,8 @@ name=None
         shapeKeyUVs = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
     if checkRedundancy == None:
         checkRedundancy = bucket.settings[__k.BUCKET_SETTING_REDUNDANCY_CHECK_MESH]
-    if autoLink == None:
-        autoLink = bucket.settings[__k.BUCKET_SETTING_MESH_AUTO_LINK]
+    if autoAttach == None:
+        autoAttach = bucket.settings[__k.BUCKET_SETTING_MESH_AUTO_ATTACH]
 
     try:
         obj = try_get_object(objAccessor)
@@ -66,7 +66,7 @@ name=None
     
     bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0, name)))
 
-    if autoLink:
+    if autoAttach:
         Attach.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
 
     return meshID
@@ -86,7 +86,7 @@ shapeKeyNormals=None,
 shapeKeyTangents=None,
 shapeKeyUVs=None,
 filters=[],
-autoLink=None,
+autoAttach=None,
 origin=None
 ) -> int:
     def collect_mesh_objects(currentObject, collected: list, blacklist, filters):
@@ -111,8 +111,8 @@ origin=None
         shapeKeyTangents = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS]
     if shapeKeyUVs == None:
         shapeKeyUVs = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
-    if autoLink == None:
-        autoLink = bucket.settings[__k.BUCKET_SETTING_MESH_AUTO_LINK]
+    if autoAttach == None:
+        autoAttach = bucket.settings[__k.BUCKET_SETTING_MESH_AUTO_ATTACH]
 
     topObj = try_get_object(topObjectAccessor)
 
@@ -153,7 +153,7 @@ origin=None
 
         bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
         
-        if autoLink:
+        if autoAttach:
             Attach.mesh_to_unsafe_node(bucket, meshID, origin)
 
         return meshID

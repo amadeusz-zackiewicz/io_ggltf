@@ -122,6 +122,31 @@ BLENDER_TYPE_EMPTY          = "EMPTY"
 BLENDER_TYPE_SURFACE        = "SURFACE"
 BLENDER_TYPE_MESH           = "MESH"
 
+# General
+BLENDER_AREA_VIEW_3D            = "VIEW_3D"
+BLENDER_AREA_IMAGE_EDITOR       = "IMAGE_EDITOR"
+BLENDER_AREA_NODE_EDITOR        = "NODE_EDITOR"
+BLENDER_AREA_SEQUENCE_EDITOR    = "SEQUENCE_EDITOR"
+BLENDER_AREA_CLIP_EDITOR        = "CLIP_EDITOR"
+# Animation
+BLENDER_AREA_DOPESHEET          = "DOPESHEET_EDITOR"
+BLENDER_AREA_GRAP_EDITOR        = "GRAPH_EDITOR"
+BLENDER_NLA_EDITOR              = "NLA_EDITOR"
+# Scripting
+BLENDER_AREA_TEXT_EDITOR        = "TEXT_EDITOR"
+BLENDER_AREA_CONSOLE            = "CONSOLE"
+BLENDER_AREA_INFO               = "INFO"
+BLENDER_AREA_TOP_BAR            = "TOPBAR"
+BLENDER_AREA_STATUS_BAR         = "STATUSBAR"
+# Data
+BLENDER_AREA_OUTLINER           = "OUTLINER"
+BLENDER_AREA_PROPERTIES         = "PROPERTIES"
+BLENDER_AREA_FILE_BROWSER       = "FILE_BROWSER"
+BLENDER_AREA_SPREADSHEET        = "SPREADSHEET"
+BLENDER_AREA_PREFENCES          = "PREFERENCES"
+
+
+
 BLENDER_INSTANCE_TYPE_NONE          = "NONE"
 BLENDER_INSTANCE_TYPE_VERTS         = "VERTS"
 BLENDER_INSTANCE_TYPE_FACES         = "FACES"
@@ -156,7 +181,7 @@ BUCKET_SETTING_FILE_TYPE            = "file_type"
 ############## Node specific settings
 BUCKET_SETTING_REDUNDANCY_CHECK_NODE        = "redundancy_check_node"
 BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE    = "default_to_parent_space"
-BUCKET_SETTING_NODE_AUTO_LINK_DATA               = "autolink_node_data"
+BUCKET_SETTING_NODE_AUTO_ATTACH_DATA               = "autolink_node_data"
 ############## Mesh specific settings
 BUCKET_SETTING_INCLUDE_MESH                 = "get_mesh"
 BUCKET_SETTING_REDUNDANCY_CHECK_MESH        = "redundancy_check_mesh"
@@ -170,14 +195,14 @@ BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS  = "get_skeys_normals"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS = "get_skeys_tangents"
 BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV       = "get_skeys_uv"
 BUCKET_SETTING_MESH_MAX_BONES               = "mesh_maximum_bones"
-BUCKET_SETTING_MESH_AUTO_LINK               = "autolink_mesh"
+BUCKET_SETTING_MESH_AUTO_ATTACH               = "autolink_mesh"
 ############## Skin specific settings
 BUCKET_SETTING_REDUNDANCY_CHECK_SKIN        = "redundancy_check_skin"
 BUCKET_SETTING_INCLUDE_SKIN                 = "get_skin"
 BUCKET_SETTING_SKIN_GET_INVERSED_BINDS      = "get_inversed_binds"
 BUCKET_SETTING_SKIN_FORCE_REST_POSE         = "force_armature_rest"
 BUCKET_SETTING_SKIN_RIGIFY_FLAGS            = "rigify_flags"
-BUCKET_SETTING_SKIN_AUTO_LINK               = "autolink_skin"
+BUCKET_SETTING_SKIN_AUTO_ATTACH               = "autolink_skin"
 
 COMMAND_QUEUE_SETUP             = 0
 COMMAND_QUEUE_SKIN              = 1

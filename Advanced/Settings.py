@@ -14,7 +14,7 @@ __default = {
         ####### NODE
         __k.BUCKET_SETTING_REDUNDANCY_CHECK_NODE: False,
         __k.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE: False,
-        __k.BUCKET_SETTING_NODE_AUTO_LINK_DATA: False,
+        __k.BUCKET_SETTING_NODE_AUTO_ATTACH_DATA: False,
         ####### MESH
         __k.BUCKET_SETTING_REDUNDANCY_CHECK_MESH: True,
         __k.BUCKET_SETTING_INCLUDE_MESH: True,
@@ -28,14 +28,14 @@ __default = {
         __k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS: False,
         __k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV: False,
         __k.BUCKET_SETTING_MESH_MAX_BONES: 4,
-        __k.BUCKET_SETTING_MESH_AUTO_LINK: True,
+        __k.BUCKET_SETTING_MESH_AUTO_ATTACH: True,
         ####### SKIN
         __k.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN: True,
         __k.BUCKET_SETTING_INCLUDE_SKIN: True,
         __k.BUCKET_SETTING_SKIN_GET_INVERSED_BINDS: True,
         __k.BUCKET_SETTING_SKIN_FORCE_REST_POSE: True,
         __k.BUCKET_SETTING_SKIN_RIGIFY_FLAGS: __k.RIGIFY_ONLY_DEFORMS,
-        __k.BUCKET_SETTING_SKIN_AUTO_LINK: True
+        __k.BUCKET_SETTING_SKIN_AUTO_ATTACH: True
     }
 
 def get_default(setting: str):

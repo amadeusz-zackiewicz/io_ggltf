@@ -18,8 +18,8 @@ else:
     binPath = ""
 
     def test(bucket):
-        Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_LINK_DATA, True)
-        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_LINK, True)
+        Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_ATTACH_DATA, True)
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_ATTACH, True)
 
         Node.based_on_hierarchy(bucket, "Helicopter", blacklist="ThisShouldNotExport")
         File.dump_bucket(bucket)

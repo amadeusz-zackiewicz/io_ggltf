@@ -21,7 +21,7 @@ def based_on_object(
     attachmentBlacklist={},
     attachmentFilters=[],
     rigifyFlags = None,
-    autoLink = None
+    autoAttach = None
 ) -> int:
     
     if checkRedundancy == None:
@@ -32,8 +32,8 @@ def based_on_object(
         forceRestPose = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_FORCE_REST_POSE)
     if rigifyFlags == None:
         rigifyFlags = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_RIGIFY_FLAGS)
-    if autoLink == None:
-        autoLink = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_AUTO_LINK)
+    if autoAttach == None:
+        autoAttach = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_AUTO_ATTACH)
 
     try:
         obj = try_get_object(objAccessor)
@@ -65,7 +65,7 @@ def based_on_object(
 
     __link_bone_attachments(bucket, Skin.get_attachments([accessor], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
 
-    if autoLink:
+    if autoAttach:
         Attach.skin_to_unsafe_node(bucket, skinID, accessor)
 
     return skinID
@@ -82,7 +82,7 @@ def based_on_object_modifiers(
     attachmentBlacklist={},
     attachmentFilters=[],
     rigifyFlags = None,
-    autoLink = None
+    autoAttach = None
 ) -> int:
 
     if checkRedundancy == None:
@@ -91,8 +91,8 @@ def based_on_object_modifiers(
         getInverseBinds = bucket.settings[__k.BUCKET_SETTING_SKIN_GET_INVERSED_BINDS]
     if forceRestPose == None:
         forceRestPose = bucket.settings[__k.BUCKET_SETTING_SKIN_FORCE_REST_POSE]
-    if autoLink == None:
-        autoLink = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_AUTO_LINK)
+    if autoAttach == None:
+        autoAttach = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_AUTO_ATTACH)
 
     try:
         obj = try_get_object(objAccessor)
@@ -140,7 +140,7 @@ def based_on_object_modifiers(
 
     __link_bone_attachments(bucket, Skin.get_attachments(objectAccessors, boneBlacklist=boneBlackList, boneFilters=boneFilters, attachmentBlacklist=attachmentBlacklist, attachmentFilters=attachmentFilters))
 
-    if autoLink:
+    if autoAttach:
         Attach.skin_to_unsafe_node(bucket, skinID, BlenderUtil.get_object_accessor(obj))
 
     return skinID
