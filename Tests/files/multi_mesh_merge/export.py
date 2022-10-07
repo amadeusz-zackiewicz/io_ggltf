@@ -29,9 +29,9 @@ else:
         rotorNode = Node.based_on_object(bucket, "Rotor", parent=True)
         rearRotMesh = Mesh.based_on_object(bucket, "Rear_Rotor")
         rearRotNode = Node.based_on_object(bucket, "Rear_Rotor", parent=True)
-        Linker.mesh_to_node(bucket, heliMesh, heliNode)
-        Linker.mesh_to_node(bucket, rotorMesh, rotorNode)
-        Linker.mesh_to_node(bucket, rearRotMesh, rearRotNode)
+        Attach.mesh_to_node(bucket, heliMesh, heliNode)
+        Attach.mesh_to_node(bucket, rotorMesh, rotorNode)
+        Attach.mesh_to_node(bucket, rearRotMesh, rearRotNode)
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))

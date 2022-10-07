@@ -4,7 +4,7 @@ from io_ggltf.Core.Managers import RedundancyManager as RM
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.BlenderUtil import get_object_accessor
-from io_ggltf.Advanced import Settings, Linker 
+from io_ggltf.Advanced import Settings, Attach
 from io_ggltf.Core import Util, BlenderUtil
 import bpy
 
@@ -73,7 +73,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
             nodeID = RM.register_unsafe(bucket, get_object_accessor(obj), __k.BUCKET_DATA_NODES)
 
         for c in childrenIDs:
-            Linker.node_to_node(bucket, c, nodeID)
+            Attach.node_to_node(bucket, c, nodeID)
         
         if type(parent) != bool and type(parent) != int:
             parent = BlenderUtil.get_object_accessor(Util.try_get_object(parent))
@@ -157,12 +157,12 @@ def __auto_parent(bucket: Bucket, childObj, childID, parent):
             return
 
     if type(parent) == int:
-        Linker.node_to_node(bucket, childID, parent)
+        Attach.node_to_node(bucket, childID, parent)
         return
 
     if type(parent) == tuple:
         parentID = __get_parent_id(bucket, parent)
-        Linker.node_to_node(bucket, childID, parentID)
+        Attach.node_to_node(bucket, childID, parentID)
         return
 
     raise Exception(f"Failed to resolve parent for '{BlenderUtil.get_object_accessor(childObj)}', parent accessor was: '{parent}'. Make sure that parent is added before the child")

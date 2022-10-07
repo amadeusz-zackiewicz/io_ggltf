@@ -24,8 +24,8 @@ else:
         skin = Skin.based_on_object(bucket, "Armature_Main", getInverseBinds=True, forceRestPose=True)
         mesh = Mesh.based_on_object(bucket, "MeshObj", skinID=skin, boneInfluences=True)
         node = Node.based_on_object(bucket, "MeshObj")
-        Linker.skin_to_node(bucket, skin, node)
-        Linker.mesh_to_node(bucket, mesh, node)
+        Attach.skin_to_node(bucket, skin, node)
+        Attach.mesh_to_node(bucket, mesh, node)
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))

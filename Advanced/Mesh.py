@@ -4,7 +4,7 @@ from io_ggltf.Core.Managers import RedundancyManager as RM
 from io_ggltf.Core import BlenderUtil, Util
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops.Mesh import ScoopMesh
-from io_ggltf.Advanced import Settings, Linker
+from io_ggltf.Advanced import Settings, Attach
 import bpy
 
 __scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)
@@ -67,7 +67,7 @@ name=None
     bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0, name)))
 
     if autoLink:
-        Linker.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
+        Attach.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
 
     return meshID
 
@@ -154,7 +154,7 @@ origin=None
         bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
         
         if autoLink:
-            Linker.mesh_to_unsafe_node(bucket, meshID, origin)
+            Attach.mesh_to_unsafe_node(bucket, meshID, origin)
 
         return meshID
     else:

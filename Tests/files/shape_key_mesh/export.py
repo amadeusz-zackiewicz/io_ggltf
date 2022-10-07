@@ -28,7 +28,7 @@ else:
         shapeKeys=["Key 1", "Key 2"],
         shapeKeyNormals=True
         )
-        Linker.mesh_to_node(bucket, mesh, node)
+        Attach.mesh_to_node(bucket, mesh, node)
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))

@@ -4,7 +4,7 @@ from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops import Skin
 from io_ggltf.Core.Managers import RedundancyManager as RM
 from io_ggltf.Core import BlenderUtil, Util
-from io_ggltf.Advanced import Settings, Linker
+from io_ggltf.Advanced import Settings, Attach
 import bpy
 
 __setArmaturePoseCommand = lambda bucket, objAccessor, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objAccessor=objAccessor, poseMode=poseMode)
@@ -66,7 +66,7 @@ def based_on_object(
     __link_bone_attachments(bucket, Skin.get_attachments([accessor], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
 
     if autoLink:
-        Linker.skin_to_unsafe_node(bucket, skinID, accessor)
+        Attach.skin_to_unsafe_node(bucket, skinID, accessor)
 
     return skinID
 
@@ -141,7 +141,7 @@ def based_on_object_modifiers(
     __link_bone_attachments(bucket, Skin.get_attachments(objectAccessors, boneBlacklist=boneBlackList, boneFilters=boneFilters, attachmentBlacklist=attachmentBlacklist, attachmentFilters=attachmentFilters))
 
     if autoLink:
-        Linker.skin_to_unsafe_node(bucket, skinID, BlenderUtil.get_object_accessor(obj))
+        Attach.skin_to_unsafe_node(bucket, skinID, BlenderUtil.get_object_accessor(obj))
 
     return skinID
 
