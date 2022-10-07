@@ -1,6 +1,6 @@
 from math import ceil
 from io_ggltf.Core.Managers import AccessorManager
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 from io_ggltf.Core.Scoops.Mesh import MeshUtil
 from io_ggltf.Core.Bucket import Bucket
 from mathutils import Vector

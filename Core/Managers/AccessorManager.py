@@ -1,5 +1,5 @@
 import struct
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 from io_ggltf.Core import Util
 from io_ggltf.Core.Managers import BufferViewManager
 

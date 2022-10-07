@@ -1,4 +1,4 @@
-from io_ggltf import Keywords as __k
+from io_ggltf import Constants as __c
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops import Skin
@@ -25,15 +25,15 @@ def based_on_object(
 ) -> int:
     
     if checkRedundancy == None:
-        checkRedundancy = Settings.get_setting(bucket, __k.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN)
+        checkRedundancy = Settings.get_setting(bucket, __c.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN)
     if getInverseBinds == None:
-        getInverseBinds = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_GET_INVERSED_BINDS)
+        getInverseBinds = Settings.get_setting(bucket, __c.BUCKET_SETTING_SKIN_GET_INVERSED_BINDS)
     if forceRestPose == None:
-        forceRestPose = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_FORCE_REST_POSE)
+        forceRestPose = Settings.get_setting(bucket, __c.BUCKET_SETTING_SKIN_FORCE_REST_POSE)
     if rigifyFlags == None:
-        rigifyFlags = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_RIGIFY_FLAGS)
+        rigifyFlags = Settings.get_setting(bucket, __c.BUCKET_SETTING_SKIN_RIGIFY_FLAGS)
     if autoAttach == None:
-        autoAttach = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_AUTO_ATTACH)
+        autoAttach = Settings.get_setting(bucket, __c.BUCKET_SETTING_SKIN_AUTO_ATTACH)
 
     try:
         obj = try_get_object(objAccessor)
@@ -43,25 +43,25 @@ def based_on_object(
     accessor = BlenderUtil.get_object_accessor(obj)
 
     if checkRedundancy:
-        redundant, skinID = RM.register_unique(bucket, accessor, __k.BUCKET_DATA_SKINS)
+        redundant, skinID = RM.register_unique(bucket, accessor, __c.BUCKET_DATA_SKINS)
 
         if redundant:
             return skinID
     else:
-        skinID = RM.register_unsafe(bucket, accessor, __k.BUCKET_DATA_SKINS)
+        skinID = RM.register_unsafe(bucket, accessor, __c.BUCKET_DATA_SKINS)
     
     if forceRestPose:
-        if obj.data.pose_position != __k.BLENDER_ARMATURE_REST_MODE:
+        if obj.data.pose_position != __c.BLENDER_ARMATURE_REST_MODE:
             BlenderUtil.queue_reset_armature_pose(bucket, obj)
-            bucket.commandQueue[__k.COMMAND_QUEUE_SKIN].append((__setArmaturePoseCommand, (bucket, objAccessor, __k.BLENDER_ARMATURE_REST_MODE)))
-            BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_SKIN)
+            bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__setArmaturePoseCommand, (bucket, objAccessor, __c.BLENDER_ARMATURE_REST_MODE)))
+            BlenderUtil.queue_update_depsgraph(bucket, __c.COMMAND_QUEUE_SKIN)
 
     rigify = __is_rigify(obj)
     if rigify:
         boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, [accessor], boneBlackList, boneFilters)
     bucket.skinDefinition.append(skinDefinition)
-    bucket.commandQueue[__k.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [accessor], getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
+    bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [accessor], getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
 
     __link_bone_attachments(bucket, Skin.get_attachments([accessor], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
 
@@ -86,13 +86,13 @@ def based_on_object_modifiers(
 ) -> int:
 
     if checkRedundancy == None:
-        checkRedundancy = bucket.settings[__k.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN]
+        checkRedundancy = bucket.settings[__c.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN]
     if getInverseBinds == None:
-        getInverseBinds = bucket.settings[__k.BUCKET_SETTING_SKIN_GET_INVERSED_BINDS]
+        getInverseBinds = bucket.settings[__c.BUCKET_SETTING_SKIN_GET_INVERSED_BINDS]
     if forceRestPose == None:
-        forceRestPose = bucket.settings[__k.BUCKET_SETTING_SKIN_FORCE_REST_POSE]
+        forceRestPose = bucket.settings[__c.BUCKET_SETTING_SKIN_FORCE_REST_POSE]
     if autoAttach == None:
-        autoAttach = Settings.get_setting(bucket, __k.BUCKET_SETTING_SKIN_AUTO_ATTACH)
+        autoAttach = Settings.get_setting(bucket, __c.BUCKET_SETTING_SKIN_AUTO_ATTACH)
 
     try:
         obj = try_get_object(objAccessor)
@@ -103,8 +103,8 @@ def based_on_object_modifiers(
     depsGraph = bucket.currentDependencyGraph
 
     for mod in obj.modifiers:
-        if mod.type == __k.BLENDER_MODIFIER_ARMATURE:
-            if depsGraph.mode == __k.BLENDER_DEPSGRAPH_MODE_VIEWPORT and mod.show_viewport or depsGraph.mode == __k.BLENDER_DEPSGRAPH_MODE_RENDER and mod.show_render:
+        if mod.type == __c.BLENDER_MODIFIER_ARMATURE:
+            if depsGraph.mode == __c.BLENDER_DEPSGRAPH_MODE_VIEWPORT and mod.show_viewport or depsGraph.mode == __c.BLENDER_DEPSGRAPH_MODE_RENDER and mod.show_render:
                 armatureObjects.append(mod.object)
 
     if len(armatureObjects) == 0:
@@ -113,30 +113,30 @@ def based_on_object_modifiers(
 
     objectAccessors = [BlenderUtil.get_object_accessor(o) for o in armatureObjects]
     if checkRedundancy:
-        redundant, skinID = RM.register_unique(bucket, objectAccessors, __k.BUCKET_DATA_SKINS)
+        redundant, skinID = RM.register_unique(bucket, objectAccessors, __c.BUCKET_DATA_SKINS)
 
         if redundant:
             return skinID
     else:
-        skinID = RM.register_unsafe(bucket, objectAccessors, __k.BUCKET_DATA_SKINS)
+        skinID = RM.register_unsafe(bucket, objectAccessors, __c.BUCKET_DATA_SKINS)
 
     rigify = False
 
     for armatureObj in armatureObjects:
         if forceRestPose:
-            if armatureObj.data.pose_position != __k.BLENDER_ARMATURE_REST_MODE:
+            if armatureObj.data.pose_position != __c.BLENDER_ARMATURE_REST_MODE:
                 BlenderUtil.queue_reset_armature_pose(bucket, armatureObj)
-                bucket.commandQueue[__k.COMMAND_QUEUE_SKIN].append((__setArmaturePoseCommand, (bucket, BlenderUtil.get_object_accessor(armatureObj), __k.BLENDER_ARMATURE_REST_MODE)))
+                bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__setArmaturePoseCommand, (bucket, BlenderUtil.get_object_accessor(armatureObj), __c.BLENDER_ARMATURE_REST_MODE)))
         
         if __is_rigify(armatureObj):
             rigify = True
 
-    BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_SKIN)
+    BlenderUtil.queue_update_depsgraph(bucket, __c.COMMAND_QUEUE_SKIN)
     if rigify:
         boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, objectAccessors, boneBlackList)
     bucket.skinDefinition.append(skinDefinition)
-    bucket.commandQueue[__k.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectAccessors, getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
+    bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectAccessors, getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
 
     __link_bone_attachments(bucket, Skin.get_attachments(objectAccessors, boneBlacklist=boneBlackList, boneFilters=boneFilters, attachmentBlacklist=attachmentBlacklist, attachmentFilters=attachmentFilters))
 
@@ -150,7 +150,7 @@ def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filt
     from io_ggltf.Advanced import Node
     for attachment in attachments:
         Node.based_on_hierarchy(bucket, BlenderUtil.get_object_accessor(attachment), blacklist=blacklist, filters=filters, parent=BlenderUtil.get_parent_accessor(attachment))
-        RM.fetch_last_id_from_unsafe(bucket, BlenderUtil.get_parent_accessor(attachment), __k.BUCKET_DATA_NODES)
+        RM.fetch_last_id_from_unsafe(bucket, BlenderUtil.get_parent_accessor(attachment), __c.BUCKET_DATA_NODES)
 
 def __is_rigify(armatureObj):
     return armatureObj.data.get("rig_id") != None

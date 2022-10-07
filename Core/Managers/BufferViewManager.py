@@ -1,4 +1,4 @@
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 from io_ggltf.Core.Managers import BufferManager
 
 def add_bytes(bucket, bytes: bytearray, name=None):

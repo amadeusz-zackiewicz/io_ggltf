@@ -1,11 +1,10 @@
-from fileinput import filename
 import os
 import json
 import struct
 import bpy
 from io_ggltf.Core.Managers import BufferManager
 from io_ggltf.Core.Util import cleanup_keys
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 
 # https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf ----- 4.4 glTF Layout
 __BINARY_MAGIC_NUMBER = 0x46546C67

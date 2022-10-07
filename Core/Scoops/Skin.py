@@ -1,5 +1,5 @@
 import bpy
-from io_ggltf import Keywords as __k
+from io_ggltf import Constants as __c
 from io_ggltf.Core import Util
 from io_ggltf.Core import BlenderUtil
 from io_ggltf.Core.Scoops import Node
@@ -15,7 +15,7 @@ def get_skin_definition(bucket: Bucket, armatureAccessors, blacklist = set(), fi
         for c in bone.children:
             reserve_bones(c, objAcc, blacklist, filters, nodeOffset, skinDefinition)
         
-        id = RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __k.BUCKET_DATA_NODES)
+        id = RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __c.BUCKET_DATA_NODES)
         skinDefinition[bone.name] = id - nodeOffset
         
     def reserve_bones_stitch(bone, objAcc, blacklist, filters, nodeOffset, skinDefinition):
@@ -26,7 +26,7 @@ def get_skin_definition(bucket: Bucket, armatureAccessors, blacklist = set(), fi
             reserve_bones_stitch(c, objAcc, blacklist, filters, nodeOffset, skinDefinition)
 
         if Util.name_passes_filters(filters, bone.name):
-            id = RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __k.BUCKET_DATA_NODES)
+            id = RM.register_unsafe(bucket, (objAcc[0], objAcc[1], bone.name), __c.BUCKET_DATA_NODES)
             skinDefinition[bone.name] = id - nodeOffset
         
 
@@ -47,7 +47,7 @@ def get_skin_definition(bucket: Bucket, armatureAccessors, blacklist = set(), fi
         if bone.parent == None:
             rootBones.append(i)
 
-    nodeOffset = bucket.preScoopCounts[__k.BUCKET_DATA_NODES]
+    nodeOffset = bucket.preScoopCounts[__c.BUCKET_DATA_NODES]
 
     if stitchedHierarchy:
         for r in rootBones:
@@ -105,7 +105,7 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
     joints = []
 
     skinDict = {}
-    skinDict[__k.SKIN_NAME] = objects[0].name
+    skinDict[__c.SKIN_NAME] = objects[0].name
 
     for i, b in enumerate(bones):
         bone = b[0]
@@ -135,10 +135,10 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
         skeleton.append(rootJoint.jointID)
 
 
-    skinDict[__k.SKIN_JOINTS] = joints
+    skinDict[__c.SKIN_JOINTS] = joints
 
     if len(skeleton) == 1:
-        skinDict[__k.SKIN_SKELETON] = skeleton[0]
+        skinDict[__c.SKIN_SKELETON] = skeleton[0]
 
     if getInversedBinds:
         inversedBinds = []
@@ -146,14 +146,14 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
             __calculate_inverse_binds(rootJoint, objects[mainArmature].matrix_world)
             __inverse_binds_to_list(rootJoint, inversedBinds, nodeIDOffset)
 
-        skinDict[__k.SKIN_INVERSE_BIND_MATRICES] = AccessorManager.add_accessor(bucket,
-        componentType=__k.ACCESSOR_COMPONENT_TYPE_FLOAT,
-        type=__k.ACCESSOR_TYPE_MATRIX_4,
-        packingFormat=__k.PACKING_FORMAT_FLOAT,
+        skinDict[__c.SKIN_INVERSE_BIND_MATRICES] = AccessorManager.add_accessor(bucket,
+        componentType=__c.ACCESSOR_COMPONENT_TYPE_FLOAT,
+        type=__c.ACCESSOR_TYPE_MATRIX_4,
+        packingFormat=__c.PACKING_FORMAT_FLOAT,
         data=inversedBinds
         )
     
-    bucket.data[__k.BUCKET_DATA_SKINS][skinID] = skinDict
+    bucket.data[__c.BUCKET_DATA_SKINS][skinID] = skinDict
 
     return rootNodes
 
@@ -236,7 +236,7 @@ def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones): # th
         del potentialParent
                 
         for c in bone.constraints:
-            if c.type == __k.BLENDER_CONSTRAINT_COPY_TRANSFORM:
+            if c.type == __c.BLENDER_CONSTRAINT_COPY_TRANSFORM:
                 try:
                     target = allBones[c.subtarget]
                     if Util.name_passes_filters(filters, target.name):
@@ -247,7 +247,7 @@ def __get_real_parent_of_joint(joint: Joint, filters, allJoints, allBones): # th
                         return parent
                 except:
                     pass
-            if c.type == __k.BLENDER_CONSTRAINT_ARMATURE:
+            if c.type == __c.BLENDER_CONSTRAINT_ARMATURE:
                 try:
                     target = allBones[c.targets[0].subtarget]
                     if Util.name_passes_filters(filters, target.name):
@@ -316,7 +316,7 @@ def __joint_hierarchy_to_nodes(bucket: Bucket, joint: Joint):
             children=children
         )
 
-        bucket.data[__k.BUCKET_DATA_NODES][joint.nodeID] = node
+        bucket.data[__c.BUCKET_DATA_NODES][joint.nodeID] = node
 
         return joint.nodeID
 

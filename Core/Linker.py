@@ -1,5 +1,4 @@
-from platform import node
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 from io_ggltf.Core.Bucket import Bucket
 
 class OutOfBoundsException(Exception):

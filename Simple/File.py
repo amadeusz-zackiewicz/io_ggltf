@@ -1,6 +1,6 @@
 from fileinput import filename
 from logging import exception
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 from io_ggltf.Core import Writer
 from io_ggltf.Core.Bucket import Bucket
 

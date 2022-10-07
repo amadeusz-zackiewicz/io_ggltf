@@ -11,7 +11,7 @@ if __name__ == "__main__" and len(sys.argv) == 1:
     T.run_test("rigify_rig", "rigify_rig", os.path.basename(__file__).replace(".py", ""))
 else:
     from io_ggltf.Advanced import *
-    from io_ggltf.Keywords import *
+    from io_ggltf.Constants import *
 
     filePath = "//..\\..\\output\\"
     fileName = "rigify_rig_deform_only"

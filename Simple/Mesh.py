@@ -1,4 +1,4 @@
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 from io_ggltf.Simple.File import get_current_bucket
 from io_ggltf.Core.Scoops.Mesh import ScoopMesh
 from io_ggltf.Simple import Skin

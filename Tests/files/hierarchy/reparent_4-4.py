@@ -11,7 +11,7 @@ if __name__ == "__main__" and len(sys.argv) == 1:
     T.run_test("hierarchy", "hierarchy", os.path.basename(__file__).replace(".py", ""))
 else:
     from io_ggltf.Advanced import *
-    from io_ggltf.Keywords import *
+    from io_ggltf.Constants import *
 
     filePath = "//..\\..\\output\\"
     fileName = "hierarchy_reparent_4-4"

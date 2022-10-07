@@ -1,5 +1,5 @@
 import bpy
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 from io_ggltf.Core.Scoops.Mesh import Triangles
 from io_ggltf.Core.Bucket import Bucket
 

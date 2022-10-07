@@ -10,11 +10,8 @@ if __name__ == "__main__" and len(sys.argv) == 1:
     import Tests.LimitedTestUtil as T
     T.run_test("hierarchy", "hierarchy", os.path.basename(__file__).replace(".py", ""))
 else:
-    from io_ggltf.Advanced import Node
-    from io_ggltf.Advanced import File
-    from io_ggltf.Advanced import Settings
-
-    from io_ggltf.Keywords import FILE_TYPE_GLTF_EMBEDDED, FILE_TYPE_GLB, FILE_TYPE_GLTF, BUCKET_SETTING_REDUNDANCY_CHECK_NODE
+    from io_ggltf.Advanced import *
+    from io_ggltf.Constants import *
 
     filePath = "//..\\..\\output\\"
     fileName = "hierarchy_check_node_redundancy"

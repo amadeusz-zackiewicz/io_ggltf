@@ -1,4 +1,4 @@
-from io_ggltf import Keywords as __k
+from io_ggltf import Constants as __c
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import RedundancyManager as RM
 from io_ggltf.Core import BlenderUtil, Util
@@ -28,21 +28,21 @@ name=None
 ) -> int:
 
     if normals == None:
-        normals = bucket.settings[__k.BUCKET_SETTING_MESH_GET_NORMALS]
+        normals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_NORMALS]
     if tangents == None:
-        tangents = bucket.settings[__k.BUCKET_SETTING_MESH_GET_TANGENTS]
+        tangents = bucket.settings[__c.BUCKET_SETTING_MESH_GET_TANGENTS]
     if boneInfluences == None:
-        boneInfluences = bucket.settings[__k.BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
+        boneInfluences = bucket.settings[__c.BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
     if shapeKeyNormals == None:
-        shapeKeyNormals = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS]
+        shapeKeyNormals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS]
     if shapeKeyTangents == None:
-        shapeKeyTangents = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS]
+        shapeKeyTangents = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS]
     if shapeKeyUVs == None:
-        shapeKeyUVs = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
+        shapeKeyUVs = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
     if checkRedundancy == None:
-        checkRedundancy = bucket.settings[__k.BUCKET_SETTING_REDUNDANCY_CHECK_MESH]
+        checkRedundancy = bucket.settings[__c.BUCKET_SETTING_REDUNDANCY_CHECK_MESH]
     if autoAttach == None:
-        autoAttach = bucket.settings[__k.BUCKET_SETTING_MESH_AUTO_ATTACH]
+        autoAttach = bucket.settings[__c.BUCKET_SETTING_MESH_AUTO_ATTACH]
 
     try:
         obj = try_get_object(objAccessor)
@@ -50,21 +50,21 @@ name=None
         return None
     
     if checkRedundancy:
-        redundant, meshID = RM.register_unique(bucket, BlenderUtil.get_object_accessor(obj), __k.BUCKET_DATA_MESHES)
+        redundant, meshID = RM.register_unique(bucket, BlenderUtil.get_object_accessor(obj), __c.BUCKET_DATA_MESHES)
 
         if redundant:
             return meshID
     else:
-        meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), __k.BUCKET_DATA_MESHES)
+        meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), __c.BUCKET_DATA_MESHES)
 
-    BlenderUtil.queue_reset_modifier_changes(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE)
-    BlenderUtil.queue_disable_modifier_type(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE, __k.COMMAND_QUEUE_MESH)
-    BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_MESH)
+    BlenderUtil.queue_reset_modifier_changes(bucket, obj, __c.BLENDER_MODIFIER_ARMATURE)
+    BlenderUtil.queue_disable_modifier_type(bucket, obj, __c.BLENDER_MODIFIER_ARMATURE, __c.COMMAND_QUEUE_MESH)
+    BlenderUtil.queue_update_depsgraph(bucket, __c.COMMAND_QUEUE_MESH)
 
     if name == None:
         name = obj.data.name
     
-    bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0, name)))
+    bucket.commandQueue[__c.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __c.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0, name)))
 
     if autoAttach:
         Attach.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
@@ -96,23 +96,23 @@ origin=None
         for c in currentObject.children:
             collect_mesh_objects(c, collected, blacklist, filters)
 
-        if currentObject.type == __k.BLENDER_TYPE_MESH:
+        if currentObject.type == __c.BLENDER_TYPE_MESH:
             collected.append(currentObject)
 
     if normals == None:
-        normals = bucket.settings[__k.BUCKET_SETTING_MESH_GET_NORMALS]
+        normals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_NORMALS]
     if tangents == None:
-        tangents = bucket.settings[__k.BUCKET_SETTING_MESH_GET_TANGENTS]
+        tangents = bucket.settings[__c.BUCKET_SETTING_MESH_GET_TANGENTS]
     if boneInfluences == None:
-        boneInfluences = bucket.settings[__k.BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
+        boneInfluences = bucket.settings[__c.BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
     if shapeKeyNormals == None:
-        shapeKeyNormals = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS]
+        shapeKeyNormals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS]
     if shapeKeyTangents == None:
-        shapeKeyTangents = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS]
+        shapeKeyTangents = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS]
     if shapeKeyUVs == None:
-        shapeKeyUVs = bucket.settings[__k.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
+        shapeKeyUVs = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
     if autoAttach == None:
-        autoAttach = bucket.settings[__k.BUCKET_SETTING_MESH_AUTO_ATTACH]
+        autoAttach = bucket.settings[__c.BUCKET_SETTING_MESH_AUTO_ATTACH]
 
     topObj = try_get_object(topObjectAccessor)
 
@@ -137,13 +137,13 @@ origin=None
                     print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified Shape Keys")
                     return None
 
-        meshID = RM.register_unsafe(bucket, [BlenderUtil.get_object_accessor(o) for o in meshObjects], __k.BUCKET_DATA_MESHES)
+        meshID = RM.register_unsafe(bucket, [BlenderUtil.get_object_accessor(o) for o in meshObjects], __c.BUCKET_DATA_MESHES)
 
         for obj in meshObjects:
-            BlenderUtil.queue_reset_modifier_changes(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE)
-            BlenderUtil.queue_disable_modifier_type(bucket, obj, __k.BLENDER_MODIFIER_ARMATURE, __k.COMMAND_QUEUE_MESH)
+            BlenderUtil.queue_reset_modifier_changes(bucket, obj, __c.BLENDER_MODIFIER_ARMATURE)
+            BlenderUtil.queue_disable_modifier_type(bucket, obj, __c.BLENDER_MODIFIER_ARMATURE, __c.COMMAND_QUEUE_MESH)
             
-        BlenderUtil.queue_update_depsgraph(bucket, __k.COMMAND_QUEUE_MESH)
+        BlenderUtil.queue_update_depsgraph(bucket, __c.COMMAND_QUEUE_MESH)
         
         if origin == None:
             origin = BlenderUtil.get_object_accessor(topObj)
@@ -151,7 +151,7 @@ origin=None
             originObj = try_get_object(origin)
             origin = BlenderUtil.get_object_accessor(originObj)
 
-        bucket.commandQueue[__k.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __k.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
+        bucket.commandQueue[__c.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __c.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
         
         if autoAttach:
             Attach.mesh_to_unsafe_node(bucket, meshID, origin)

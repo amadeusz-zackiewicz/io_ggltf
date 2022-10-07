@@ -1,5 +1,5 @@
 from io_ggltf.Core.Bucket import Bucket
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 
 def collect(bucket: Bucket):
     bucket.data[BUCKET_DATA_SCENES] = [None] * bucket.preScoopCounts[BUCKET_DATA_SCENES]

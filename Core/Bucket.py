@@ -1,4 +1,4 @@
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 import bpy
 import os
 

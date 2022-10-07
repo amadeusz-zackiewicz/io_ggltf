@@ -1,4 +1,4 @@
-from io_ggltf import Keywords as __k
+from io_ggltf import Constants as __c
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
 import bpy
@@ -116,21 +116,21 @@ def name_passes_filters(filter: list[tuple], name: str) -> bool:
     return True
 
 def rename_node(bucket, nodeID: int, newName: str):
-    node = bucket.data[__k.BUCKET_DATA_NODES][nodeID]
-    node[__k.NODE_NAME] = newName
+    node = bucket.data[__c.BUCKET_DATA_NODES][nodeID]
+    node[__c.NODE_NAME] = newName
 
 def rename_node(bucket, nodeName: str, newName: str):
-    for n in bucket.data[__k.BUCKET_DATA_NODES]:
-        if nodeName == n[__k.NODE_NAME]:
-            n[__k.NODE_NAME] = newName
+    for n in bucket.data[__c.BUCKET_DATA_NODES]:
+        if nodeName == n[__c.NODE_NAME]:
+            n[__c.NODE_NAME] = newName
 
 def pattern_replace(bucket, dataType: str, pattern: str, newStr: str):
     objects = bucket.data[dataType]
     pattern = re.compile(pattern)
     for obj in objects:
-        if __k.__VAR_NAME in obj: # the object here is a dictionary
-            for m in re.finditer(pattern, obj[__k.__VAR_NAME]):
-                obj[__k.__VAR_NAME] = obj[__k.__VAR_NAME].replace(m.group(), newStr)
+        if __c.__VAR_NAME in obj: # the object here is a dictionary
+            for m in re.finditer(pattern, obj[__c.__VAR_NAME]):
+                obj[__c.__VAR_NAME] = obj[__c.__VAR_NAME].replace(m.group(), newStr)
                 
 
 def create_filter(pattern: str, whitelist: bool):

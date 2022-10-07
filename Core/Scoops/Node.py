@@ -1,7 +1,7 @@
 import bpy
 from mathutils import Quaternion, Vector
 from io_ggltf.Core import Util
-from io_ggltf.Keywords import *
+from io_ggltf.Constants import *
 from io_ggltf.Simple import Mesh
 from io_ggltf.Core.Bucket import Bucket
 

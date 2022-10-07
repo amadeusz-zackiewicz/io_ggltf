@@ -1,6 +1,6 @@
 from io_ggltf.Core.Bucket import Bucket
 import bpy
-from io_ggltf import Keywords
+from io_ggltf import Constants
 
 def __is_not_unique(bucket: Bucket, objAccessor, getFunc = bpy.data.objects.get) -> bool:
     return __get_eval(bucket.currentDependencyGraph, objAccessor, getFunc) in bucket.redundancies

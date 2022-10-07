@@ -1,4 +1,4 @@
-from io_ggltf import Keywords as __k
+from io_ggltf import Constants as __c
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import RedundancyManager as RM
 import bpy
@@ -10,7 +10,7 @@ def set_object_pose_mode(bucket: Bucket, objAccessor, poseMode):
 
 def set_object_modifier(bucket: Bucket, objAccessor, modifierID, setActive):
     obj = bpy.data.objects.get(objAccessor)
-    if bucket.currentDependencyGraph.mode == __k.BLENDER_DEPSGRAPH_MODE_VIEWPORT:
+    if bucket.currentDependencyGraph.mode == __c.BLENDER_DEPSGRAPH_MODE_VIEWPORT:
         obj.modifiers[modifierID].show_viewport = setActive
     else:
         obj.modifiers[modifierID].show_render = setActive
@@ -56,36 +56,36 @@ def queue_reset_modifier_changes(bucket, obj, modType):
     for i, mod in enumerate(obj.modifiers):
         if mod.type == modType:
             if mod.show_viewport:
-                bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((__enable_modifier_command, (bucket, get_object_accessor(obj), i)))
+                bucket.commandQueue[__c.COMMAND_QUEUE_CLEAN_UP].append((__enable_modifier_command, (bucket, get_object_accessor(obj), i)))
             else:
-                bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((__disable_modifier_command, (bucket, get_object_accessor(obj), i)))
+                bucket.commandQueue[__c.COMMAND_QUEUE_CLEAN_UP].append((__disable_modifier_command, (bucket, get_object_accessor(obj), i)))
 
 def queue_update_depsgraph(bucket: Bucket, queue):
     bucket.commandQueue[queue].append((bucket.currentDependencyGraph.update, ()))
 
 def queue_reset_armature_pose(bucket: Bucket, obj):
-    bucket.commandQueue[__k.COMMAND_QUEUE_CLEAN_UP].append((set_object_pose_mode, (bucket, get_object_accessor(obj), obj.data.pose_position)))
+    bucket.commandQueue[__c.COMMAND_QUEUE_CLEAN_UP].append((set_object_pose_mode, (bucket, get_object_accessor(obj), obj.data.pose_position)))
     
 
 def create_rigify_filters(rigifyFlags):
-    if rigifyFlags & ~__k.RIGIFY_TRIM_NAMES != 0: # clear the RIGIFY_TRIM_NAMES flag
+    if rigifyFlags & ~__c.RIGIFY_TRIM_NAMES != 0: # clear the RIGIFY_TRIM_NAMES flag
         filters = []
         extraFilters = []
         rootFilter = None
-        if rigifyFlags & __k.RIGIFY_INCLUDE_CONTROLS == __k.RIGIFY_INCLUDE_CONTROLS:
+        if rigifyFlags & __c.RIGIFY_INCLUDE_CONTROLS == __c.RIGIFY_INCLUDE_CONTROLS:
             whitelist = False
-            if rigifyFlags & __k.RIGIFY_INCLUDE_ORIGINAL == 0:
+            if rigifyFlags & __c.RIGIFY_INCLUDE_ORIGINAL == 0:
                 filters.append("(^ORG-)")
-            if rigifyFlags & __k.RIGIFY_INCLUDE_DEFORMS == 0:
+            if rigifyFlags & __c.RIGIFY_INCLUDE_DEFORMS == 0:
                 filters.append("(^DEF-)")
         else:
             whitelist = True
-            if rigifyFlags & __k.RIGIFY_INCLUDE_ORIGINAL == __k.RIGIFY_INCLUDE_ORIGINAL:
+            if rigifyFlags & __c.RIGIFY_INCLUDE_ORIGINAL == __c.RIGIFY_INCLUDE_ORIGINAL:
                 filters.append("(^ORG-)")
-            if rigifyFlags & __k.RIGIFY_INCLUDE_DEFORMS == __k.RIGIFY_INCLUDE_DEFORMS:
+            if rigifyFlags & __c.RIGIFY_INCLUDE_DEFORMS == __c.RIGIFY_INCLUDE_DEFORMS:
                 filters.append("(^DEF-)")
                 extraFilters.append(("(^DEF-eye_master.*)", False))
-            if rigifyFlags & __k.RIGIFY_INCLUDE_ROOT:
+            if rigifyFlags & __c.RIGIFY_INCLUDE_ROOT:
                 rootFilter = "(^root$)"
         if len(filters) > 0:
             if rootFilter != None:
@@ -99,23 +99,23 @@ def create_rigify_filters(rigifyFlags):
     return []
 
 def rigify_rename(bucket, rigifyFlags):
-    if rigifyFlags & __k.RIGIFY_TRIM_NAMES == 0 or rigifyFlags & __k.RIGIFY_INCLUDE_CONTROLS != 0:
+    if rigifyFlags & __c.RIGIFY_TRIM_NAMES == 0 or rigifyFlags & __c.RIGIFY_INCLUDE_CONTROLS != 0:
         print("Trimming rigify names was omitted as there would be multiple duplicate nodes with identical hierarchies (RIGIFY_INCLUDE_CONTROLS | RIGIFY_TRIM_NAMES)")
         return None # if controls are included then we ignore the name trimming since that will produce a lot of duplicates
-    if rigifyFlags & __k.RIGIFY_INCLUDE_DEFORMS == __k.RIGIFY_INCLUDE_DEFORMS and rigifyFlags & __k.RIGIFY_INCLUDE_ORIGINAL == __k.RIGIFY_INCLUDE_ORIGINAL:
+    if rigifyFlags & __c.RIGIFY_INCLUDE_DEFORMS == __c.RIGIFY_INCLUDE_DEFORMS and rigifyFlags & __c.RIGIFY_INCLUDE_ORIGINAL == __c.RIGIFY_INCLUDE_ORIGINAL:
         print("Trimming rigify names was omitted as there would be multiple duplicate nodes with identical hierarchies (RIGIFY_INCLUDE_DEFORMS | RIGIFY_INCLUDE_ORIGINAL | RIGIFY_TRIM_NAMES")
         return None # if both original and deforms are included then we will have duplicate names
 
-    if rigifyFlags & __k.RIGIFY_INCLUDE_ORIGINAL:
+    if rigifyFlags & __c.RIGIFY_INCLUDE_ORIGINAL:
         return "^ORG-"
-    if rigifyFlags & __k.RIGIFY_INCLUDE_DEFORMS:
+    if rigifyFlags & __c.RIGIFY_INCLUDE_DEFORMS:
         return "^DEF-"
 
     return None
 
 def get_parent_accessor(obj):
     if obj.parent != None:
-        if obj.parent_type == __k.BLENDER_TYPE_BONE:
+        if obj.parent_type == __c.BLENDER_TYPE_BONE:
             return get_bone_accessor(obj.parent, obj.parent_bone)
         else:
             return get_object_accessor(obj.parent)
@@ -148,7 +148,7 @@ def rigify_get_potential_parent_name(childName: str) -> str or None:
         return parentName
 
 def object_is_meshlike(obj):
-    return obj.type in __k.BLENDER_MESH_CONVERTIBLE
+    return obj.type in __c.BLENDER_MESH_CONVERTIBLE
 
 def object_is_armature(obj):
-    return obj.type == __k.BLENDER_TYPE_ARMATURE
+    return obj.type == __c.BLENDER_TYPE_ARMATURE
