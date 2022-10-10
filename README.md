@@ -1,7 +1,7 @@
 # Work in progress
 Currently working on 0.1.0 release, there are still some bugs and usability issues. 
 
-The documentation and how to pages are not yet complete but the addon is mostly functional.
+The documentation and wiki pages are not yet complete but the addon is mostly functional.
 
 Current data types supported:
 Type | Support
