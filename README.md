@@ -35,4 +35,4 @@ Exclude objects with regular expressions, allowing you to exclude objects withou
 Merge all meshes in a hierarchy into one, with custom origin point of required, specify meshes you do not want included with blacklist or regular expression filter. 
 
 ## Rigify bone filtering and name stripping
-Strip bones based on blacklist or filters, or use automated riify flags to exclude useless bones and automatically strip `DEF-` or `ORG-` prefix from the bones.
+Strip bones based on blacklist or filters, or use automated rigify flags to exclude useless bones and automatically strip `DEF-` or `ORG-` prefix from the bones.
