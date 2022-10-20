@@ -35,7 +35,7 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
         else:
             raise Exception(f"based_on_object: 'name' is expected to be a string, got {type(name)} instead.")
 
-    if type(parent) != bool and type(parent) != int:
+    if type(parent) != bool and type(parent) != int and type(parent) != tuple:
         parent = BlenderUtil.get_object_accessor(Util.try_get_object(parent))
     if inSpace == None:
         inSpace = parent
@@ -61,7 +61,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
             childrenIDs.extend(based_on_collection(bucket=bucket, collectionName=get_object_accessor(obj.instance_collection), blacklist=blacklist, parent=True, checkRedundancies=checkRedundancies))
         else:
             for c in obj.children:
-                childID = __recursive(bucket, c, blacklist, True, checkRedundancies, filters, autoAttachData)
+                childID = __recursive(bucket, c, blacklist, True, checkRedundancies, filters, autoAttachData, True)
                 if childID != None:
                     childrenIDs.append(childID)
 
@@ -75,7 +75,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
         for c in childrenIDs:
             Attach.node_to_node(bucket, c, nodeID)
         
-        if type(parent) != bool and type(parent) != int:
+        if type(parent) != bool and type(parent) != int and type(parent) != tuple:
             parent = BlenderUtil.get_object_accessor(Util.try_get_object(parent))
         if inSpace == None:
             inSpace = parent
@@ -94,7 +94,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
     if autoAttachData == None:
         autoAttachData = Settings.get_setting(bucket, __c.BUCKET_SETTING_NODE_AUTO_ATTACH_DATA)
 
-    if type(parent) != bool and type(parent) != int:
+    if type(parent) != bool and type(parent) != int and type(parent) != tuple:
         parent = BlenderUtil.get_object_accessor(Util.try_get_object(parent))
     if inSpace == None:
         inSpace = parent
@@ -127,7 +127,7 @@ def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=Non
 
     topObjects = __get_collection_top_objects(collection)
 
-    if type(parent) != bool and type(parent) != int:
+    if type(parent) != bool and type(parent) != int and type(parent) != tuple:
         parent = BlenderUtil.get_object_accessor(Util.try_get_object(parent))
     if inSpace == None:
         inSpace = parent
@@ -168,9 +168,12 @@ def __auto_parent(bucket: Bucket, childObj, childID, parent):
     raise Exception(f"Failed to resolve parent for '{BlenderUtil.get_object_accessor(childObj)}', parent accessor was: '{parent}'. Make sure that parent is added before the child")
 
 def __get_parent_id(bucket: Bucket, accessor):
-    id = RM.fetch_unique(bucket, accessor)
-    if id != None:
-        return id
+    try:
+        id = RM.fetch_unique(bucket, accessor)
+        if id != None:
+            return id
+    except:
+        pass
 
     id = RM.fetch_last_id_from_unsafe(bucket, accessor, __c.BUCKET_DATA_NODES)
     if id != None:
