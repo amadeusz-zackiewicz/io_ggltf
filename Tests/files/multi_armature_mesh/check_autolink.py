@@ -23,7 +23,7 @@ else:
         Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_ATTACH, True)
         Node.based_on_object(bucket, "MeshObj")
         skin = Skin.based_on_object_modifiers(bucket, "MeshObj", getInverseBinds=True, forceRestPose=True)
-        Mesh.based_on_object(bucket, "MeshObj", skinID=skin, boneInfluences=True)
+        Mesh.based_on_object(bucket, "MeshObj", skinID=skin)
         File.dump_bucket(bucket)
 
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))

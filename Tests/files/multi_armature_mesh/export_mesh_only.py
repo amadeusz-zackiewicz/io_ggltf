@@ -24,8 +24,7 @@ else:
         node = Node.based_on_object(bucket, "MeshObj")
         mesh = Mesh.based_on_object(bucket, "MeshObj",
         normals=True,
-        tangents=False,
-        boneInfluences=False 
+        tangents=False, 
         )
         Attach.mesh_to_node(bucket, mesh, node)
         File.dump_bucket(bucket)
