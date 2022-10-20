@@ -5,7 +5,9 @@ class MissingMeshComponentException(Exception):
         self.__context = context
 
     def __str__(self):
-        return f"An exception has occured due to missing mesh components:\n{self.__context} from '{self.__objName}'{'\n\t'.join(self.__missing)} "
+        return f"""An exception has occured due to missing mesh components:
+            {self.__context} from '{self.__objName}'
+                {", ".join(self.__missing)}"""
 
 class MissingUVMapsException(MissingMeshComponentException):
     def __init__(self, objName: str, missing: list[str]):

@@ -5,6 +5,7 @@ from io_ggltf.Core import BlenderUtil, Util
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops.Mesh import ScoopMesh
 from io_ggltf.Advanced import Settings, Attach
+from io_ggltf.Core.Validation import MeshValidation
 import bpy
 
 __scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)
@@ -16,7 +17,7 @@ normals=None,
 tangents=None,
 uvMaps=[],
 vertexColors=[],
-boneInfluences=None,
+boneInfluenceCount=None,
 skinID=None,
 shapeKeys=[],
 shapeKeyNormals=None,
@@ -24,15 +25,19 @@ shapeKeyTangents=None,
 shapeKeyUVs=None,
 checkRedundancy=None,
 autoAttach=None,
-name=None
+name=None,
+origin=None
 ) -> int:
 
     if normals == None:
         normals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_NORMALS]
     if tangents == None:
         tangents = bucket.settings[__c.BUCKET_SETTING_MESH_GET_TANGENTS]
-    if boneInfluences == None:
-        boneInfluences = bucket.settings[__c.BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
+    if skinID != None:
+        if boneInfluenceCount == None:
+            boneInfluenceCount = bucket.settings[__c.BUCKET_SETTING_MESH_MAX_BONES]
+    else:
+        boneInfluenceCount = 0
     if shapeKeyNormals == None:
         shapeKeyNormals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS]
     if shapeKeyTangents == None:
@@ -45,29 +50,38 @@ name=None
         autoAttach = bucket.settings[__c.BUCKET_SETTING_MESH_AUTO_ATTACH]
 
     try:
-        obj = try_get_object(objAccessor)
+        obj = [try_get_object(objAccessor)]
     except Exception:
         return None
+
+    MeshValidation.validate_meshes(obj)
+    MeshValidation.validate_uv_maps(obj, uvMaps)
+    MeshValidation.validate_vertex_colors(obj, vertexColors)
+    MeshValidation.validate_shape_keys(obj, shapeKeys)
     
     if checkRedundancy:
-        redundant, meshID = RM.register_unique(bucket, BlenderUtil.get_object_accessor(obj), __c.BUCKET_DATA_MESHES)
+        redundant, meshID = RM.register_unique(bucket, BlenderUtil.get_object_accessor(obj[0]), __c.BUCKET_DATA_MESHES)
 
         if redundant:
             return meshID
     else:
-        meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj), __c.BUCKET_DATA_MESHES)
+        meshID = RM.register_unsafe(bucket, BlenderUtil.get_object_accessor(obj[0]), __c.BUCKET_DATA_MESHES)
 
-    BlenderUtil.queue_reset_modifier_changes(bucket, obj, __c.BLENDER_MODIFIER_ARMATURE)
-    BlenderUtil.queue_disable_modifier_type(bucket, obj, __c.BLENDER_MODIFIER_ARMATURE, __c.COMMAND_QUEUE_MESH)
+    BlenderUtil.queue_reset_modifier_changes(bucket, obj[0], __c.BLENDER_MODIFIER_ARMATURE)
+    BlenderUtil.queue_disable_modifier_type(bucket, obj[0], __c.BLENDER_MODIFIER_ARMATURE, __c.COMMAND_QUEUE_MESH)
     BlenderUtil.queue_update_depsgraph(bucket, __c.COMMAND_QUEUE_MESH)
 
     if name == None:
-        name = obj.data.name
+        name = obj[0].data.name
+
+    if origin == None:
+        origin = BlenderUtil.get_object_accessor(obj[0])
     
-    bucket.commandQueue[__c.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __c.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0, name)))
+    bucket.commandQueue[__c.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj[0])], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, boneInfluenceCount)))
+    #bucket.commandQueue[__c.COMMAND_QUEUE_MESH].append((__scoop_mesh_command, (bucket, BlenderUtil.get_object_accessor(obj), normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __c.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluenceCount else 0, name)))
 
     if autoAttach:
-        Attach.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj))
+        Attach.mesh_to_unsafe_node(bucket, meshID, BlenderUtil.get_object_accessor(obj[0]))
 
     return meshID
 
@@ -79,7 +93,7 @@ normals=None,
 tangents=None,
 uvMaps=[],
 vertexColors=[],
-boneInfluences=None,
+boneInfluenceCount=None,
 skinID=None,
 shapeKeys=[],
 shapeKeyNormals=None,
@@ -103,8 +117,11 @@ origin=None
         normals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_NORMALS]
     if tangents == None:
         tangents = bucket.settings[__c.BUCKET_SETTING_MESH_GET_TANGENTS]
-    if boneInfluences == None:
-        boneInfluences = bucket.settings[__c.BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
+    if skinID != None:
+        if boneInfluenceCount == None:
+            boneInfluenceCount = bucket.settings[__c.BUCKET_SETTING_MESH_MAX_BONES]
+    else:
+        boneInfluenceCount = 0
     if shapeKeyNormals == None:
         shapeKeyNormals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS]
     if shapeKeyTangents == None:
@@ -121,21 +138,11 @@ origin=None
     collect_mesh_objects(topObj, meshObjects, blacklist, filters)
 
     if len(meshObjects) > 0:
-        if len(uvMaps) > 0:
-            for obj in meshObjects:
-                if not BlenderUtil.object_has_uv_maps(obj, uvMaps):
-                    print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified UV Maps")
-                    return None
-        if len(vertexColors) > 0:
-            for obj in meshObjects:
-                if not BlenderUtil.object_has_vertex_colors(obj, vertexColors):
-                    print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified Vertex Colors")
-                    return None
-        if len(shapeKeys) > 0:
-            for obj in meshObjects:
-                if not BlenderUtil.object_has_shape_keys(obj, shapeKeys):
-                    print(f"Mesh.merged_based_on_hierarchy aborted: {obj.name} does not contain specified Shape Keys")
-                    return None
+        
+        MeshValidation.validate_meshes(meshObjects)
+        MeshValidation.validate_uv_maps(meshObjects, uvMaps)
+        MeshValidation.validate_vertex_colors(meshObjects, vertexColors)
+        MeshValidation.validate_shape_keys(meshObjects, shapeKeys)
 
         meshID = RM.register_unsafe(bucket, [BlenderUtil.get_object_accessor(o) for o in meshObjects], __c.BUCKET_DATA_MESHES)
 
@@ -151,7 +158,7 @@ origin=None
             originObj = try_get_object(origin)
             origin = BlenderUtil.get_object_accessor(originObj)
 
-        bucket.commandQueue[__c.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, Settings.get_setting(bucket, __c.BUCKET_SETTING_MESH_MAX_BONES) if boneInfluences else 0)))
+        bucket.commandQueue[__c.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, boneInfluenceCount)))
         
         if autoAttach:
             Attach.mesh_to_unsafe_node(bucket, meshID, origin)
