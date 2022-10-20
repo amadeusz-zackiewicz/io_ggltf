@@ -243,6 +243,9 @@ if __name__ == "__main__":
             warnings.append((outputFileName, "Failed to find comparison file"))
             continue
 
+    sys.stdout.write("\033[2K\033[1G")
+    print("\t\tComparison tests finished")
+
     if len(warnings) > 0 or len(failures) > 0:
         if os.path.exists(comparisonReportFilename):
             output = open(comparisonReportFilename, "w")
