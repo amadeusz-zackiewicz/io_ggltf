@@ -136,19 +136,20 @@ if __name__ == "__main__":
             os.remove(absFilePath)
 
     ## export tests
-    for test in testList:
+    for i, test in enumerate(testList):
         testName = f"{os.path.basename(test[0]).replace('.blend', '')}_{os.path.basename(test[1]).replace('.py', '')}"
         try:
-            print(f"Export test - {testName}")
-            process = subprocess.run([blenderPath, test[0], "-b", "--addons", addonName, "-P", test[1]], capture_output=True, encoding="utf8")
+            sys.stdout.write("\033[2K\033[1G")
+            print(f"\r({i}/{len(testList)}) Export test - {testName}", end="")
+            process = subprocess.run([blenderPath, test[0], "-b", "--factory-startup", "--addons", addonName, "-P", test[1]], capture_output=True, encoding="utf8")
         except:
             print(testName, traceback.format_exc())
         finally:
-            errString = process.stderr
-            outString = process.stdout
+            errString = str(process.stderr)
+            outString = str(process.stdout)
             if len(errString) > 0 or _print:
-                if not _print:
-                    print("\tFailed, please check the .txt file for details")
+                if len(errString) > 0:
+                    print(f"{testName} failed, please check the .txt file for details")
 
                 outputFilePath = f"{testOutputPath}_{testName}.txt"
 
@@ -157,12 +158,14 @@ if __name__ == "__main__":
                 else:
                     outputFile = open(outputFilePath, "x")
 
-                outputFile.write(outString)
                 outputFile.write(errString)
+                outputFile.write(outString)
                 outputFile.close()
 
     del testList
 
+    sys.stdout.write("\033[2K\033[1G")
+    print("\t\tExport tests finished")
     failures = []
     warnings = []
 
@@ -187,7 +190,8 @@ if __name__ == "__main__":
     for outputFileName in os.listdir(testOutputPath):
         if re.search(".txt$", outputFileName):
             continue 
-        print("Comparison test:", outputFileName)
+        sys.stdout.write("\033[2K\033[1G")
+        print("\rComparison test:", outputFileName, end="")
         if os.path.exists(testComparisonOutputPath + outputFileName):
 
             newFileSize = os.stat(testOutputPath + outputFileName).st_size
@@ -225,7 +229,7 @@ if __name__ == "__main__":
                             failures.append((outputFileName, f"Failed to match chunk between {format(byteRange[0], ',')} - {format(byteRange[1], ',')} bytes\n\t\tChunk diff:\n\t\t\t{oldFileChunk}\n\t\t\t{newFileChunk}\n\t\t\t{diff.getvalue()}"))
                             diff.close()
                             del diff
-                            print(f"\tFailed due to chunk mismatch, check the {comparisonReportFilename} file for details")
+                            print(f"\r{outputFileName} -- failed due to chunk mismatch, check the {comparisonReportFilename} file for details")
                             break
                 except:
                     print(outputFileName, traceback.format_exc())
@@ -234,7 +238,7 @@ if __name__ == "__main__":
                     oldFile.close
             else:
                 failures.append((outputFileName, f"File size does not match: {format(newFileSize, ',')} bytes vs {format(oldFileSize, ',')} bytes"))
-                print(f"\t\tFailed due to file size mismatch, check the {comparisonReportFilename} file for details")
+                print(f"\r{outputFileName} -- failed due to file size mismatch, check the {comparisonReportFilename} file for details")
         else:
             warnings.append((outputFileName, "Failed to find comparison file"))
             continue
