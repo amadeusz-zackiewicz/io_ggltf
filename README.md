@@ -18,21 +18,24 @@ Camera | <t style="color:red">No</t>
 Light |  <t style="color:red">No</t>
 
 # What does this addon do?
-gglTF or game glTF is an addon that provides the user with a library that can export glTF files via python scripts, giving far more flexibility and allowing users to export exactly what they need and how they need it. The main area where this is useful is game development, where certain assets need to be optimised before being imported to the game engine and might need to be exported in many iterations.
+gglTF or game glTF is an addon that provides the user with a library that can export glTF files via python scripts, giving far more flexibility then the default exporter and allowing users to export exactly what they need and how they need it. The main area where this is useful is game development, where certain assets need to be optimised before being imported to the game engine and might need to be exported in many iterations.
 
 If you do not need any of this functionality I highly advise you to stick to the default glTF exporter.
 
 # Requirements
 1. Blender 3.3 or higher
-2. Basic python knowledge
+2. Basic python / programming knowledge
 
 # Features
 
 ## Regular expression filtering
-Exclude objects with regular expressions, allowing you to exclude objects without having to delete them before exporting.
+Exclude objects with regular expressions, allowing you to get rid of objects without being forced to delete them before exporting.
 
 ## Mesh merging
-Merge all meshes in a hierarchy into one, with custom origin point of required, specify meshes you do not want included with blacklist or regular expression filter. 
+Merge all meshes in a hierarchy into one, with custom origin point if required, specify meshes you do not want included with blacklists or regular expression filters. 
+
+## Unlimited mesh components
+Add as many UV maps, vertex colors or shape keys to your meshes as you need.
 
 ## Rigify bone filtering and name stripping
-Strip bones based on blacklist or filters, or use automated rigify flags to exclude useless bones and automatically strip `DEF-` or `ORG-` prefix from the bones.
+Strip bones based on blacklists or filters, or use automated rigify flags to exclude useless control bones and automatically trim `DEF-` or `ORG-` prefix from bone names.
