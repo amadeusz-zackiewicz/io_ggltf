@@ -38,4 +38,4 @@ Merge all meshes in a hierarchy into one, with custom origin point if required, 
 Add as many UV maps, vertex colors or shape keys to your meshes as you need.
 
 ## Rigify bone filtering and name stripping
-Strip bones based on blacklists or filters, or use automated rigify flags to exclude useless control bones and automatically trim `DEF-` or `ORG-` prefix from bone names.
+Strip bones based on blacklists or filters, or use rigify flags to automate excluding useless control bones and trimming `DEF-` or `ORG-` prefixes from names.
