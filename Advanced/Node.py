@@ -4,14 +4,14 @@ from io_ggltf.Core.Managers import RedundancyManager as RM
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.BlenderUtil import get_object_accessor
-from io_ggltf.Advanced import Settings, Attach
+from io_ggltf.Advanced import Settings, Attach, Scene
 from io_ggltf.Core import Util, BlenderUtil
 import bpy
 
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
 __scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objAccessor=objID, parent=parent)
 
-def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoAttachData=None, inSpace=None) -> int:
+def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoAttachData=None, inSpace=None, sceneID=None) -> int:
 
     obj = try_get_object(objAccessor)
     if parent == None:
@@ -48,10 +48,13 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
 
     __auto_parent(bucket, obj, nodeID, parent)
 
+    if sceneID != None:
+        Scene.append_node(bucket, sceneID, nodeID)
+
     return nodeID
 
 
-def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None) -> int:
+def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> int:
     def __recursive(bucket: Bucket, obj, blacklist, parent, checkRedundancies, filters, autoAttachData, inSpace):
         if obj.name in blacklist or not Util.name_passes_filters(filters, obj.name):
             return None
@@ -102,6 +105,9 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
 
     __auto_parent(bucket, obj, topNodeID, parent)
 
+    if sceneID != None:
+        Scene.append_node(bucket, sceneID, topNodeID)
+
     return topNodeID
 
 
@@ -115,7 +121,7 @@ def __get_collection_top_objects(collection, blacklist={}):
             topObjects.append(obj)
     return topObjects
 
-def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None) -> list:
+def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> list:
     if checkRedundancies == None:
         checkRedundancies = Settings.get_setting(bucket, __c.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
     if parent == None:
@@ -136,6 +142,10 @@ def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=Non
     for topObj in topObjects:
         if not topObj.name in blacklist and Util.name_passes_filters(filters, topObj.name):
             nodeIDs.append(based_on_hierarchy(bucket, get_object_accessor(topObj), blacklist, parent, checkRedundancies, filters=filters, inSpace=inSpace))
+
+    if sceneID != None:
+        for n in nodeIDs:
+            Scene.append_node(bucket, sceneID, n)
 
     return nodeIDs
 
@@ -193,7 +203,11 @@ def __add_skin(bucket, obj, blacklist, filters):
             from io_ggltf.Advanced import Skin
             Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
 
-def dummy(bucket: Bucket, name: str):
+def dummy(bucket: Bucket, name: str, sceneID):
     id = RM.register_dummy(bucket, __c.BUCKET_DATA_NODES)
     bucket.commandQueue[__c.COMMAND_QUEUE_NODE].append((NodeScoop.make_dummy, (bucket, id, name)))
+
+    if sceneID != None:
+        Scene.append_node(bucket, sceneID, id)
+
     return id

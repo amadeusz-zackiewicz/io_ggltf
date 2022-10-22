@@ -25,7 +25,7 @@ class Bucket():
             self.commandQueue.append([])
         self.redundancies = {}
         self.preScoopCounts = { # used to determine which ID the specific data will occupy before commiting
-            BUCKET_DATA_SCENES: 0,
+            #BUCKET_DATA_SCENES: 0,
             BUCKET_DATA_NODES: 0,
             BUCKET_DATA_MESHES: 0,
             BUCKET_DATA_SKINS: 0

@@ -18,7 +18,8 @@ def dump_bucket(bucket):
     __to_gltf(bucket)
 
 def __to_gltf(bucket):
-    __ensure_scene(bucket)
+    if bucket.settings[BUCKET_SETTING_ENFORCE_SCENE]:
+        __ensure_scene(bucket)
 
     ## this will write raw binaries if the file type is gltf
     BufferManager.resolve_binaries(bucket)
