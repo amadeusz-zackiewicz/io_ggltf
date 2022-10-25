@@ -57,7 +57,7 @@ def object_has_shape_keys(obj, sKeys: list[str]) -> bool:
             return False
     return True
 
-def objects_have_shape_Keys(objects, sKeys: list[str]):
+def objects_have_shape_keys(objects, sKeys: list[str]):
     for obj in objects:
         for sk in sKeys:
             if not object_has_shape_key(obj, sk):
@@ -72,7 +72,8 @@ def validate_mesh_component(objects, expectedNames, comparisonMethod, singleComp
             for name in expectedNames:
                 if not singleComparisonMethod(obj, name):
                     missing.append(name)
-            exceptions.append(exceptionType(obj.name, missing))
+            if len(missing) > 0: 
+                exceptions.append(exceptionType(obj.name, missing))
         for exc in exceptions:
             print(exc)
 
@@ -99,7 +100,7 @@ def validate_vertex_colors(objects, vColors: list[str]):
 def validate_shape_keys(objects, sKeys: list[str]):
     validate_mesh_component(objects=objects,
     expectedNames=sKeys,
-    comparisonMethod=objects_have_shape_Keys,
+    comparisonMethod=objects_have_shape_keys,
     singleComparisonMethod=object_has_shape_key,
     exceptionType=MissingShapeKeysException
     )

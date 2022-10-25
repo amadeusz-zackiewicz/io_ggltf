@@ -5,9 +5,10 @@ class MissingMeshComponentException(Exception):
         self.__context = context
 
     def __str__(self):
+        missing = [f'"{m}"' for m in self.__missing]
         return f"""An exception has occured due to missing mesh components:
-            {self.__context} from '{self.__objName}'
-                {", ".join(self.__missing)}"""
+            {self.__context} from '{self.__objName}':
+                {", ".join(missing)}"""
 
 class MissingUVMapsException(MissingMeshComponentException):
     def __init__(self, objName: str, missing: list[str]):
@@ -23,4 +24,4 @@ class MissingShapeKeysException(MissingMeshComponentException):
 
 class MeshComponentValidationFailedException(Exception):
     def __str__(self):
-        return "Mesh validation has failed, check above for details"
+        return "Mesh validation has failed, check below for details"
