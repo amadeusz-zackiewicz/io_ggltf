@@ -135,21 +135,41 @@ if __name__ == "__main__":
         if os.path.isfile(absFilePath):
             os.remove(absFilePath)
 
+    def find_issues(text: str) -> bool:
+        matches = re.finditer("([eE]xception)|([eE]rror)", text)
+        for m in matches:
+            return True
+            
+        return False
+
+    def strip_useless_errors(text: str) -> str:
+        return text.replace("Error: Vertex not in group\n", "")
+
     ## export tests
     for i, test in enumerate(testList):
         testName = f"{os.path.basename(test[0]).replace('.blend', '')}_{os.path.basename(test[1]).replace('.py', '')}"
         try:
             sys.stdout.write("\033[2K\033[1G")
             print(f"\r({i}/{len(testList)}) Export test - {testName}", end="")
-            process = subprocess.run([blenderPath, test[0], "-b", "--factory-startup", "--addons", addonName, "-P", test[1]], capture_output=True, encoding="utf8")
+            process = subprocess.run([blenderPath, test[0], "-b", "--factory-startup", "--addons", addonName, "-P", test[1]], capture_output=True)
         except:
-            print(testName, traceback.format_exc())
+            print(f"\r{testName}", traceback.format_exc())
         finally:
-            errString = str(process.stderr)
-            outString = str(process.stdout)
-            if len(errString) > 0 or _print:
-                if len(errString) > 0:
-                    print(f"{testName} failed, please check the .txt file for details")
+
+            errString = str(process.stderr, encoding="ascii")
+            outString = str(process.stdout, encoding="ascii")
+
+            errString = strip_useless_errors(errString)
+            outString = strip_useless_errors(outString)
+
+            errHasIssues = find_issues(errString)
+            outHasIssues = find_issues(outString)
+
+
+            if errHasIssues or outHasIssues or _print:
+                if errHasIssues or outHasIssues:
+                    sys.stdout.write("\033[2K\033[1G")
+                    print(f"\r{testName} failed, please check the .txt file for details")
 
                 outputFilePath = f"{testOutputPath}_{testName}.txt"
 
