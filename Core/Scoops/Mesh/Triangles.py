@@ -157,11 +157,11 @@ def scoop_indexed_and_merge(bucket: Bucket, meshObjects, meshWorldMatrix, name, 
     combinedPrimitives = []
     noMatPrimitive = None
 
-    for i, meshObj in enumerate(meshObjects):
+    for meshIndex, meshObj in enumerate(meshObjects):
         try:
             meshCopy = meshObj.copy()
             transformShapeKeys = True if len(shapeKeys) > 0 else False
-            meshCopy.transform(meshWorldMatrix[i], shape_keys=transformShapeKeys)
+            meshCopy.transform(meshWorldMatrix[meshIndex], shape_keys=transformShapeKeys)
             meshCopy.transform(targetWorldMatrix.inverted_safe(), shape_keys=transformShapeKeys)
             meshCopy.update()
 
@@ -209,13 +209,13 @@ def scoop_indexed_and_merge(bucket: Bucket, meshObjects, meshWorldMatrix, name, 
 
             # get the skin definition (a dictionary of [BoneName : NodeID])
             skinDef = None if skinID == None else bucket.skinDefinition[skinID]
-            primitives = MeshUtil.decompose_into_indexed_triangles(meshCopy, vertexGroups[i], normals, tangents, uvIDs, vColorIDs, shapeKeyIDs, skinDef, maxInfluences)
+            primitives = MeshUtil.decompose_into_indexed_triangles(meshCopy, vertexGroups[meshIndex], normals, tangents, uvIDs, vColorIDs, shapeKeyIDs, skinDef, maxInfluences)
 
             if len(materialNames) > 0:
                 primitiveMapping = {}
-                for i, p in enumerate(primitives):
+                for meshIndex, p in enumerate(primitives):
                     if len(p.positions) > 0:
-                        primitiveMapping[materialNames[i]] = p
+                        primitiveMapping[materialNames[meshIndex]] = p
                 mappedMeshes.append(primitiveMapping)
             else:
                 for p in primitives:
