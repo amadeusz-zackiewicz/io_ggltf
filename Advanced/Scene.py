@@ -24,3 +24,6 @@ def append_node(bucket: Bucket, sceneIDs: list or int, nodeIDs: list or int):
         for nodeID in nodeIDs:
             if nodeID not in scene[__c.SCENE_NODES]:
                 scene[__c.SCENE_NODES].append(nodeID)
+
+def set_default(bucket: Bucket, sceneID: int):
+    bucket.data["scene"] = sceneID

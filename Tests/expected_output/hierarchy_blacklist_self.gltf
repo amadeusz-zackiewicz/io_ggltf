@@ -2,12 +2,5 @@
     "asset": {
         "generator": "Blender ggltf",
         "version": "2.0"
-    },
-    "scenes": [
-        {
-            "name": "scene",
-            "nodes": []
-        }
-    ],
-    "scene": 0
+    }
 }

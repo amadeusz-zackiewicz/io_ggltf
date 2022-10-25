@@ -25,7 +25,6 @@ def __to_gltf(bucket):
     BufferManager.resolve_binaries(bucket)
 
     cleanup_keys(bucket.data)
-    bucket.data["scene"] = 0 # TODO: add a setting for auto scene creation
 
     fileType = bucket.settings[BUCKET_SETTING_FILE_TYPE]
     filePath = bucket.settings[BUCKET_SETTING_FILEPATH] + bucket.settings[BUCKET_SETTING_FILENAME]
@@ -37,29 +36,34 @@ def __to_gltf(bucket):
 
 def __ensure_scene(bucket):
     if len(bucket.data[BUCKET_DATA_SCENES]) > 0:
+        if "scene" not in bucket.data:
+            bucket.data["scene"] = 0
         return
         
     nodes = bucket.data[BUCKET_DATA_NODES]
-    top_obj = []
-    node_id = []
-
-    scene = {SCENE_NAME : "scene"}
+    isTopObject = []
+    nodeIDs = []
 
     for n in nodes:
-        top_obj.append(True)
+        isTopObject.append(True)
 
     for n in nodes:
         if NODE_CHILDREN in n:
             for c in n[NODE_CHILDREN]:
-                top_obj[c] = False
+                isTopObject[c] = False
 
-    for i in range(0, len(top_obj)):
-        if top_obj[i]:
-            node_id.append(i)
+    for i in range(0, len(isTopObject)):
+        if isTopObject[i]:
+            nodeIDs.append(i)
 
-    scene[SCENE_NODES] = node_id
+    if len(nodeIDs) > 0:
+        scene = {
+            SCENE_NAME : "scene",
+            SCENE_NODES : nodeIDs
+        }
 
-    bucket.data[BUCKET_DATA_SCENES].append(scene)
+        bucket.data[BUCKET_DATA_SCENES].append(scene)
+        bucket.data["scene"] = 0
 
 def __prep_path(path : str):
     os.makedirs(os.path.dirname(path), exist_ok=True)

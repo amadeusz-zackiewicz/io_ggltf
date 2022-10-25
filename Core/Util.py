@@ -59,8 +59,12 @@ def cleanup_keys(d: dict):
     to_pop = []
     for k in d.keys():
         #print(f"{k} is of type {type(d[k])}")
-        if d[k] == None or len(d[k]) == 0:
+        value = d[k]
+        if value == None:
             to_pop.append(k)
+        elif type(value) == list or type(value) == tuple or type(value) == dict:
+            if len(value) == 0:
+                to_pop.append(k)
     for p in to_pop:
         d.pop(p)
 
