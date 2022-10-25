@@ -18,6 +18,7 @@ else:
     binPath = ""
 
     def test(bucket):
+        Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_ATTACH, False)
         Skin.based_on_object_modifiers(bucket, "MeshObj", checkRedundancy=True)
         Skin.based_on_object_modifiers(bucket, "MeshObj", checkRedundancy=True)
         File.dump_bucket(bucket)
