@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.code-workspace
 *.blend[0-9*]
+.vscode
 
 Comparison.txt
 Tests/output
