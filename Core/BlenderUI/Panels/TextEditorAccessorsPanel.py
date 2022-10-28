@@ -10,8 +10,8 @@ class PasteAccessorsPanel(bpy.types.Panel):
     bl_category = "gglTF"
 
     def draw(self, context):
+        layout = self.layout
         for c in TextEditorAccessorsOps.classes:
-            layout = self.layout
             row = layout.row()
             row.operator(c.bl_idname, text=c.bl_button_label, icon=c.bl_button_icon)
 

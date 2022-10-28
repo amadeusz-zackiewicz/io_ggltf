@@ -2,39 +2,39 @@ from io_ggltf.Core.Bucket import Bucket
 import bpy
 from io_ggltf import Constants
 
-def __is_not_unique(bucket: Bucket, objAccessor, getFunc = bpy.data.objects.get) -> bool:
-    return __get_eval(bucket.currentDependencyGraph, objAccessor, getFunc) in bucket.redundancies
+def __is_not_unique(bucket: Bucket, objAccessor) -> bool:
+    return __get_eval(bucket.currentDependencyGraph, objAccessor) in bucket.redundancies
 
-def __add_unique(bucket: Bucket, objAccessor, pID: int, getFunc = bpy.data.objects.get):
-    bucket.redundancies[__get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)] = pID
+def __add_unique(bucket: Bucket, objAccessor, pID: int):
+    bucket.redundancies[__get_eval(bucket.currentDependencyGraph, objAccessor)] = pID
 
-def fetch_unique(bucket: Bucket, objAccessor, getFunc = bpy.data.objects.get) -> int:
-    eval = __get_eval(bucket.currentDependencyGraph, objAccessor, getFunc)
+def fetch_unique(bucket: Bucket, objAccessor) -> int:
+    eval = __get_eval(bucket.currentDependencyGraph, objAccessor)
     if eval in bucket.redundancies:
         return bucket.redundancies[eval]
     else:
         return None
 
-def register_unique(bucket: Bucket, objAccessor, bucketDataType: str, getFunc = bpy.data.objects.get):
-    if __is_not_unique(bucket, objAccessor, getFunc):
-        return (True, fetch_unique(bucket, objAccessor, getFunc))
+def register_unique(bucket: Bucket, objAccessor, bucketDataType: str):
+    if __is_not_unique(bucket, objAccessor):
+        return (True, fetch_unique(bucket, objAccessor))
     else:
         newID = bucket.preScoopCounts[bucketDataType]
         bucket.preScoopCounts[bucketDataType] += 1
         __add_accessor(bucket, objAccessor, bucketDataType, newID)
-        __add_unique(bucket, objAccessor, newID, getFunc)
+        __add_unique(bucket, objAccessor, newID)
         return (False, newID)
 
-def __get_eval(depsGraph, objAccessor, getFunc = bpy.data.objects.get):
+def __get_eval(depsGraph, objAccessor):
     if type(objAccessor) == list:
-        eval = tuple([id(depsGraph.id_eval_get(getFunc(o))) for o in objAccessor])
+        eval = tuple([id(depsGraph.id_eval_get(bpy.data.objects.get(o))) for o in objAccessor])
     elif type(objAccessor) == str:
-        eval = id(depsGraph.id_eval_get(getFunc(objAccessor)))
+        eval = id(depsGraph.id_eval_get(bpy.data.objects.get(objAccessor)))
     elif type(objAccessor) == tuple:
         if len(objAccessor) == 3: ## if the accessor has 3 elements, then its a bone, we assume that the getFunc is getting an object
-            eval = id(depsGraph.id_eval_get(getFunc((objAccessor[0], objAccessor[1])).pose.bones[objAccessor[2]]))
+            eval = id(depsGraph.id_eval_get(bpy.data.objects.get((objAccessor[0], objAccessor[1])).pose.bones[objAccessor[2]]))
         else:
-            eval = id(depsGraph.id_eval_get(getFunc(objAccessor)))
+            eval = id(depsGraph.id_eval_get(bpy.data.objects.get(objAccessor)))
     else:
         raise Exception(f"Invalid accessor type, expected string, tuple or list, got: {type(objAccessor)}")
     return eval
