@@ -7,10 +7,12 @@ from io_ggltf.Core.BlenderUtil import get_object_accessor
 from io_ggltf.Advanced import Settings, Attach, Scene
 from io_ggltf.Core import Util, BlenderUtil
 import bpy
+from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
 __scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objAccessor=objID, parent=parent)
 
+@__ShowInUI
 def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoAttachData=None, inSpace=None, sceneID=None) -> int:
 
     obj = try_get_object(objAccessor)
@@ -54,6 +56,7 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
     return nodeID
 
 
+@__ShowInUI
 def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> int:
     def __recursive(bucket: Bucket, obj, blacklist, parent, checkRedundancies, filters, autoAttachData, inSpace):
         if obj.name in blacklist or not Util.name_passes_filters(filters, obj.name):
@@ -121,6 +124,7 @@ def __get_collection_top_objects(collection, blacklist={}):
             topObjects.append(obj)
     return topObjects
 
+@__ShowInUI
 def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> list:
     if checkRedundancies == None:
         checkRedundancies = Settings.get_setting(bucket, __c.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
@@ -203,6 +207,7 @@ def __add_skin(bucket, obj, blacklist, filters):
             from io_ggltf.Advanced import Skin
             Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
 
+@__ShowInUI
 def dummy(bucket: Bucket, name: str, sceneID):
     id = RM.register_dummy(bucket, __c.BUCKET_DATA_NODES)
     bucket.commandQueue[__c.COMMAND_QUEUE_NODE].append((NodeScoop.make_dummy, (bucket, id, name)))

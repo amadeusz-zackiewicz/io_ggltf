@@ -7,11 +7,12 @@ from io_ggltf.Core.Scoops.Mesh import ScoopMesh
 from io_ggltf.Advanced import Settings, Attach
 from io_ggltf.Core.Validation import MeshValidation
 import bpy
+from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 
 __scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)
 __scoop_mesh_command = lambda bucket, objAccessor, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones, name: ScoopMesh.scoop_from_obj(bucket=bucket, objAccessor=objAccessor, normals=normals, tangents=tangents, uvMaps=uvMaps, vertexColors=vertexColors, skinID=skinID, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, maxBoneInfluences=maxBones, assignedID=meshID, name=name)
 
-
+@__ShowInUI
 def based_on_object(bucket: Bucket, objAccessor,
 normals=None,
 tangents=None,
@@ -85,6 +86,7 @@ origin=None
 
     return meshID
 
+@__ShowInUI
 def merged_based_on_hierarchy(bucket: Bucket,
 topObjectAccessor,
 blacklist = {},

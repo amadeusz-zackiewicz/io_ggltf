@@ -6,10 +6,12 @@ from io_ggltf.Core.Managers import RedundancyManager as RM
 from io_ggltf.Core import BlenderUtil, Util
 from io_ggltf.Advanced import Settings, Attach
 import bpy
+from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 
 __setArmaturePoseCommand = lambda bucket, objAccessor, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objAccessor=objAccessor, poseMode=poseMode)
 __scoopSkinCommand = lambda bucket, skinID, objAccessor, getInverse, boneBlackList, boneOffset, filters, rigify: Skin.scoop_skin(bucket=bucket, objAccessors=objAccessor,getInversedBinds=getInverse, blacklist=boneBlackList, nodeIDOffset=boneOffset, skinID=skinID, filters=filters, stitch=rigify) # TODO: need to provide bone node offsets and skin id
 
+@__ShowInUI
 def based_on_object(
     bucket: Bucket, 
     objAccessor,
