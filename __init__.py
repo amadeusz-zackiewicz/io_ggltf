@@ -12,7 +12,12 @@ bl_info = {
     'category': 'Import-Export',
 }
 
+from io_ggltf.Core.BlenderUI import Operators, Panels
+
 def register():
-    pass
+    Operators.register()
+    Panels.register()
+
 def unregister():
-    pass
+    Operators.unregister()
+    Panels.unregister()
