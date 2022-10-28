@@ -1,5 +1,4 @@
 import functools
-import mathutils
 
 @functools.total_ordering
 class Compound:
@@ -31,7 +30,8 @@ class Compound:
                 if a.vColor[i][vc_i] != b.vColor[i][vc_i]: return False
         for i in range(len(a.shapeKey)): # compare shape keys
             if a.shapeKey[i] != b.shapeKey[i]: return False
-        # TODO: tangents are missing
+        if a.tangent != None:
+            if a.tangent != b.tangent: return False
         return True
 
 class ShapeKeyData:
@@ -39,11 +39,6 @@ class ShapeKeyData:
         self.positions = positions
         self.normals = normals
         self.tangents = tangents
-
-    #def __repr__(self):
-        #if len(self.positions) == len(self.normals) and len(self.normals) == len(self.tangents):
-            #return "<ShapeKeyData with " + str(len(self.positions)) + " elements>"
-        #return "<ShapeKeyData -- " + ", ".join([("Positions: " + str(len(self.positions))), ("Normals: " + str(len(self.normals))), ("Tangents: " + str(len(self.tangents)))]) + ">"
 
 @functools.total_ordering
 class ShapeKeyCompound:
@@ -63,7 +58,7 @@ class ShapeKeyCompound:
             if a.position[i] != b.position[i]: return False
         for i in range(3): # compare normals
             if a.normal[i] != b.normal[i]: return False
-        # TODO: tangents and uv are missing
+
         return True
 
 class Primitive:

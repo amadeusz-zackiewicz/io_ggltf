@@ -12,11 +12,12 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
     Args:
         mesh (bpy.types.Mesh): Blender mesh data-block.
         vertexGroups (bpy.types.VertexGroups): A collection of vertex groups, extracted from the object.
-        normals (boolean): Should normals data be included.
+        normals (bool): Should normals data be included.
+        tangets (bool): Should the tangets be calculated.
         uvIDs (list of int): Indices of UV maps that will be added to the mesh.
         vColorIDs (list of int): Indices of vertex colors that will be added to the mesh.
         shapeIDs (list of int): Indices of shape keys that will be added to the mesh.
-        skinDefinition (dictionary): A dictionary that is used to determine bone indices and which vertex groups should be included
+        skinDefinition (dictionary): A dictionary that is used to determine bone indices and which vertex groups should be included.
         maxInfluences (int): Maximum number of influences, must be multiple of 4, any vertex with less then max influences will be padded with empty data, and any vertex with more then max will only contain highest influences and will be normalised
 
     Returns:
