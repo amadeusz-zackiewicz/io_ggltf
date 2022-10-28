@@ -31,13 +31,25 @@ def obj_to_node(
         node[NODE_NAME] = str(hex(id(node))).upper()
 
     if translation != None:
-        node[NODE_TRANSLATION] = Util.bl_math_to_gltf_list(translation)
+        t = Util.bl_math_to_gltf_list(translation)
+        if t[0] == 0.0 and t[1] == 0.0 and t[2] == 0.0:
+            pass
+        else: 
+            node[NODE_TRANSLATION] = t
 
     if rotation != None:
-        node[NODE_ROTATION] = Util.bl_math_to_gltf_list(rotation)
+        r = Util.bl_math_to_gltf_list(rotation)
+        if r[0] == 0.0 and r[1] == 0.0 and r[2] == 0.0 and r[3] == 1.0:
+            pass
+        else:
+            node[NODE_ROTATION] = r
 
     if scale != None:
-        node[NODE_SCALE] = Util.bl_math_to_gltf_list(scale)
+        s = Util.bl_math_to_gltf_list(scale)
+        if s[0] == 1.0 and s[1] == 1.0 and s[2] == 1.0:
+            pass
+        else:
+            node[NODE_SCALE] = s
 
     if children != None:
         if len(children) > 0:
