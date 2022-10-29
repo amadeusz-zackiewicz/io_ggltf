@@ -1,4 +1,5 @@
 import bpy
+import uuid
 from io_ggltf.Core.Decorators import ShowInUI
 
 @classmethod
@@ -37,7 +38,7 @@ def __generate_classes():
         for k, v in methods.items():
             cleanName = f"{splitName[-2]}_{splitName[-1]}_{k}".replace(".", "_")
             newClass = type(f"DOCS_GENERATED_{cleanName}", (bpy.types.Operator, ), {
-                "bl_idname": f"ggltf.genop_meth_{cleanName.lower()}",
+                "bl_idname": f"ggltf.{str(uuid.uuid4()).replace('-', '').lower()}",
                 "bl_label": f"Paste method: {moduleName}.{k}." if v == None or v == "" else v,
                 "bl_button_label": k,
                 "moduleName": moduleName,
