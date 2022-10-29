@@ -8,6 +8,7 @@ from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 
 @__ShowInUI
 def create_bucket(filePath: str, fileName: str, binPath="/bin", fileType=__c.FILE_TYPE_GLB):
+    """Create a new bucket"""
     depsGraph = bpy.context.evaluated_depsgraph_get()
     bucket = B(filePath=filePath, fileName=fileName, binPath=binPath, fileType=fileType, dependencyGraph=depsGraph)
     bucket.settings = bucket.settings | Settings.get_default()
@@ -16,5 +17,6 @@ def create_bucket(filePath: str, fileName: str, binPath="/bin", fileType=__c.FIL
 
 @__ShowInUI
 def dump_bucket(bucket: B):
+    """Export the bucket to file. This will delete the bucket"""
     Collector.collect(bucket)
     Writer.dump_bucket(bucket)

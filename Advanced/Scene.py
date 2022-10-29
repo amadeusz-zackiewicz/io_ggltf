@@ -4,6 +4,7 @@ from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 
 @__ShowInUI
 def create(bucket: Bucket, name = None, nodes = []) -> int:
+    """Create a new scene"""
 
     scene = {__c.SCENE_NODES: nodes}
     if name != None:
@@ -15,6 +16,8 @@ def create(bucket: Bucket, name = None, nodes = []) -> int:
 
 @__ShowInUI
 def append_node(bucket: Bucket, sceneIDs: list or int, nodeIDs: list or int):
+    """Append node to the scene"""
+
     if type(sceneIDs) == int:
         sceneIDs = [sceneIDs]
 
@@ -30,4 +33,6 @@ def append_node(bucket: Bucket, sceneIDs: list or int, nodeIDs: list or int):
 
 @__ShowInUI
 def set_default(bucket: Bucket, sceneID: int):
+    """Select the scene that will be shown by first in most programs"""
+
     bucket.data["scene"] = sceneID

@@ -25,6 +25,7 @@ def based_on_object(
     rigifyFlags = None,
     autoAttach = None
 ) -> int:
+    """Create a skin based on armature object"""
     
     if checkRedundancy == None:
         checkRedundancy = Settings.get_setting(bucket, __c.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN)

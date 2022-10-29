@@ -29,6 +29,7 @@ autoAttach=None,
 name=None,
 origin=None
 ) -> int:
+    """Get the mesh as seen in viewport"""
 
     if normals == None:
         normals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_NORMALS]
@@ -105,6 +106,9 @@ filters=[],
 autoAttach=None,
 origin=None
 ) -> int:
+    """Merge all the meshes in the hierarchy into one, using a custom origin point (top object by default). 
+    In case of UV maps, vertex colors and shape keys, all meshes must contain each one specified"""
+
     def collect_mesh_objects(currentObject, collected: list, blacklist, filters):
         if currentObject.name in blacklist or not Util.name_passes_filters(filters, currentObject.name):
             return

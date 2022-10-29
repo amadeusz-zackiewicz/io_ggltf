@@ -5,13 +5,16 @@ from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 
 @__ShowInUI
 def pattern_replace_node_names(bucket: Bucket, pattern: str, replacement: str):
+    """Replace all node names based on the pattern"""
     bucket.commandQueue[__c.COMMAND_QUEUE_NAMING].append((__replace, (bucket, __c.BUCKET_DATA_NODES, pattern, replacement)))
 
 @__ShowInUI
 def pattern_replace_mesh_names(bucket: Bucket, pattern: str, replacement: str):
+    """Replace all mesh names based on the pattern"""
     bucket.commandQueue[__c.COMMAND_QUEUE_NAMING].append((__replace, (bucket, __c.BUCKET_DATA_MESHES, pattern, replacement)))
 
 @__ShowInUI
 def pattern_replace_all_names(bucket: Bucket, pattern: str, replacement: str):
+    """Replace all mesh and node names based on the pattern"""
     pattern_replace_node_names(bucket, pattern, replacement)
     pattern_replace_mesh_names(bucket, pattern, replacement)

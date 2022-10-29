@@ -14,6 +14,7 @@ __scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_objec
 
 @__ShowInUI
 def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoAttachData=None, inSpace=None, sceneID=None) -> int:
+    """Create a node based on the object transformations"""
 
     obj = try_get_object(objAccessor)
     if parent == None:
@@ -58,6 +59,8 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
 
 @__ShowInUI
 def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> int:
+    """Create a node hierarcht based on the object and its children transformations"""
+
     def __recursive(bucket: Bucket, obj, blacklist, parent, checkRedundancies, filters, autoAttachData, inSpace):
         if obj.name in blacklist or not Util.name_passes_filters(filters, obj.name):
             return None
@@ -126,6 +129,8 @@ def __get_collection_top_objects(collection, blacklist={}):
 
 @__ShowInUI
 def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> list:
+    """Create node hierarchies based on all object found in collection"""
+
     if checkRedundancies == None:
         checkRedundancies = Settings.get_setting(bucket, __c.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)
     if parent == None:
@@ -209,6 +214,8 @@ def __add_skin(bucket, obj, blacklist, filters):
 
 @__ShowInUI
 def dummy(bucket: Bucket, name: str, sceneID):
+    """Create a node that has no transformation"""
+
     id = RM.register_dummy(bucket, __c.BUCKET_DATA_NODES)
     bucket.commandQueue[__c.COMMAND_QUEUE_NODE].append((NodeScoop.make_dummy, (bucket, id, name)))
 

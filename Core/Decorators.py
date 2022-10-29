@@ -12,7 +12,7 @@ class ShowInUI(object):
             for name in dir(module):
                 method = getattr(module, name)
                 if isinstance(method, ShowInUI):
-                    yield name, method.__doc__
+                    yield name, method._method.__doc__
         
         methodsInfo = {}
         for name, docs in get():
