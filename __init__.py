@@ -13,11 +13,14 @@ bl_info = {
 }
 
 from io_ggltf.Core.BlenderUI import Operators, Panels
+from io_ggltf.Core.BlenderUI.FastButtons import Register as FastButtonRegister
 
 def register():
+    FastButtonRegister.register()
     Operators.register()
     Panels.register()
 
 def unregister():
+    FastButtonRegister.unregister()
     Operators.unregister()
     Panels.unregister()

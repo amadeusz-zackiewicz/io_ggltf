@@ -6,3 +6,4 @@ from . import Settings as Settings
 from . import Attach as Attach
 from . import Util as Util
 from . import Scene as Scene
+from io_ggltf.Core.BlenderUI.FastButtons.Decorator import Button as MakeButton
