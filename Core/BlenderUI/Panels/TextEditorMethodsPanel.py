@@ -3,9 +3,11 @@ from io_ggltf.Core.BlenderUI.Operators import TextEditorLibraryOps
 
 def __draw(self, context):
     layout = self.layout
-    for method in self._methods:
+    for pair in self.classPairs:
         row = layout.row()
-        row.operator(method.bl_idname, text=method.methodName)
+        row.operator(pair[0].bl_idname, text=pair[0].methodName)
+        if pair[1] != None:
+            row.operator(pair[1].bl_idname, text="", icon=pair[1].bl_button_icon)
 
 class PasteMethods(bpy.types.Panel):
     """Panel containing method that can be used with this addon"""
@@ -25,14 +27,14 @@ classes = [
 generatedClasses = []
 
 def __generate_classes():
-    for k, v in TextEditorLibraryOps.classes.items():
-        newPanel = type(f"io_ggltf.adv_method_paste_{k}".lower(), (bpy.types.Panel, ), {
-            "bl_label": k,
-            "bl_idname": f"GGLTF_PT_adv_methods_{k.lower()}",
+    for moduleName, classPairs in TextEditorLibraryOps.classes.items():
+        newPanel = type(f"io_ggltf.adv_module_info_{moduleName}".lower(), (bpy.types.Panel, ), {
+            "bl_label": moduleName,
+            "bl_idname": f"GGLTF_PT_adv_methods_{moduleName.lower()}",
             "bl_parent_id": f"GGLTF_PT_panel_adv_methods_pasting",
             "bl_space_type": "TEXT_EDITOR",
             "bl_region_type": "UI",
-            "_methods": v,
+            "classPairs": classPairs,
             "draw": __draw,
             "bl_options": {"DEFAULT_CLOSED"}
         })

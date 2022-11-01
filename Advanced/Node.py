@@ -12,7 +12,7 @@ from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
 __scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objAccessor=objID, parent=parent)
 
-@__ShowInUI
+@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_object")
 def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoAttachData=None, inSpace=None, sceneID=None) -> int:
     """Create a node based on the object transformations"""
 
@@ -57,7 +57,7 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
     return nodeID
 
 
-@__ShowInUI
+@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_hierarchy")
 def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> int:
     """Create a node hierarcht based on the object and its children transformations"""
 
@@ -127,7 +127,7 @@ def __get_collection_top_objects(collection, blacklist={}):
             topObjects.append(obj)
     return topObjects
 
-@__ShowInUI
+@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_collection")
 def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> list:
     """Create node hierarchies based on all object found in collection"""
 
@@ -212,7 +212,7 @@ def __add_skin(bucket, obj, blacklist, filters):
             from io_ggltf.Advanced import Skin
             Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
 
-@__ShowInUI
+@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#dummy")
 def dummy(bucket: Bucket, name: str, sceneID):
     """Create a node that has no transformation"""
 
