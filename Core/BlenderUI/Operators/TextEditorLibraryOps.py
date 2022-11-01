@@ -42,10 +42,9 @@ def __generate_classes():
         methods = _DocsUI.scan_module(module)
         splitName = module.__name__.split('.')
         moduleName = splitName[-1]
-        print(moduleName)
         classes[moduleName] = []
+
         for methodName, (classDocs, classURL) in methods.items():
-            print(classDocs)
             cleanName = f"{splitName[-2]}_{splitName[-1]}_{methodName}".replace(".", "_")
             pasteClass = type(f"PASTE_GEN_{cleanName}", (bpy.types.Operator, ), {
                 "bl_idname": f"ggltf.p_{str(uuid.uuid4()).replace('-', '').lower()}",
@@ -57,7 +56,6 @@ def __generate_classes():
                 "execute": __paste_execute,
                 "__doc__": f"Paste method: {methodName}" if classDocs == None or classDocs == "" else classDocs
             })
-            print(classURL)
             if classURL == None or classURL == "":
                 classes[moduleName].append((pasteClass, None))
             else:
