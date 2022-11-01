@@ -2,7 +2,7 @@ import bpy
 from io_ggltf.Core.BlenderUI.Operators import TextEditorAccessorsOps
 
 class PasteAccessorsPanel(bpy.types.Panel):
-    """Panel containing methods that paste object accessors for the user"""
+    """Panel containing buttons that paste object accessors for the user"""
     bl_label = "Accessor Pasting"
     bl_idname = "GGLTF_PT_panel_accessors_pasting"
     bl_space_type = "TEXT_EDITOR"
