@@ -33,7 +33,7 @@ class PasteImportsOnlyOperator(bpy.types.Operator):
 
     def execute(self, context):
         script = context.area.spaces.active.text
-        script.write(f'from io_ggltf.Advanced import *\nfrom io_ggltf.Constants import\n')
+        script.write(f'from io_ggltf.Advanced import *\nfrom io_ggltf.Constants import *\n')
         return {"FINISHED"}
 
 class PasteMakeButtonOperator(bpy.types.Operator):
