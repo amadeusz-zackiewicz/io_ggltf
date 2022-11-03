@@ -213,7 +213,7 @@ def __add_skin(bucket, obj, blacklist, filters):
             Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
 
 @__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#dummy")
-def dummy(bucket: Bucket, name: str, sceneID):
+def dummy(bucket: Bucket, name: str, sceneID = None):
     """Create a node that has no transformation"""
 
     id = RM.register_dummy(bucket, __c.BUCKET_DATA_NODES)
