@@ -52,6 +52,7 @@ def register():
         
 
 def unregister():
+    from io_ggltf.Core.BlenderUI.Panels.TextEditorMethodsPanel import generatedClasses
     for c in classes:
         bpy.utils.unregister_class(c)
 

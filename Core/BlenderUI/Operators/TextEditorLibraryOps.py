@@ -84,6 +84,7 @@ def register():
 
 
 def unregister():
+    from io_ggltf.Core.BlenderUI.Operators.TextEditorLibraryOps import classes
     for moduleName, classPair in classes.items():
         for c in classPair:
             bpy.utils.unregister_class(c[0])
