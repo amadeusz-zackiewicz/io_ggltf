@@ -2,10 +2,10 @@ class _DocsUI(object):
 
     def __init__(self, method, docsURL=None):
         self._method = method 
-        self._url = docsURL         
-    
-    def __call__(self, obj, *args, **kwargs):
-        return self._method(obj, *args, **kwargs)
+        self._url = docsURL
+
+    def __call__(self, *args, **kwargs):
+        return self._method(*args, **kwargs)
 
     @classmethod
     def scan_module(cls, module):

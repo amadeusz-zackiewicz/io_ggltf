@@ -15,7 +15,7 @@ def add_button(button):
         bpy.utils.register_class(op)
         __layoutTree[button.tabName][button.panelName].buttons[button.label] = op
     else:
-        __layoutTree[button.tabName][button.panelName].buttons[button.label].execute = button.method
+        __layoutTree[button.tabName][button.panelName].buttons[button.label].execute = button.function
 
 
 @bpy.app.handlers.persistent
