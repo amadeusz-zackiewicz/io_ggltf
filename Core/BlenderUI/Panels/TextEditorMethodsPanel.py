@@ -11,7 +11,7 @@ def __draw(self, context):
 
 class PasteMethods(bpy.types.Panel):
     """Panel containing method that can be used with this addon"""
-    bl_label = "Advanced Methods Library"
+    bl_label = "Advanced Snippets"
     bl_idname = "GGLTF_PT_panel_adv_methods_pasting"
     bl_space_type = "TEXT_EDITOR"
     bl_region_type = "UI"
