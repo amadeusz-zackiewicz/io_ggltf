@@ -26,7 +26,7 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
         autoAttachData = Settings.get_setting(bucket, __c.BUCKET_SETTING_NODE_AUTO_ATTACH_DATA)
 
     if checkRedundancies:
-        redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), __c.BUCKET_DATA_NODES, bpy.data.objects.get)
+        redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), __c.BUCKET_DATA_NODES)
         if redundant:
             return nodeID
     else:
@@ -75,7 +75,7 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
                     childrenIDs.append(childID)
 
         if checkRedundancies:
-            redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), __c.BUCKET_DATA_NODES, bpy.data.objects.get)
+            redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), __c.BUCKET_DATA_NODES)
             if redundant:
                 return nodeID
         else:
