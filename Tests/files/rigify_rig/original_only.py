@@ -23,7 +23,7 @@ else:
         Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_ATTACH, False)
         meshAccessor = "attachment-def"
         Skin.based_on_object(bucket, ("rigify_rig", r"//..\..\lib_files\rigify_human_generic.blend"), rigifyFlags=RIGIFY_INCLUDE_ROOT | RIGIFY_INCLUDE_ORIGINAL)
-        Mesh.based_on_object(bucket, meshAccessor)
+        Mesh.based_on_object(bucket, meshAccessor, uvMaps=False)
         Attach.mesh_to_node_unsafe(bucket, meshAccessor, "attachment-org")
         File.dump_bucket(bucket)
 

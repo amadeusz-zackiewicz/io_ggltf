@@ -127,7 +127,32 @@ def rigify_get_potential_parent_name(childName: str) -> str or None:
         return parentName
 
 def object_is_meshlike(obj):
-    return obj.type in __c.BLENDER_MESH_CONVERTIBLE
+    return obj.type == __c.BLENDER_TYPE_MESH
+    #return obj.type in __c.BLENDER_MESH_CONVERTIBLE
 
 def object_is_armature(obj):
     return obj.type == __c.BLENDER_TYPE_ARMATURE
+
+def get_active_uv_map_name(obj):
+    if obj.type == __c.BLENDER_TYPE_MESH:
+        active = obj.data.uv_layers.active
+        if active == None:
+            return []
+        return [active.name]
+    return []
+
+def get_active_vertex_color_name(obj):
+    if obj.type == __c.BLENDER_TYPE_MESH:
+        active = obj.data.vertex_colors.active
+        if active == None:
+            return []
+        return [active.name]
+    return []
+
+def get_active_shape_key_names(obj):
+    sk = []
+    if obj.type == __c.BLENDER_TYPE_MESH:
+        for key in obj.data.shape_keys.key_blocks[1:]:
+            if not key.mute:
+                sk.append(key.name)
+    return sk

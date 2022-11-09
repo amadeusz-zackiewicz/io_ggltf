@@ -24,6 +24,7 @@ else:
         Mesh.based_on_object(bucket, "Cube",
         normals=True,
         tangents=False,
+        uvMaps=False,
         shapeKeys=["Key 1", "Key 2"],
         shapeKeyNormals=True
         )

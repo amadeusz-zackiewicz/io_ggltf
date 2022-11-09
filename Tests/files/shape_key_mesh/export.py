@@ -24,7 +24,8 @@ else:
         mesh = Mesh.based_on_object(bucket, "Cube",
         normals=True,
         tangents=False,
-        shapeKeys=["Key 1", "Key 2"],
+        uvMaps=False,
+        shapeKeys=True,
         shapeKeyNormals=True
         )
         Attach.mesh_to_node(bucket, mesh, node)

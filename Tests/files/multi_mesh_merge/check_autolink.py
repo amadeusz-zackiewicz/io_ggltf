@@ -20,6 +20,7 @@ else:
     def test(bucket):
         Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_ATTACH_DATA, False)
         Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_ATTACH, True)
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_GET_UVS, False)
 
         Node.based_on_object(bucket, "Helicopter", parent=False)
         Node.based_on_object(bucket, "Rotor", parent=True)

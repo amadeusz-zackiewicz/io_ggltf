@@ -16,11 +16,11 @@ __scoop_mesh_command = lambda bucket, objAccessor, normals, tangents, uvMaps, ve
 def based_on_object(bucket: Bucket, objAccessor,
 normals=None,
 tangents=None,
-uvMaps=[],
-vertexColors=[],
+uvMaps=None,
+vertexColors=None,
 boneInfluenceCount=None,
 skinID=None,
-shapeKeys=[],
+shapeKeys=None,
 shapeKeyNormals=None,
 shapeKeyTangents=None,
 shapeKeyUVs=None,
@@ -51,10 +51,11 @@ origin=None
     if autoAttach == None:
         autoAttach = bucket.settings[__c.BUCKET_SETTING_MESH_AUTO_ATTACH]
 
-    try:
-        obj = [try_get_object(objAccessor)]
-    except Exception:
-        return None
+    obj = [try_get_object(objAccessor)]
+
+    uvMaps = __resolve_component_arg(bucket=bucket, arg=uvMaps, obj=obj[0], settingName=__c.BUCKET_SETTING_MESH_GET_UVS, whenTrue=BlenderUtil.get_active_uv_map_name)
+    vertexColors = __resolve_component_arg(bucket=bucket, arg=vertexColors, obj=obj[0], settingName=__c.BUCKET_SETTING_MESH_GET_VERTEX_COLORS, whenTrue=BlenderUtil.get_active_vertex_color_name)
+    shapeKeys = __resolve_component_arg(bucket=bucket, arg=shapeKeys, obj=obj[0], settingName=__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS, whenTrue=BlenderUtil.get_active_shape_key_names)
 
     MeshValidation.validate_meshes(obj)
     MeshValidation.validate_uv_maps(obj, uvMaps)
@@ -94,11 +95,11 @@ blacklist = {},
 name="NewMesh",
 normals=None,
 tangents=None,
-uvMaps=[],
-vertexColors=[],
+uvMaps=None,
+vertexColors=None,
 boneInfluenceCount=None,
 skinID=None,
-shapeKeys=[],
+shapeKeys=None,
 shapeKeyNormals=None,
 shapeKeyTangents=None,
 shapeKeyUVs=None,
@@ -144,7 +145,10 @@ origin=None
     collect_mesh_objects(topObj, meshObjects, blacklist, filters)
 
     if len(meshObjects) > 0:
-        
+        uvMaps = __resolve_component_arg(bucket=bucket, arg=uvMaps, obj=meshObjects[0], settingName=__c.BUCKET_SETTING_MESH_GET_UVS, whenTrue=BlenderUtil.get_active_uv_map_name)
+        vertexColors = __resolve_component_arg(bucket=bucket, arg=vertexColors, obj=meshObjects[0], settingName=__c.BUCKET_SETTING_MESH_GET_VERTEX_COLORS, whenTrue=BlenderUtil.get_active_vertex_color_name)
+        shapeKeys = __resolve_component_arg(bucket=bucket, arg=shapeKeys, obj=meshObjects[0], settingName=__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS, whenTrue=BlenderUtil.get_active_shape_key_names)
+
         MeshValidation.validate_meshes(meshObjects)
         MeshValidation.validate_uv_maps(meshObjects, uvMaps)
         MeshValidation.validate_vertex_colors(meshObjects, vertexColors)
@@ -174,3 +178,12 @@ origin=None
         print(f"No meshes found under hierarchy of: {BlenderUtil.get_object_accessor(topObj)}")
         return None
 
+def __resolve_component_arg(bucket, arg, obj, settingName, whenTrue):
+    if arg == None:
+        arg = bucket.settings[settingName]
+    if arg == True:
+        print("arg is true")
+        return whenTrue(obj)
+    if arg == False:
+        return []
+    return arg

@@ -20,6 +20,7 @@ else:
     def test(bucket):
         Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_ATTACH_DATA, False)
         Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_ATTACH, False)
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_GET_UVS, False)
         heliNode = Node.based_on_object(bucket, "Helicopter", parent=False)
         heliMesh = Mesh.merged_based_on_hierarchy(bucket, "Helicopter",
         name="helicopter_mesh",
