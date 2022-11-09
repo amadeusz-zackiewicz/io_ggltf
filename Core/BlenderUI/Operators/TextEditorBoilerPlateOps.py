@@ -51,7 +51,11 @@ class PasteMakeButtonOperator(bpy.types.Operator):
 
     def execute(self, context):
         script = context.area.spaces.active.text
-        script.write('@MakeButton("My Tab/My Panel/My Button")\ndef example_func(self, context):\n\t#Do stuff here\n\treturn {"FINISHED"}')
+        script.write('@MakeButton("My Tab/My Panel/My Button", "VIEW_3D")\n'\
+            'def example_func(self, context):\n'\
+            '\t#Do stuff here\n'\
+            '\treturn {"FINISHED"}\n'
+            )
         return {"FINISHED"}
 
 classes = [
