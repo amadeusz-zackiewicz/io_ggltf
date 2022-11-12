@@ -186,4 +186,6 @@ def __resolve_component_arg(bucket, arg, obj, settingName, whenTrue):
         return whenTrue(obj)
     if arg == False:
         return []
+    if type(arg) == str:
+        arg = [arg]
     return arg
