@@ -1,8 +1,24 @@
+import inspect
+import re
+
 class _DocsUI(object):
 
     def __init__(self, method, docsURL=None):
         self._method = method 
         self._url = docsURL
+        self.__doc__ = method.__doc__
+
+        signature = str(inspect.signature(method))
+        typeMatches = re.findall("\:[^,\)]*", signature)
+        returnMatches = re.findall("(?<=\)).*->.*$", signature)
+
+        for match in typeMatches:
+            signature = signature.replace(match, "")
+
+        for match in returnMatches:
+            signature = signature.replace(match, "")
+
+        self._signature = signature
 
     def __call__(self, *args, **kwargs):
         return self._method(*args, **kwargs)
@@ -13,11 +29,11 @@ class _DocsUI(object):
             for name in dir(module):
                 method = getattr(module, name)
                 if isinstance(method, _DocsUI):
-                    yield name, method._method.__doc__, method._url
+                    yield name, method._method.__doc__, method._signature, method._url
         
         methodsInfo = {}
-        for name, docs, url in get():
-            methodsInfo[name] = (docs, url)
+        for name, docs, signature, url in get():
+            methodsInfo[name] = (docs, signature, url)
         return methodsInfo
 
 def ShowInUI(docsURL=None):

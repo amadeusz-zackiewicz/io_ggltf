@@ -13,7 +13,7 @@ def __paste_poll(cls, context):
 
 def __paste_execute(self, context):
     script = context.area.spaces.active.text
-    script.write(f"{self.moduleName}.{self.methodName}(")
+    script.write(f"{self.moduleName}.{self.funcName}{self.funcSignature}")
     return {"FINISHED"}
 
 @classmethod
@@ -44,29 +44,30 @@ def __generate_classes():
         moduleName = splitName[-1]
         classes[moduleName] = []
 
-        for methodName, (classDocs, classURL) in methods.items():
-            cleanName = f"{splitName[-2]}_{splitName[-1]}_{methodName}".replace(".", "_")
+        for funcName, (funcDocs, funcSignature, funcURL) in methods.items():
+            cleanName = f"{splitName[-2]}_{splitName[-1]}_{funcName}".replace(".", "_")
             pasteClass = type(f"PASTE_GEN_{cleanName}", (bpy.types.Operator, ), {
                 "bl_idname": f"ggltf.p_{str(uuid.uuid4()).replace('-', '').lower()}",
-                "bl_label": f"Paste method: {moduleName}.{methodName}." if classDocs == None or classDocs == "" else classDocs,
-                "bl_button_label": methodName,
+                "bl_label": f"Paste method: {moduleName}.{funcName}." if funcDocs == None or funcDocs == "" else funcDocs,
+                "bl_button_label": funcName,
                 "moduleName": moduleName,
-                "methodName": methodName,
+                "funcName": funcName,
+                "funcSignature": funcSignature,
                 "poll": __paste_poll,
                 "execute": __paste_execute,
-                "__doc__": f"Paste method: {methodName}" if classDocs == None or classDocs == "" else classDocs
+                "__doc__": f"Paste method: {funcName}" if funcDocs == None or funcDocs == "" else funcDocs
             })
-            if classURL == None or classURL == "":
+            if funcURL == None or funcURL == "":
                 classes[moduleName].append((pasteClass, None))
             else:
                 docsClass = type(f"DOCS_GEN_{cleanName}", (bpy.types.Operator, ), {
                     "bl_idname": f"ggltf.d_{str(uuid.uuid4()).replace('-', '').lower()}",
-                    "bl_label": f"Open docs: {moduleName}.{methodName}",
+                    "bl_label": f"Open docs: {moduleName}.{funcName}",
                     "bl_button_icon": "HELP",
                     "poll": __docs_poll,
                     "execute": __docs_execute,
-                    "url": classURL,
-                    "__doc__": f"Open URL:\n{classURL}"
+                    "url": funcURL,
+                    "__doc__": f"Open URL:\n{funcURL}"
                 })
                 classes[moduleName].append((pasteClass, docsClass))
                 

@@ -17,15 +17,16 @@ def add_button(button):
 
 
 @bpy.app.handlers.persistent
-def __purge_all(*args):
+def __purge_all(*args, **kwargs):
     from io_ggltf.Core.BlenderUI.FastButtons import Register
-    for tab in Register.__layoutTree.values():
-        for panel in tab.values():
-            for operator in panel.buttons.values():
-                bpy.utils.unregister_class(operator)
-                del operator
-            bpy.utils.unregister_class(panel)
-            del panel
+    for area in Register.__layoutTree.values():
+        for tab in area.values():
+            for panel in tab.values():
+                for operator in panel.buttons.values():
+                    bpy.utils.unregister_class(operator)
+                    del operator
+                bpy.utils.unregister_class(panel)
+                del panel
         
     Register.__layoutTree = {}
         

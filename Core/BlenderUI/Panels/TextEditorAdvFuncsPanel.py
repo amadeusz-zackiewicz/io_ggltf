@@ -5,7 +5,7 @@ def __draw(self, context):
     layout = self.layout
     for pair in self.classPairs:
         row = layout.row()
-        row.operator(pair[0].bl_idname, text=pair[0].methodName)
+        row.operator(pair[0].bl_idname, text=pair[0].funcName)
         if pair[1] != None:
             row.operator(pair[1].bl_idname, text="", icon=pair[1].bl_button_icon)
 
