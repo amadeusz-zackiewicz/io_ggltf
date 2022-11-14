@@ -1,9 +1,11 @@
-# Work in progress
-Currently working on 0.1.0 release, there are still some bugs and usability issues. 
+![img](readme_resources/blender_market_cover.png)
 
-The documentation and wiki pages are not yet complete but the addon is mostly functional.
+# Requirements
+1. Blender 3.0 or higher
+2. Basic python / programming knowledge
 
-Current data types supported:
+# Data supported
+This addon is still a work in progress, current data types supported:
 Type | Support
 :---: | :---:
 Animation | <t style="color:red">0.2.0</t>
@@ -17,25 +19,24 @@ Image | <t style="color:red">No</t>
 Camera | <t style="color:red">No</t>
 Light |  <t style="color:red">No</t>
 
-# What does this addon do?
-gglTF or game glTF is an addon that provides the user with a library that can export glTF files via python scripts, giving far more flexibility then the default exporter and allowing users to export exactly what they need and how they need it. The main area where this is useful is game development, where certain assets need to be optimised before being imported to the game engine and might need to be exported in many iterations.
+# What is the purpose of this addon?
+This addon is highly specialised in exporting assets into game engines using glTF file format. It achieves it by giving the user access to a library that does most of the heavy lifting and a very fast way to create buttons that can run export code minimising time between exporting and seeing new changes within the game engine.
 
-If you do not need any of this functionality I highly advise you to stick to the default glTF exporter.
+Have a look at the features section below to see if it fits your purpose, if you do not need any of this functionality I highly advise you to stick to the default glTF exporter.
 
-# Requirements
-1. Blender 3.0 or higher
-2. Basic python / programming knowledge
 
 # Features
 * Additive workflow, start with nothing and add what you need.
 
-* No scenes required, making it possible to create asset libraries.
+* Break down your complex scene into smaller files.
+
+* No scenes required, making it possible to create asset libraries (for example file containing meshes).
 
 * Easily add hierarchies, collections or singular objects.
 
 * Exclude objects with regular expressions, without being forced to delete them before exporting.
 
-* Non-destructively merge multiple meshes into one without having to apply modifiers.
+* Non-destructively merge multiple meshes into one.
 
 * Add as many UV maps, vertex colors or shape keys to your meshes as you need.
 
@@ -47,5 +48,3 @@ If you do not need any of this functionality I highly advise you to stick to the
 
 # Limitations
 * Cannot export base meshes, each mesh has to be assigned to an object in scene in order to be exported.
-
-* Requires file reload to clear buttons that were removed.
