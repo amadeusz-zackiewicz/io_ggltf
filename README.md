@@ -24,6 +24,7 @@ This addon is highly specialised in exporting assets into game engines using glT
 
 Have a look at the features section below to see if it fits your purpose, if you do not need any of this functionality I highly advise you to stick to the default glTF exporter.
 
+Otherwise get started [here](https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/GetStartedAdvP0)
 
 # Features
 * Additive workflow, start with nothing and add what you need.
