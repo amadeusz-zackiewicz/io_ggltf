@@ -1,0 +1,276 @@
+{
+    "asset": {
+        "generator": "Blender ggltf",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "scene",
+            "nodes": [
+                24
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "zero-four",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ]
+        },
+        {
+            "name": "zero-three",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                0
+            ]
+        },
+        {
+            "name": "zero-two",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                1
+            ]
+        },
+        {
+            "name": "zero-one",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                2
+            ]
+        },
+        {
+            "name": "one-four",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ]
+        },
+        {
+            "name": "one-three",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                4
+            ]
+        },
+        {
+            "name": "one-two",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                5
+            ]
+        },
+        {
+            "name": "one-one",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                6
+            ]
+        },
+        {
+            "name": "one-zero",
+            "translation": [
+                1.0,
+                0.0,
+                -0.0
+            ],
+            "children": [
+                7
+            ]
+        },
+        {
+            "name": "two-four",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ]
+        },
+        {
+            "name": "two-three",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                9
+            ]
+        },
+        {
+            "name": "two-two",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                10
+            ]
+        },
+        {
+            "name": "two-one",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                11
+            ]
+        },
+        {
+            "name": "two-zero",
+            "translation": [
+                2.0,
+                0.0,
+                -0.0
+            ],
+            "children": [
+                12
+            ]
+        },
+        {
+            "name": "three-four",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ]
+        },
+        {
+            "name": "three-three",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                14
+            ]
+        },
+        {
+            "name": "three-two",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                15
+            ]
+        },
+        {
+            "name": "three-one",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                16
+            ]
+        },
+        {
+            "name": "three-zero",
+            "translation": [
+                3.0,
+                0.0,
+                -0.0
+            ],
+            "children": [
+                17
+            ]
+        },
+        {
+            "name": "four-four",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ]
+        },
+        {
+            "name": "four-three",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                19
+            ]
+        },
+        {
+            "name": "four-two",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                20
+            ]
+        },
+        {
+            "name": "four-one",
+            "translation": [
+                0.0,
+                -1.0,
+                -0.0
+            ],
+            "children": [
+                21
+            ]
+        },
+        {
+            "name": "four-zero",
+            "translation": [
+                4.0,
+                0.0,
+                -0.0
+            ],
+            "children": [
+                22
+            ]
+        },
+        {
+            "name": "zero-zero",
+            "children": [
+                3,
+                8,
+                13,
+                18,
+                23
+            ]
+        }
+    ],
+    "scene": 0
+}
