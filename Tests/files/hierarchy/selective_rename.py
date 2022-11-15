@@ -22,6 +22,9 @@ else:
         Util.pattern_replace_node_names(bucket, "(0-1)|(1-0)", "foo")
         File.dump_bucket(bucket)
 
+    print("---------- Start gltf embedded")
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))
+    print("---------- Start gltf with external binaries")
     test(File.create_bucket(filePath, fileName, binPath, FILE_TYPE_GLTF))
+    print("---------- Start glb")
     test(File.create_bucket(filePath, fileName, binPath, FILE_TYPE_GLB))

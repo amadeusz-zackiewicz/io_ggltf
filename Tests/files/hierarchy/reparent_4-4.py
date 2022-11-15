@@ -22,6 +22,9 @@ else:
         child = Node.based_on_object(bucket, "4-4", parent="0-0")
         File.dump_bucket(bucket)
 
+    print("---------- Start gltf embedded")
     test(File.create_bucket(filePath, fileName + "_embedded", binPath, FILE_TYPE_GLTF_EMBEDDED))
+    print("---------- Start gltf with external binaries")
     test(File.create_bucket(filePath, fileName, binPath, FILE_TYPE_GLTF))
+    print("---------- Start glb")
     test(File.create_bucket(filePath, fileName, binPath, FILE_TYPE_GLB))
