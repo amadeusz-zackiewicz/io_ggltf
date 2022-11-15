@@ -19,6 +19,6 @@ def pattern_replace_all_names(bucket: Bucket, pattern: str, replacement: str):
     pattern_replace_node_names(bucket, pattern, replacement)
     pattern_replace_mesh_names(bucket, pattern, replacement)
 
-@__ShowInUI()
+@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Util-Module#create_filter")
 def create_filter(pattern: str, whitelist=True):
     return __create_filter(pattern=pattern, whitelist=whitelist)
