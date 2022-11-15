@@ -8,6 +8,7 @@ from io_ggltf.Advanced import Settings, Attach, Scene
 from io_ggltf.Core import Util, BlenderUtil
 import bpy
 from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
+from io_ggltf.Core.Validation import FilterValidation
 
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
 __scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objAccessor=objID, parent=parent)
@@ -94,6 +95,8 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
             __add_skin(bucket, obj, blacklist, filters)
         return nodeID
 
+    filters = FilterValidation.validate_filter_arg(filters)
+
     obj = try_get_object(topObjAccessor)
 
     if parent == None:
@@ -130,6 +133,8 @@ def __get_collection_top_objects(collection, blacklist={}):
 @__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_collection")
 def based_on_collection(bucket: Bucket, collectionName, blacklist={}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> list:
     """Create node hierarchies based on all object found in collection"""
+
+    filters = FilterValidation.validate_filter_arg(filters)
 
     if checkRedundancies == None:
         checkRedundancies = Settings.get_setting(bucket, __c.BUCKET_SETTING_REDUNDANCY_CHECK_NODE)

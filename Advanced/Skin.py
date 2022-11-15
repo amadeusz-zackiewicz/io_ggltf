@@ -7,6 +7,7 @@ from io_ggltf.Core import BlenderUtil, Util
 from io_ggltf.Advanced import Settings, Attach
 import bpy
 from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
+from io_ggltf.Core.Validation import FilterValidation
 
 __setArmaturePoseCommand = lambda bucket, objAccessor, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objAccessor=objAccessor, poseMode=poseMode)
 __scoopSkinCommand = lambda bucket, skinID, objAccessor, getInverse, boneBlackList, boneOffset, filters, rigify: Skin.scoop_skin(bucket=bucket, objAccessors=objAccessor,getInversedBinds=getInverse, blacklist=boneBlackList, nodeIDOffset=boneOffset, skinID=skinID, filters=filters, stitch=rigify) # TODO: need to provide bone node offsets and skin id
@@ -27,6 +28,9 @@ def based_on_object(
 ) -> int:
     """Create a skin based on armature object"""
     
+    boneFilters = FilterValidation.validate_filter_arg(boneFilters)
+    attachmentFilters = FilterValidation.validate_filter_arg(attachmentFilters)
+
     if checkRedundancy == None:
         checkRedundancy = Settings.get_setting(bucket, __c.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN)
     if getInverseBinds == None:
@@ -87,6 +91,9 @@ def based_on_object_modifiers(
     rigifyFlags = None,
     autoAttach = None
 ) -> int:
+
+    boneFilters = FilterValidation.validate_filter_arg(boneFilters)
+    attachmentFilters = FilterValidation.validate_filter_arg(attachmentFilters)
 
     if checkRedundancy == None:
         checkRedundancy = bucket.settings[__c.BUCKET_SETTING_REDUNDANCY_CHECK_SKIN]

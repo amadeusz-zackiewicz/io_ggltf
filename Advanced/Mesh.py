@@ -5,7 +5,7 @@ from io_ggltf.Core import BlenderUtil, Util
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops.Mesh import ScoopMesh
 from io_ggltf.Advanced import Settings, Attach
-from io_ggltf.Core.Validation import MeshValidation
+from io_ggltf.Core.Validation import MeshValidation, FilterValidation
 import bpy
 from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 
@@ -120,6 +120,7 @@ origin=None
         if currentObject.type == __c.BLENDER_TYPE_MESH:
             collected.append(currentObject)
 
+    filters = FilterValidation.validate_filter_arg(filters)
     if normals == None:
         normals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_NORMALS]
     if tangents == None:
