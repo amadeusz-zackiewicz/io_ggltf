@@ -2,50 +2,70 @@ from io_ggltf.Core.Bucket import Bucket
 import bpy
 from io_ggltf import Constants
 
-def __is_not_unique(bucket: Bucket, objAccessor) -> bool:
-    return __get_eval(bucket.currentDependencyGraph, objAccessor) in bucket.redundancies
+def __is_duplicate(bucket: Bucket, objAccessor, useData: bool) -> bool:
+    """Does this entry exist?"""
+    return __get_eval(bucket.currentDependencyGraph, objAccessor, useData=useData) in bucket.redundancies
 
-def __add_unique(bucket: Bucket, objAccessor, pID: int):
-    bucket.redundancies[__get_eval(bucket.currentDependencyGraph, objAccessor)] = pID
+def __add_unique(bucket: Bucket, objAccessor, pID: int, useData: bool):
+    bucket.redundancies[__get_eval(bucket.currentDependencyGraph, objAccessor, useData=useData)] = pID
 
-def fetch_unique(bucket: Bucket, objAccessor) -> int:
-    eval = __get_eval(bucket.currentDependencyGraph, objAccessor)
+def fetch_unique(bucket: Bucket, objAccessor, useData: bool) -> int:
+    eval = __get_eval(bucket.currentDependencyGraph, objAccessor, useData=useData)
     if eval in bucket.redundancies:
         return bucket.redundancies[eval]
     else:
         return None
 
+def __should_use_data(dataType: str) -> bool:
+    return dataType in Constants.REDUNDANCY_USE_DATA
+
 def register_unique(bucket: Bucket, objAccessor, bucketDataType: str):
-    if __is_not_unique(bucket, objAccessor):
-        return (True, fetch_unique(bucket, objAccessor))
+    """Register a unique entry
+    
+    Returns: tuple[bool, id] where bool indicates whether entry already exists.
+    """
+    useData = __should_use_data(bucketDataType)
+    if __is_duplicate(bucket, objAccessor, useData):
+        return (True, fetch_unique(bucket, objAccessor, useData))
     else:
         newID = bucket.preScoopCounts[bucketDataType]
         bucket.preScoopCounts[bucketDataType] += 1
         __add_accessor(bucket, objAccessor, bucketDataType, newID)
-        __add_unique(bucket, objAccessor, newID)
+        __add_unique(bucket, objAccessor, newID, useData)
         return (False, newID)
 
-def __get_eval(depsGraph, objAccessor):
+def __get_eval(depsGraph, objAccessor, useData: bool):
     if type(objAccessor) == list:
-        eval = tuple([id(depsGraph.id_eval_get(bpy.data.objects.get(o))) for o in objAccessor])
-    elif type(objAccessor) == str:
-        eval = id(depsGraph.id_eval_get(bpy.data.objects.get(objAccessor)))
-    elif type(objAccessor) == tuple:
-        if len(objAccessor) == 3: ## if the accessor has 3 elements, then its a bone, we assume that the getFunc is getting an object
-            eval = id(depsGraph.id_eval_get(bpy.data.objects.get((objAccessor[0], objAccessor[1])).pose.bones[objAccessor[2]]))
+        if useData:
+            eval = tuple([id(bpy.data.objects.get(o).data.evaluated_get(depsGraph) for o in objAccessor)])
         else:
-            eval = id(depsGraph.id_eval_get(bpy.data.objects.get(objAccessor)))
+            eval = tuple([id(bpy.data.objects.get(o).evaluated_get(depsGraph) for o in objAccessor)])
+    elif type(objAccessor) == str:
+        if useData:
+            eval = id(bpy.data.objects.get(objAccessor).data.evaluated_get(depsGraph))
+        else:
+            eval = id(bpy.data.objects.get(objAccessor).evaluated_get(depsGraph))
+    elif type(objAccessor) == tuple:
+        if len(objAccessor) == 3: ## if the accessor has 3 elements, then its a bone
+            eval = id(bpy.data.objects.get((objAccessor[0], objAccessor[1])).pose.bones[objAccessor[2]].evaluated_get(depsGraph))
+        else:
+            if useData:
+                eval = id(bpy.data.objects.get(objAccessor).data.evaluated_get(depsGraph))
+            else:
+                eval = id(bpy.data.objects.get(objAccessor).evaluated_get(depsGraph))
     else:
         raise Exception(f"Invalid accessor type, expected string, tuple or list, got: {type(objAccessor)}")
+    #print(objAccessor, "Eval:", eval, "data:", useData)
     return eval
 
 def register_unsafe(bucket: Bucket, accessor, dataType: str):
+    """Register new entry with possible duplicates"""
     oldCount = bucket.preScoopCounts[dataType]
     __add_accessor(bucket, accessor, dataType, oldCount) 
     bucket.preScoopCounts[dataType] += 1
     return oldCount
 
-def __add_accessor(bucket, accessor, dataType, id):
+def __add_accessor(bucket, accessor, dataType, id: int):
     if type(accessor) == list:
         accessor = tuple(accessor)
     elif type(accessor) == str:

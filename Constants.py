@@ -236,6 +236,8 @@ BUCKET_DATA_TEXTURES                 = "textures"
 BUCKET_DATA_EXTENSIONS               = "extensions"
 BUCKET_DATA_EXTRAS                   = "extras"
 
+REDUNDANCY_USE_DATA = [BUCKET_DATA_MESHES, BUCKET_DATA_SKINS]
+
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.1 Accessor
 ACCESSOR_BUFFER_VIEW                   = __VAR_BUFFER_VIEW
