@@ -183,7 +183,6 @@ def __resolve_component_arg(bucket, arg, obj, settingName, whenTrue):
     if arg == None:
         arg = bucket.settings[settingName]
     if arg == True:
-        print("arg is true")
         return whenTrue(obj)
     if arg == False:
         return []
