@@ -1,0 +1,113 @@
+{
+    "asset": {
+        "generator": "Blender ggltf",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "scene",
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "Plane",
+            "mesh": 0
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Plane",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 1,
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 2,
+                        "TEXCOORD_0": 3,
+                        "TEXCOORD_1": 4
+                    }
+                }
+            ]
+        }
+    ],
+    "accessors": [
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 16,
+            "min": [
+                -1.0,
+                0.0,
+                -1.0
+            ],
+            "max": [
+                1.0,
+                0.0,
+                1.0
+            ],
+            "bufferView": 0
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 24,
+            "bufferView": 1
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 16,
+            "bufferView": 2
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC2",
+            "count": 16,
+            "bufferView": 3
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC2",
+            "count": 16,
+            "bufferView": 4
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 192
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 192,
+            "byteLength": 96
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 288,
+            "byteLength": 192
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 480,
+            "byteLength": 128
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 608,
+            "byteLength": 128
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 736,
+            "uri": "data:application/octet-stream;base64,+HmtvgAAAADtS6O+AACAPwAAAAAAAACAAACAPwAAAAAAAIC/AAAAAAAAAAAAAIC/AACAvwAAAAAAAACA+HmtvgAAAADtS6O+AAAAAAAAAAAAAIC/AACAvwAAAAAAAIC/AACAvwAAAAAAAIA/AAAAAAAAAAAAAIA/+HmtvgAAAADtS6O+AACAvwAAAAAAAACAAAAAAAAAAAAAAIA/AACAPwAAAAAAAIA/AACAPwAAAAAAAACA+HmtvgAAAADtS6O+AAAAAAEAAAACAAAAAAAAAAIAAAADAAAABAAAAAUAAAAGAAAABAAAAAYAAAAHAAAACAAAAAkAAAAKAAAACAAAAAoAAAALAAAADAAAAA0AAAAOAAAADAAAAA4AAAAPAAAAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAP//fz8AAACAAAAAAP//fz8AAACAAAAAAP//fz8AAACAAAAAAP//fz8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACA0LL2vTCMHL4AAAw/AAAgPQAADD8AAOy+AABAPQAA7L4AAOi+AAAgPdCy9r0wjBy+AABAPQAA7L4AAOi+AADsvgAA6L4AAAo/AABAPQAACj/Qsva9MIwcvgAA6L4AACA9AABAPQAACj8AAAw/AAAKPwAADD8AACA90LL2vTCMHL4AAFM/AABUPwCAuz8AAHc/AIC7PwAA7j4AAHc/AADuPgAA7j4AAHc/AABTPwAAVD8AAHc/AADuPgAA7j4AAO4+AADuPgCAuz8AAHc/AIC7PwAAUz8AAFQ/AADuPgAAdz8AAHc/AIC7PwCAuz8AgLs/AIC7PwAAdz8AAFM/AABUPw=="
+        }
+    ],
+    "scene": 0
+}
