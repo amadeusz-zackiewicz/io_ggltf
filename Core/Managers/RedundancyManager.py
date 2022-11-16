@@ -37,12 +37,12 @@ def register_unique(bucket: Bucket, objAccessor, bucketDataType: str):
 def __get_eval(depsGraph, objAccessor, useData: bool):
     if type(objAccessor) == list:
         if useData:
-            eval = tuple([id(bpy.data.objects.get(o).data.evaluated_get(depsGraph) for o in objAccessor)])
+            eval = tuple([id(bpy.data.objects.get(o).evaluated_get(depsGraph).data for o in objAccessor)])
         else:
             eval = tuple([id(bpy.data.objects.get(o).evaluated_get(depsGraph) for o in objAccessor)])
     elif type(objAccessor) == str:
         if useData:
-            eval = id(bpy.data.objects.get(objAccessor).data.evaluated_get(depsGraph))
+            eval = id(bpy.data.objects.get(objAccessor).evaluated_get(depsGraph).data)
         else:
             eval = id(bpy.data.objects.get(objAccessor).evaluated_get(depsGraph))
     elif type(objAccessor) == tuple:
@@ -50,7 +50,7 @@ def __get_eval(depsGraph, objAccessor, useData: bool):
             eval = id(bpy.data.objects.get((objAccessor[0], objAccessor[1])).pose.bones[objAccessor[2]].evaluated_get(depsGraph))
         else:
             if useData:
-                eval = id(bpy.data.objects.get(objAccessor).data.evaluated_get(depsGraph))
+                eval = id(bpy.data.objects.get(objAccessor).evaluated_get(depsGraph).data)
             else:
                 eval = id(bpy.data.objects.get(objAccessor).evaluated_get(depsGraph))
     else:

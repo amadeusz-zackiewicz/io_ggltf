@@ -9,7 +9,8 @@
             "nodes": [
                 0,
                 1,
-                2
+                2,
+                3
             ]
         }
     ],
@@ -52,6 +53,15 @@
                 0.9999999403953552
             ],
             "mesh": 1
+        },
+        {
+            "name": "Cube_Mod",
+            "translation": [
+                4.039644241333008,
+                2.983330488204956,
+                -2.377363443374634
+            ],
+            "mesh": 2
         }
     ],
     "meshes": [
@@ -77,6 +87,19 @@
                     "attributes": {
                         "POSITION": 3,
                         "NORMAL": 5
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cube",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 7,
+                    "attributes": {
+                        "POSITION": 6,
+                        "NORMAL": 8
                     }
                 }
             ]
@@ -138,6 +161,34 @@
             "type": "VEC3",
             "count": 24,
             "bufferView": 5
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 96,
+            "min": [
+                -0.8395061492919922,
+                -0.8395063877105713,
+                -0.8395063877105713
+            ],
+            "max": [
+                0.8395061492919922,
+                0.8395063877105713,
+                0.8395062685012817
+            ],
+            "bufferView": 6
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 144,
+            "bufferView": 7
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 96,
+            "bufferView": 8
         }
     ],
     "bufferViews": [
@@ -170,11 +221,26 @@
             "buffer": 0,
             "byteOffset": 1152,
             "byteLength": 288
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 1440,
+            "byteLength": 1152
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 2592,
+            "byteLength": 576
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 3168,
+            "byteLength": 1152
         }
     ],
     "buffers": [
         {
-            "byteLength": 1440,
+            "byteLength": 4320,
             "uri": "instanced_mesh_check_redundancy_0.bin"
         }
     ],
