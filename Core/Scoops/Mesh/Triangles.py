@@ -20,75 +20,69 @@ def scoop_indexed_and_merge(bucket: Bucket, meshObjects, meshWorldMatrix, name, 
     noMatPrimitive = None
 
     for meshIndex, meshObj in enumerate(meshObjects):
-        try:
-            meshCopy = meshObj.copy()
-            transformShapeKeys = True if len(shapeKeys) > 0 else False
-            meshCopy.transform(meshWorldMatrix[meshIndex], shape_keys=transformShapeKeys)
-            meshCopy.transform(targetWorldMatrix.inverted_safe(), shape_keys=transformShapeKeys)
-            meshCopy.update()
+        transformShapeKeys = True if len(shapeKeys) > 0 else False
+        meshObj.transform(meshWorldMatrix[meshIndex], shape_keys=transformShapeKeys)
+        meshObj.transform(targetWorldMatrix.inverted_safe(), shape_keys=transformShapeKeys)
+        meshObj.update()
 
-            uvIDs = []
-            vColorIDs = []
-            shapeKeyIDs = []
-            materialNames = []
+        uvIDs = []
+        vColorIDs = []
+        shapeKeyIDs = []
+        materialNames = []
 
-            for i, material in enumerate(meshCopy.materials):
-                if material == None:
-                    tempMatName = f"::TEMP::{meshObj.name}__{i}"
-                    materialNames.append(tempMatName)
-                    allMatNames.add(tempMatName)
-                else:
-                    materialNames.append(material.name)
-                    allMatNames.add(material.name)
-
-            # convert UV map names into indices
-            for uvName in uvMaps: 
-                if uvName in meshCopy.uv_layers:
-                    for i, uvLayer in enumerate(meshCopy.uv_layers):
-                        if uvName == uvLayer.name:
-                            uvIDs.append(i)
-                            break
-                else:
-                    raise Exception(f" UV map '{uvName}' not found inside {meshObj.name}.")
-
-            # convert vertex color names into indices
-            for vColorName in vertexColors: 
-                if vColorName in meshCopy.vertex_colors:
-                    for i, vColorLayer in enumerate(meshCopy.vertex_colors):
-                        if vColorName == vColorLayer.name:
-                            vColorIDs.append(i)
-                else:
-                    raise Exception(f"Vertex Color '{vColorName}' not found inside {meshObj.name}.")
-
-            # convert shape key names into indices
-            for shapeKeyName in shapeKeys: 
-                if shapeKeyName in meshCopy.shape_keys.key_blocks:
-                    for i, sk in enumerate(meshCopy.shape_keys.key_blocks):
-                        if shapeKeyName == sk.name:
-                            shapeKeyIDs.append(i)
-                else:
-                    raise Exception(f"Shape Key '{shapeKeyName}' not found inside {meshObj.name}.")
-
-            # get the skin definition (a dictionary of [BoneName : NodeID])
-            skinDef = None if skinID == None else bucket.skinDefinition[skinID]
-            primitives = MeshUtil.decompose_into_indexed_triangles(meshCopy, vertexGroups[meshIndex], normals, tangents, uvIDs, vColorIDs, shapeKeyIDs, skinDef, maxInfluences)
-
-            if len(materialNames) > 0:
-                primitiveMapping = {}
-                for meshIndex, p in enumerate(primitives):
-                    if len(p.positions) > 0:
-                        primitiveMapping[materialNames[meshIndex]] = p
-                mappedMeshes.append(primitiveMapping)
+        for i, material in enumerate(meshObj.materials):
+            if material == None:
+                tempMatName = f"::TEMP::{meshObj.name}__{i}"
+                materialNames.append(tempMatName)
+                allMatNames.add(tempMatName)
             else:
-                for p in primitives:
-                    if noMatPrimitive == None:
-                        noMatPrimitive = p
-                    else:
-                        noMatPrimitive.extend(p)
-                
-        finally:
-            import bpy
-            bpy.data.meshes.remove(meshCopy) # remove the temporary copy we just made
+                materialNames.append(material.name)
+                allMatNames.add(material.name)
+
+        # convert UV map names into indices
+        for uvName in uvMaps: 
+            if uvName in meshObj.uv_layers:
+                for i, uvLayer in enumerate(meshObj.uv_layers):
+                    if uvName == uvLayer.name:
+                        uvIDs.append(i)
+                        break
+            else:
+                raise Exception(f" UV map '{uvName}' not found inside {meshObj.name}.")
+
+        # convert vertex color names into indices
+        for vColorName in vertexColors: 
+            if vColorName in meshObj.vertex_colors:
+                for i, vColorLayer in enumerate(meshObj.vertex_colors):
+                    if vColorName == vColorLayer.name:
+                        vColorIDs.append(i)
+            else:
+                raise Exception(f"Vertex Color '{vColorName}' not found inside {meshObj.name}.")
+
+        # convert shape key names into indices
+        for shapeKeyName in shapeKeys: 
+            if shapeKeyName in meshObj.shape_keys.key_blocks:
+                for i, sk in enumerate(meshObj.shape_keys.key_blocks):
+                    if shapeKeyName == sk.name:
+                        shapeKeyIDs.append(i)
+            else:
+                raise Exception(f"Shape Key '{shapeKeyName}' not found inside {meshObj.name}.")
+
+        # get the skin definition (a dictionary of [BoneName : NodeID])
+        skinDef = None if skinID == None else bucket.skinDefinition[skinID]
+        primitives = MeshUtil.decompose_into_indexed_triangles(meshObj, vertexGroups[meshIndex], normals, tangents, uvIDs, vColorIDs, shapeKeyIDs, skinDef, maxInfluences)
+
+        if len(materialNames) > 0:
+            primitiveMapping = {}
+            for meshIndex, p in enumerate(primitives):
+                if len(p.positions) > 0:
+                    primitiveMapping[materialNames[meshIndex]] = p
+            mappedMeshes.append(primitiveMapping)
+        else:
+            for p in primitives:
+                if noMatPrimitive == None:
+                    noMatPrimitive = p
+                else:
+                    noMatPrimitive.extend(p)
 
 
     for matName in allMatNames:

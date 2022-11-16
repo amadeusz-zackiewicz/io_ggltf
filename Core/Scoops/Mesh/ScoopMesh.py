@@ -19,22 +19,32 @@ def scoop_and_merge(
     mode = MESH_TYPE_TRIANGLES,
     maxBoneInfluences = 4,
 ):
-    objs = [bpy.data.objects.get(accessor) for accessor in objAccessors]
-    targetMatrix = bpy.data.objects.get(mergeTargetAccessor).matrix_world
+    
+    try:
+        meshes = []
+        objs = [bpy.data.objects.get(accessor) for accessor in objAccessors]
+        targetMatrix = bpy.data.objects.get(mergeTargetAccessor).matrix_world
 
-    Triangles.scoop_indexed_and_merge(bucket, 
-    [bucket.currentDependencyGraph.id_eval_get(obj).data for obj in objs], 
-    [obj.matrix_world for obj in objs], 
-    name, 
-    targetMatrix, 
-    normals, 
-    [obj.vertex_groups for obj in objs], 
-    uvMaps, 
-    vertexColors, 
-    shapeKeys, 
-    shapeKeyNormals, 
-    tangents, 
-    skinID, 
-    assignedID, 
-    maxBoneInfluences
-    )
+        meshes = [bucket.currentDependencyGraph.id_eval_get(obj).to_mesh() for obj in objs] # make copies of the meshes
+
+        Triangles.scoop_indexed_and_merge(bucket, 
+        meshes, 
+        [obj.matrix_world for obj in objs], 
+        name, 
+        targetMatrix, 
+        normals, 
+        [obj.vertex_groups for obj in objs], 
+        uvMaps, 
+        vertexColors, 
+        shapeKeys, 
+        shapeKeyNormals, 
+        tangents, 
+        skinID, 
+        assignedID, 
+        maxBoneInfluences
+        )
+    finally:
+        # clear all mesh copies from memory
+        for m in meshes:
+            del m
+        del meshes
