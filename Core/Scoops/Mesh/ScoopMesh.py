@@ -45,6 +45,6 @@ def scoop_and_merge(
         )
     finally:
         # clear all mesh copies from memory
-        for m in meshes:
-            del m
+        for obj in objs:
+            obj.to_mesh_clear()
         del meshes

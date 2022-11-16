@@ -68,11 +68,25 @@ class Primitive:
         self.tangents = []
         self.indices = []
         self.duplicates = {}
-        self.uv = [[]] * uvMapCount
-        self.vertexColor = [[]] * vertexColorCount
-        self.shapeKey = [None] * shapeKeyCount
-        self.boneID = [[]] * boneInfluenceDivisions
-        self.boneInfluence = [[]] * boneInfluenceDivisions
+
+        self.uv = []
+        for i in range(uvMapCount):
+            self.uv.append([])
+
+        self.vertexColor = []
+        for i in range(vertexColorCount):
+            self.vertexColor.append([])
+
+        self.shapeKey = []
+        for i in range(shapeKeyCount):
+            self.vertexColor.append(None)
+
+        self.boneID = []
+        self.boneInfluence = []
+        for i in range(boneInfluenceDivisions):
+            self.boneID.append([])
+            self.boneInfluence.append([])
+
         for i in range(shapeKeyCount):
             self.shapeKey[i] = ShapeKeyData([], [], [])
 

@@ -84,11 +84,11 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
         uv = [None] * len(uvLoops)
         vColor = [None] * len(vcLoops)
         shapeKey = [None] * len(shapeIDs)
-        for i in range(len(uv)):
-            uv[i] = Util.correct_uv(uvLoops[uvIDs[i]][i_loop].uv)
-        for i in range(len(vColor)):
-            vColor[i] = vcLoops[vColorIDs[i]][i_loop].color
-        for i in range(len(shapeKey)):
+        for i in range(len(uvLoops)):
+            uv[i] = Util.correct_uv(uvLoops[i][i_loop].uv)
+        for i in range(len(vcLoops)):
+            vColor[i] = vcLoops[i][i_loop].color
+        for i in range(len(shapeIDs)):
             nm = skData[i].normals[i_loop]
             pos = skData[i].positions[loop.vertex_index] - position
             shapeKey[i] = ShapeKeyCompound(pos, nm, None)
