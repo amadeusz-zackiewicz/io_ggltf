@@ -1,0 +1,182 @@
+{
+    "asset": {
+        "generator": "Blender ggltf",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "scene",
+            "nodes": [
+                0,
+                1,
+                2
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "Cube",
+            "mesh": 0
+        },
+        {
+            "name": "Cube_Instance",
+            "translation": [
+                -1.322393774986267,
+                3.5346193313598633,
+                -4.932394027709961
+            ],
+            "rotation": [
+                0.36526378989219666,
+                -0.23339131474494934,
+                -0.18421995639801025,
+                0.8821417689323425
+            ],
+            "mesh": 0
+        },
+        {
+            "name": "Cube_Duplicate",
+            "translation": [
+                -3.3153507709503174,
+                3.68601655960083,
+                -0.5954418182373047
+            ],
+            "rotation": [
+                0.03885509446263313,
+                0.21596869826316833,
+                -0.3678422272205353,
+                0.903626024723053
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.9999999403953552
+            ],
+            "mesh": 1
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Cube",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 1,
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 2
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cube.001",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 4,
+                    "attributes": {
+                        "POSITION": 3,
+                        "NORMAL": 5
+                    }
+                }
+            ]
+        }
+    ],
+    "accessors": [
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 24,
+            "min": [
+                -1.0,
+                -1.0,
+                -1.0
+            ],
+            "max": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "bufferView": 0
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 36,
+            "bufferView": 1
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 24,
+            "bufferView": 2
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 24,
+            "min": [
+                -1.0,
+                -1.0,
+                -1.000000238418579
+            ],
+            "max": [
+                1.0,
+                1.0000003576278687,
+                1.0000001192092896
+            ],
+            "bufferView": 3
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 36,
+            "bufferView": 4
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 24,
+            "bufferView": 5
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 288
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 288,
+            "byteLength": 144
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 432,
+            "byteLength": 288
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 720,
+            "byteLength": 288
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 1008,
+            "byteLength": 144
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 1152,
+            "byteLength": 288
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 1440,
+            "uri": "data:application/octet-stream;base64,AACAPwAAgD8AAIC/AACAvwAAgD8AAIC/AACAvwAAgD8AAIA/AACAPwAAgD8AAIA/AACAPwAAgL8AAIA/AACAPwAAgD8AAIA/AACAvwAAgD8AAIA/AACAvwAAgL8AAIA/AACAvwAAgL8AAIA/AACAvwAAgD8AAIA/AACAvwAAgD8AAIC/AACAvwAAgL8AAIC/AACAvwAAgL8AAIC/AACAPwAAgL8AAIC/AACAPwAAgL8AAIA/AACAvwAAgL8AAIA/AACAPwAAgL8AAIC/AACAPwAAgD8AAIC/AACAPwAAgD8AAIA/AACAPwAAgL8AAIA/AACAvwAAgL8AAIC/AACAvwAAgD8AAIC/AACAPwAAgD8AAIC/AACAPwAAgL8AAIC/AAAAAAEAAAACAAAAAAAAAAIAAAADAAAABAAAAAUAAAAGAAAABAAAAAYAAAAHAAAACAAAAAkAAAAKAAAACAAAAAoAAAALAAAADAAAAA0AAAAOAAAADAAAAA4AAAAPAAAAEAAAABEAAAASAAAAEAAAABIAAAATAAAAFAAAABUAAAAWAAAAFAAAABYAAAAXAAAAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAgD8AAACAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AACAvwAAAAAAAACAAACAvwAAAAAAAACAAACAvwAAAAAAAACAAACAvwAAAAAAAACAAAAAAAAAgL8AAACAAAAAAAAAgL8AAACAAAAAAAAAgL8AAACAAAAAAAAAgL8AAACAAACAPwAAAAAAAACAAACAPwAAAAAAAACAAACAPwAAAAAAAACAAACAPwAAAAAAAACAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AACAPwEAgD8CAIC/AACAvwMAgD8CAIC/+P9/v/7/fz8BAIA/AACAPwEAgD8AAIA/AACAPwAAgL8BAIA/AACAPwEAgD8AAIA/+P9/v/7/fz8BAIA/AACAv/r/f78AAIA/AACAv/r/f78AAIA/+P9/v/7/fz8BAIA/AACAvwMAgD8CAIC/AACAv/7/f78CAIC/AACAv/7/f78CAIC/AACAP/7/f78AAIC/AACAPwAAgL8BAIA/AACAv/r/f78AAIA/AACAP/7/f78AAIC/AACAPwEAgD8CAIC/AACAPwEAgD8AAIA/AACAPwAAgL8BAIA/AACAv/7/f78CAIC/AACAvwMAgD8CAIC/AACAPwEAgD8CAIC/AACAP/7/f78AAIC/AAAAAAEAAAACAAAAAAAAAAIAAAADAAAABAAAAAUAAAAGAAAABAAAAAYAAAAHAAAACAAAAAkAAAAKAAAACAAAAAoAAAALAAAADAAAAA0AAAAOAAAADAAAAA4AAAAPAAAAEAAAABEAAAASAAAAEAAAABIAAAATAAAAFAAAABUAAAAWAAAAFAAAABYAAAAXAAAAAAAAMwAAgD/+//8zAAAAMwAAgD/+//8zAAAAMwAAgD/+//8zAAAAMwAAgD/+//8zAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AACAv/7//zP+//8zAACAv/7//zP+//8zAACAv/7//zP+//8zAACAv/7//zP+//8zAQCAswAAgL8AAAAzAQCAswAAgL8AAAAzAQCAswAAgL8AAAAzAQCAswAAgL8AAAAzAACAPwAAAAAAAACAAACAPwAAAAAAAACAAACAPwAAAAAAAACAAACAPwAAAAAAAACAAACAMwAAgLMAAIC/AACAMwAAgLMAAIC/AACAMwAAgLMAAIC/AACAMwAAgLMAAIC/"
+        }
+    ],
+    "scene": 0
+}
