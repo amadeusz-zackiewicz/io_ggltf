@@ -19,18 +19,14 @@ else:
 
 
     def test(bucket):
-        cube = Node.based_on_object(bucket, "Cube")
-        cubeInst = Node.based_on_object(bucket, "Cube_Instance")
-        cubeDupli = Node.based_on_object(bucket, "Cube_Duplicate")
+        Settings.set_setting(bucket, BUCKET_SETTING_REDUNDANCY_CHECK_MESH, True)
+        Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_ATTACH, False)
 
-        cubeMesh = Mesh.based_on_object(bucket, "Cube", checkRedundancy=True)
-        cubeInstMesh = Mesh.based_on_object(bucket, "Cube_Instance", checkRedundancy=True)
-        cubeDupliMesh = Mesh.based_on_object(bucket, "Cube_Duplicate", checkRedundancy=True)
+        objs = ["Cube", "Cube_Instance", "Cube_Duplicate", "Cube_Mod"]
 
-        Attach.mesh_to_node(bucket, cubeMesh, cube)
-        Attach.mesh_to_node(bucket, cubeInstMesh, cubeInst)
-        Attach.mesh_to_node(bucket, cubeDupliMesh, cubeDupli)
-        
+        for obj in objs:
+            Attach.mesh_to_node(bucket, Mesh.based_on_object(bucket, obj), Node.based_on_object(bucket, obj))
+
         File.dump_bucket(bucket)
 
     print("---------- Start gltf embedded")
