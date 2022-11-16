@@ -49,3 +49,4 @@ Otherwise get started [here](https://github.com/amadeusz-zackiewicz/io_ggltf/wik
 
 # Limitations
 * Cannot export base meshes, each mesh has to be assigned to an object in scene in order to be exported.
+* Meshes can only be based on blender meshes, no curves, NURBS, etc.
