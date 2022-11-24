@@ -153,3 +153,90 @@ def pattern_replace(bucket, dataType: str, pattern: str, newStr: str):
 
 def create_filter(pattern: str, whitelist: bool):
     return (pattern, whitelist)
+
+def get_all_nodes_in_scene(bucket, sceneID) -> set[int]:
+    def __recursive(bucket, node: dict, nodes: set):
+        if not __c.NODE_CHILDREN in node:
+            return
+        for c in node[__c.NODE_CHILDREN]:
+            if c in nodes:
+                continue
+            __recursive[bucket, bucket.data[__c.BUCKET_DATA_NODES][c], nodes]
+            nodes.add(c)
+        
+    if not __c.BUCKET_DATA_SCENES in bucket.data or not __c.BUCKET_DATA_NODES in bucket.data:
+        return None
+    
+    nodes = set()
+    scene = bucket.data[__c.BUCKET_DATA_SCENES][sceneID]
+
+    if not __c.SCENE_NODES in scene:
+        return None
+
+    for nodeID in scene[__c.SCENE_NODES]:
+        if nodeID in nodes:
+            continue
+        __recursive(bucket, bucket.data[__c.BUCKET_DATA_NODES][nodeID], nodes)
+        nodes.add(nodeID)
+        
+    return nodes
+
+def get_yup_transforms(childAccessor, parent):
+    corrected, m = evaluate_matrix(childAccessor, parent)
+
+    if corrected:
+        position, rotation, scale = m.decompose()
+    else:
+        position, rotation, scale = m.decompose()
+        position = y_up_location(position)
+        rotation = y_up_rotation(rotation)
+        scale = y_up_scale(scale)
+
+    return position, rotation, scale
+
+def evaluate_matrix(childAccessor, parent):
+    """
+    Returns a matrix for the child accessor within parent space.
+    
+    Args:
+        childAccessor (tuple[str, str] or tuple[str, str, str]): Child object accessor
+        parent (tuple[str, str], tuple[str, str, str] or bool): When using boolean set to
+        True the parent will be found automatically, if False then use world space. If
+        If accessor is given then use that object / bone space.
+
+    Returns: tuple[bool, matrix] bool indicates if matrix is Y up
+    """
+
+    if type(childAccessor) == str:
+        childAccessor = (childAccessor, None)
+    if type(parent) == str:
+        parent = (parent, None)
+
+    if childAccessor != None and type(parent) == bool:
+        childObj = bpy.data.objects.get(childAccessor)
+        if parent:
+            return False, childObj.matrix_local
+        else:
+            return False, childObj.matrix_world
+    elif childAccessor != None and type(parent) == tuple:
+        childWorldMatrix = get_world_matrix(childAccessor)
+        parentWorldMatrix = get_world_matrix(parent)
+        if try_get_bone(parent) != None:
+            return True, (parentWorldMatrix.inverted_safe() @ childWorldMatrix) @ get_basis_matrix_conversion().inverted_safe()
+        else:
+            return False, parentWorldMatrix.inverted_safe() @ childWorldMatrix
+    else:
+        if type(parent) == tuple:
+            parentWorldMatrix = get_world_matrix(parent)
+            return False, parentWorldMatrix.inverted_safe() @ Matrix()
+        else:
+            return False, Matrix()
+
+def get_world_matrix(accessor: tuple):
+    bone = try_get_bone(accessor)
+    obj = try_get_object(accessor)
+
+    if bone != None:
+        return obj.matrix_world @ bone.matrix
+    else:
+        return obj.matrix_world

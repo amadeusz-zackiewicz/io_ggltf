@@ -68,7 +68,7 @@ def get_attachments(armatureAccessors, boneBlacklist = set(), boneFilters = [], 
             if c.name in attachmentBlacklist or not Util.name_passes_filters(attachmentFilters, c.name):
                 continue
 
-            parent = BlenderUtil.get_parent_accessor(c)
+            parent = BlenderUtil.get_parent_accessor(BlenderUtil.get_object_accessor(c))
             
             if len(parent) == 3: # since this is a child, it has to have a parent, so we can skip the none check, and if it returns tuple of 3 then its a bone accessor, so it counts as attachment
                 if not parent[2] in boneBlacklist and Util.name_passes_filters(boneFilters, parent[2]):

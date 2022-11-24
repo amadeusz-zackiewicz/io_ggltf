@@ -70,42 +70,15 @@ def make_dummy(bucket: Bucket, assignedID, name):
     bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(name)
 
 
-def scoop_object(bucket: Bucket, assignedID, objAccessor, parent = False):
+def scoop_object(bucket: Bucket, assignedID, accessor, parent = False):
 
-    obj = bpy.data.objects.get(objAccessor)
+    obj = Util.try_get_object(accessor)
+    bone = Util.try_get_bone(accessor)
 
-    correctedMatrix = False
-    if parent == False:
-        m = obj.matrix_world
-    elif parent == True:
-        m = obj.matrix_local
-    else: # we assume that this is an accessor
-        parentObj = Util.try_get_object(parent)
-        try:
-            bone = Util.try_get_bone(parent)
-        except:
-            bone = None
-
-        if bone != None:
-            correctedMatrix = True
-            pMatrix = parentObj.matrix_world @ bone.matrix
-            m = pMatrix.inverted_safe() @ obj.matrix_world
-            m @= Util.get_basis_matrix_conversion().inverted_safe()
-            # This looks wrong, but it produces the correct result, good enough for now
-        else:
-            m = parentObj.matrix_world.inverted_safe() @ obj.matrix_world
-
-    if correctedMatrix:
-        loc, rot, sc = m.decompose()
-    else:
-        loc, rot, sc = m.decompose()
-        loc = Util.y_up_location(loc)
-        rot = Util.y_up_rotation(rot)
-        sc = Util.y_up_scale(sc)
-        
+    loc, rot, sc = Util.get_yup_transforms(accessor, parent)
 
     bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(
-    name=obj.name,
+    name=obj.name if bone == None else bone.name,
     translation=loc,
     rotation=rot,
     scale=sc,

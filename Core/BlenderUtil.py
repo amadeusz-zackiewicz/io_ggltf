@@ -1,6 +1,7 @@
 from io_ggltf import Constants as __c
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import RedundancyManager as RM
+from io_ggltf.Core import Util
 import bpy
 import re
 
@@ -92,14 +93,20 @@ def rigify_rename(bucket, rigifyFlags):
 
     return None
 
-def get_parent_accessor(obj):
-    if obj.parent != None:
-        if obj.parent_type == __c.BLENDER_TYPE_BONE:
-            return get_bone_accessor(obj.parent, obj.parent_bone)
-        else:
-            return get_object_accessor(obj.parent)
+def get_parent_accessor(accessor: tuple):
+    bone = Util.try_get_bone(accessor)
+    obj = Util.try_get_object(accessor)
+    if bone != None:
+        if bone.parent != None:
+            return (accessor[0], accessor[1], bone.parent.name)
     else:
-        return None
+        if obj.parent != None:
+            if obj.parent_type == __c.BLENDER_TYPE_BONE:
+                return get_bone_accessor(obj.parent, obj.parent_bone)
+            else:
+                return get_object_accessor(obj.parent)
+        else:
+            return None
 
 def rigify_get_potential_parent_name(childName: str) -> str or None:
     match = re.search(r"\.[0-9]*$", childName)

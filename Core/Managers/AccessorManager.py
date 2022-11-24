@@ -10,11 +10,22 @@ SCALAR_TYPES = [ACCESSOR_TYPE_SCALAR]
 def add_accessor(bucket, componentType, type, packingFormat, data: list,
     min = None, max = None, name=None):
     """
-    This function does not check for duplicates,
-    it creates an accessor object, buffer view, writes into the buffer, returning the ID
+    This function does not check for duplicates, it creates an accessor object, buffer view and writes into the buffer, returning the ID
+
+    Args:
+        bucket (Bucket): Bucket to write the data into.
+        componentType (int): glTF ID for component type, the low component (for example if it's a vector of floats, the this should be ID of float).
+        type (str): glTF hint for high component (for example if it's a vector of 3 floats, it would be "VEC3").
+        packingFormat (str): packing format to use for the lowest component (using struct module).
+        data (list): list of high level data.
+        min (int or float): lowest value a component can be
+        max (int or float): highest value a component can be
+        name (str): optionally name the accessor
+
+    Returns: (int) ID of the new buffer view
     """
     bytes = None
-
+    # create the dictionary for the accessor
     accessor = {
         ACCESSOR_COMPONENT_TYPE: componentType,
         ACCESSOR_TYPE: type,
@@ -29,6 +40,7 @@ def add_accessor(bucket, componentType, type, packingFormat, data: list,
     if max != None:
         accessor[ACCESSOR_MAX] = max
 
+    # determine which flattening method to use
     if type in VECTOR_TYPES:
         bytes = __vector_into_bytearray(packingFormat, data)
     elif type in MATRIX_TYPES:
@@ -38,7 +50,9 @@ def add_accessor(bucket, componentType, type, packingFormat, data: list,
     else:
         bytes = bytearray()
 
+    # assign ID to the accesosr
     accessorID = len(bucket.data[BUCKET_DATA_ACCESSORS])
+    # assign ID of the buffer that this accessor describes
     accessor[ACCESSOR_BUFFER_VIEW] = BufferViewManager.add_bytes(bucket, bytes)
 
     bucket.data[BUCKET_DATA_ACCESSORS].append(accessor)

@@ -159,8 +159,9 @@ def based_on_object_modifiers(
 def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filters = []):
     from io_ggltf.Advanced import Node
     for attachment in attachments:
-        parentAccessor = BlenderUtil.get_parent_accessor(attachment)
-        Node.based_on_hierarchy(bucket, BlenderUtil.get_object_accessor(attachment), blacklist=blacklist, filters=filters, parent=parentAccessor)
+        attachmentAccessor = BlenderUtil.get_object_accessor(attachment)
+        parentAccessor = BlenderUtil.get_parent_accessor(attachmentAccessor)
+        Node.based_on_hierarchy(bucket, attachmentAccessor, blacklist=blacklist, filters=filters, parent=parentAccessor)
 
 def __is_rigify(armatureObj):
     return armatureObj.data.get("rig_id") != None
