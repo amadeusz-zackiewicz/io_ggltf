@@ -79,16 +79,13 @@ class Primitive:
 
         self.shapeKey = []
         for i in range(shapeKeyCount):
-            self.vertexColor.append(None)
+            self.shapeKey.append(ShapeKeyData([], [], []))
 
         self.boneID = []
         self.boneInfluence = []
         for i in range(boneInfluenceDivisions):
             self.boneID.append([])
             self.boneInfluence.append([])
-
-        for i in range(shapeKeyCount):
-            self.shapeKey[i] = ShapeKeyData([], [], [])
 
     def extend(self, other):
         maxIndex = len(self.positions)
