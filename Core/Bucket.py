@@ -20,6 +20,7 @@ class Bucket():
         self.blobs = []
         self.currentDependencyGraph = bpy.context.evaluated_depsgraph_get() if dependencyGraph == None else dependencyGraph
         self.skinDefinition = []
+        self.nodeSpace = []
         self.commandQueue = []
         for _ in range(BUCKET_COMMAND_QUEUE_TYPES):
             self.commandQueue.append([])

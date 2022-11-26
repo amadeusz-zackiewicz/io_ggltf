@@ -11,7 +11,7 @@ from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 from io_ggltf.Core.Validation import FilterValidation
 
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
-__scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, accessor=objID, parent=parent)
+__scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop(bucket=bucket, assignedID=assignedID, accessor=objID, parent=parent)
 
 @__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_object")
 def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoAttachData=None, inSpace=None, sceneID=None) -> int:

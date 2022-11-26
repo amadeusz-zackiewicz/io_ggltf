@@ -1,4 +1,5 @@
 from io_ggltf import Constants as __c
+from io_ggltf.Core import BlenderUtil
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
 import bpy
@@ -215,13 +216,23 @@ def evaluate_matrix(childAccessor, parent):
     if childAccessor != None and type(parent) == bool:
         childObj = bpy.data.objects.get(childAccessor)
         if parent:
-            return False, childObj.matrix_local
+            if childObj.parent_type == __c.BLENDER_TYPE_BONE:
+                parent = BlenderUtil.get_parent_accessor(childAccessor)
+            else:
+                return False, childObj.matrix_local
         else:
             return False, childObj.matrix_world
-    elif childAccessor != None and type(parent) == tuple:
+
+    if childAccessor != None and type(parent) == tuple:
         childWorldMatrix = get_world_matrix(childAccessor)
         parentWorldMatrix = get_world_matrix(parent)
-        if try_get_bone(parent) != None:
+        childBone = try_get_bone(childAccessor)
+        parentBone = try_get_bone(parent)
+        if childBone != None and parentBone == None: #bone with no parent
+            return True, parentWorldMatrix.inverted_safe() @ y_up_matrix(childWorldMatrix)
+        elif childBone != None and parentBone != None: #bone parented to bone
+            return True, y_up_matrix(parentWorldMatrix).inverted_safe() @ y_up_matrix(childWorldMatrix)
+        elif childBone == None and parentBone != None: #obj parented to bone
             return True, (parentWorldMatrix.inverted_safe() @ childWorldMatrix) @ get_basis_matrix_conversion().inverted_safe()
         else:
             return False, parentWorldMatrix.inverted_safe() @ childWorldMatrix

@@ -70,7 +70,7 @@ def make_dummy(bucket: Bucket, assignedID, name):
     bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(name)
 
 
-def scoop_object(bucket: Bucket, assignedID, accessor, parent = False):
+def scoop(bucket: Bucket, assignedID, accessor, parent = False):
 
     obj = Util.try_get_object(accessor)
     bone = Util.try_get_bone(accessor)
@@ -83,29 +83,8 @@ def scoop_object(bucket: Bucket, assignedID, accessor, parent = False):
     rotation=rot,
     scale=sc,
     )
+    __record_space(bucket, assignedID, accessor, parent)
 
-# def __include_data(bucket, obj):
-#     mesh = None
-#     skin = None
-#     weights = None
-
-#     if obj.type in BLENDER_MESH_CONVERTIBLE:
-#             if obj.type == BLENDER_TYPE_MESH:
-#                 normals = bucket.settings[BUCKET_SETTING_MESH_GET_NORMALS]
-#                 tangents = bucket.settings[BUCKET_SETTING_MESH_GET_TANGENTS]
-#                 getSkin = bucket.settings[BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
-#                 uvs = bucket.settings[BUCKET_SETTING_MESH_GET_UVS]
-#                 vColors = bucket.settings[BUCKET_SETTING_MESH_GET_VERTEX_COLORS]
-#                 sk = bucket.settings[BUCKET_SETTING_MESH_GET_SHAPE_KEYS]
-                
-
-#                 mesh, skin, weights = Mesh.add_based_on_object((obj.name, obj.library),
-#                 normals=normals,
-#                 tangents=tangents, 
-#                 uv=uvs, 
-#                 boneInfluences=getSkin,
-#                 boneGetInverseBinds=getSkin,
-#                 shapeKeys=sk, 
-#                 vertexColors=vColors)
-    
-#     return (mesh, skin, weights)
+def __record_space(bucket, ID, selfAccessor, parentAccessor):
+    #print(f"Node space ({ID}): {selfAccessor}, {parentAccessor}")
+    bucket.nodeSpace[ID] = (selfAccessor, parentAccessor)

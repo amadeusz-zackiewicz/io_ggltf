@@ -6,6 +6,7 @@ def collect(bucket: Bucket):
     bucket.data[BUCKET_DATA_SKINS] = [None] * bucket.preScoopCounts[BUCKET_DATA_SKINS]
     bucket.data[BUCKET_DATA_MESHES] = [None] * bucket.preScoopCounts[BUCKET_DATA_MESHES]
     bucket.data[BUCKET_DATA_NODES] = [None] * bucket.preScoopCounts[BUCKET_DATA_NODES]
+    bucket.nodeSpace = [None] * bucket.preScoopCounts[BUCKET_DATA_NODES]
     try:
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_SETUP])
         bucket.currentDependencyGraph.update()
