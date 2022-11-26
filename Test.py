@@ -7,6 +7,7 @@ import traceback
 import sys
 import getopt
 import binascii
+import difflib
 
 blenderPath = None
 addonName = "io_ggltf"
@@ -186,10 +187,11 @@ if __name__ == "__main__":
 
     sys.stdout.write("\033[2K\033[1G")
     print("\t\tExport tests finished")
-    failures = []
-    warnings = []
+
+####################################################################################### Export tests finished
 
     def compare_chunk(file1: io.FileIO, file2: io.FileIO, chunkSize, isBinary):
+        """Return true if chunks do not match"""
         while True:
             if isBinary:
                 chunk1 = binascii.b2a_hex(file1.read(chunkSize))
@@ -202,93 +204,68 @@ if __name__ == "__main__":
                 if chunk1 == chunk2:
                     yield False
                 else:
-                    yield len(chunk1) # both files have the same size, so it should be fine
+                    yield True
             else:
                 return None # end of file
 
+    differ = difflib.HtmlDiff(wrapcolumn=80)
+
     ## comparison tests
     for outputFileName in os.listdir(testOutputPath):
-        if re.search(".txt$", outputFileName):
+        if re.search("(\.txt$)|(\.html$)", outputFileName):
             continue 
         sys.stdout.write("\033[2K\033[1G")
         print("\rComparison test:", outputFileName, end="")
         if os.path.exists(testComparisonOutputPath + outputFileName):
-
+            
             newFileSize = os.stat(testOutputPath + outputFileName).st_size
             oldFileSize = os.stat(testComparisonOutputPath + outputFileName).st_size
 
-            if newFileSize == oldFileSize:
-                try:
-                    binExt = re.search("(.*\.bin$)|(.*\.glb$)", outputFileName)
-                    if binExt == None:
-                        isBinary = False
-                        newFile = open(testOutputPath + outputFileName, "r")
-                        oldFile = open(testComparisonOutputPath + outputFileName, "r")
-                    else:
-                        isBinary = True
-                        newFile = open(testOutputPath + outputFileName, "rb")
-                        oldFile = open(testComparisonOutputPath + outputFileName, "rb")
-                    chunkSize = 64
-                    for comparison in compare_chunk(newFile, oldFile, chunkSize, isBinary):
-                        if comparison:
-                            byteRange = (max(newFile.tell() - comparison, 0), newFile.tell())
-                            newFile.seek(byteRange[0])
-                            oldFile.seek(byteRange[0])
-                            newFileChunk = repr(str(newFile.read(comparison)))
-                            oldFileChunk = repr(str(oldFile.read(comparison)))
-                            diff = io.StringIO()
-                            for i, b in enumerate(newFileChunk):
-                                    try:
-                                        match = b == oldFileChunk[i]
-                                        if match:
-                                            diff.write(" ")
-                                        else:
-                                            diff.write("^")
-                                    except:
-                                        break
-                            failures.append((outputFileName, f"Failed to match chunk between {format(byteRange[0], ',')} - {format(byteRange[1], ',')} bytes\n\t\tChunk diff:\n\t\t\t{oldFileChunk}\n\t\t\t{newFileChunk}\n\t\t\t{diff.getvalue()}"))
-                            diff.close()
-                            del diff
-                            print(f"\r{outputFileName} -- failed due to chunk mismatch, check the {comparisonReportFilename} file for details")
-                            break
-                except:
-                    print(outputFileName, traceback.format_exc())
-                finally:
-                    newFile.close()
-                    oldFile.close
+            compareFailed = False
+            compareBinary = re.search("(.*\.bin$)|(.*\.glb$)", outputFileName) != None
+
+            if newFileSize != oldFileSize:
+                print(f"\rFailure (file size mismatch): {outputFileName}")
+                compareFailed = True
+
+            if compareBinary:
+                newFile = open(testOutputPath + outputFileName, "rb")
+                oldFile = open(testComparisonOutputPath + outputFileName, "rb")
             else:
-                failures.append((outputFileName, f"File size does not match: {format(newFileSize, ',')} bytes vs {format(oldFileSize, ',')} bytes"))
-                print(f"\r{outputFileName} -- failed due to file size mismatch, check the {comparisonReportFilename} file for details")
+                newFile = open(testOutputPath + outputFileName, "r")
+                oldFile = open(testComparisonOutputPath + outputFileName, "r")
+
+            if not compareFailed:
+                for chunkMismatched in compare_chunk(oldFile, newFile, 256, compareBinary):
+                    if chunkMismatched != False:
+                        compareFailed = True
+                        print(f"\rFailure (file data mismatch): {outputFileName}")
+                        break
+
+            # binary takes far too long to produce a diff and its unreadable anyway
+            if compareFailed and not compareBinary:
+                newFile.seek(0)
+                oldFile.seek(0)
+                # if compareBinary:
+                #     # newSeq = str(binascii.b2a_base64(bytes(newFile.read())))
+                #     # oldSeq = str(binascii.b2a_base64(bytes(oldFile.read())))
+                #     # newSeq = [newSeq[i:i+80] for i in range(0, len(newSeq), 80)]
+                #     # oldSeq = [oldSeq[i:i+80] for i in range(0, len(oldSeq), 80)]
+                # else:
+
+                newSeq = newFile.readlines()
+                oldSeq = oldFile.readlines()
+
+                f = open(testOutputPath + f"__diff_{outputFileName}.html", "w")
+                f.write(differ.make_file(oldSeq, newSeq))
+                f.close()
+
+            newFile.close()
+            oldFile.close()
+
         else:
-            warnings.append((outputFileName, "Failed to find comparison file"))
+            print(f"Warning: {outputFileName} -- Failed to find comparison file")
             continue
 
     sys.stdout.write("\033[2K\033[1G")
     print("\t\tComparison tests finished")
-
-    if len(warnings) > 0 or len(failures) > 0:
-        if os.path.exists(comparisonReportFilename):
-            output = open(comparisonReportFilename, "w")
-        else:
-            output = open(comparisonReportFilename, "x")
-        try:
-            if len(warnings) > 0:
-                output.write("Warnings:\n")
-                for w in warnings:
-                    output.write("\t" + w[0] + ":\n")
-                    output.write("\t\t")
-                    output.write(w[1])
-                    output.write("\n")
-            
-            if len(failures) > 0:
-                output.write("Failures:\n")
-                for f in failures:
-                    output.write("\t" + f[0] + ":\n")
-                    output.write("\t\t")
-                    output.write(f[1])
-                    output.write("\n")
-        finally:
-            output.close()
-            if report:
-                if platform.system() == "Windows":
-                    os.startfile(comparisonReportFilename)
