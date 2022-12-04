@@ -5,6 +5,7 @@ import bpy
 from io_ggltf.Core.Managers import BufferManager
 from io_ggltf.Core.Util import cleanup_keys
 from io_ggltf.Constants import *
+from io_ggltf.Core import Collector
 
 # https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf ----- 4.4 glTF Layout
 __BINARY_MAGIC_NUMBER = 0x46546C67
@@ -14,12 +15,13 @@ __BINARY_JSON_PAD = b" "
 __BINARY_PAD = b"\0"
 __BINARY_VERSION_NUMBER = 2
 
-def dump_bucket(bucket):
-    __to_gltf(bucket)
-
-def __to_gltf(bucket):
+def stage_bucket(bucket):
+    Collector.collect(bucket)
     if bucket.settings[BUCKET_SETTING_ENFORCE_SCENE]:
         __ensure_scene(bucket)
+
+def dump_bucket(bucket):
+    stage_bucket(bucket)
 
     ## this will write raw binaries if the file type is gltf
     BufferManager.resolve_binaries(bucket)
@@ -33,6 +35,8 @@ def __to_gltf(bucket):
         dump_gltf(filePath, bucket.data)
     else:
         dump_glb(filePath, bucket.data, bucket.blobs)
+
+    del bucket
 
 def __ensure_scene(bucket):
     if len(bucket.data[BUCKET_DATA_SCENES]) > 0:

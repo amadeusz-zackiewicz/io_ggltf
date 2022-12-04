@@ -16,13 +16,20 @@ def collect(bucket: Bucket):
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_LINKER])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_ANIM_SETUP])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NAMING])
-        __execute_queue(bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP], True)
-        bucket.currentDependencyGraph.update()
     except Exception as e:
         print("Encountered exception during command execution:",e)
-        del bucket
         raise Exception("Export was aborted due to an exception being encountered, check above for details.")
+    finally:
+        __execute_queue(bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP], True)
+        bucket.currentDependencyGraph.update()
+        del bucket.commandQueue
+        bucket.commandQueue = []
+        for i in range(0, BUCKET_COMMAND_QUEUE_TYPES):
+            bucket.commandQueue.append([])
 
 def __execute_queue(commandQueue: list, inReverse = False):
+    if inReverse:
+        commandQueue.reverse()
+
     for c in commandQueue:
         c[0](*c[1])

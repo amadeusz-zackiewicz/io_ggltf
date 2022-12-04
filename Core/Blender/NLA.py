@@ -58,7 +58,7 @@ def get_framerange_for_map(animMap: dict):
 
     return start, end
 
-def mute_all():
+def mute_all(*args):
     """
     Set all tracks in the blend file to mute.
     """
@@ -80,7 +80,7 @@ def snapshot_tracks_state(bucket):
     """
     objs = bpy.data.objects
 
-    bucket.commandQueue[__c.COMMAND_QUEUE_SETUP].append((mute_all, None))
+    bucket.commandQueue[__c.COMMAND_QUEUE_SETUP].append((mute_all, (None, )))
 
     for obj in objs:
         objAcc = BlenderUtil.get_object_accessor(obj)
