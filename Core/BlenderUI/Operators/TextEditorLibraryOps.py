@@ -29,6 +29,7 @@ classes = {}
 def __generate_classes():
     from io_ggltf import Advanced
     modules = [
+        Advanced.Animation,
         Advanced.Attach, 
         Advanced.File, 
         Advanced.Mesh,
