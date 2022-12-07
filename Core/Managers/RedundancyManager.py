@@ -79,6 +79,8 @@ def __add_accessor(bucket, accessor, dataType, id: int):
     else:
         bucket.accessors[dataType][accessor] = id
 
+    bucket.basis[dataType].append(accessor)
+
 def fetch_id_from_unsafe(bucket, accessor, dataType) -> int or list[int]:
     if type(accessor) == list:
         accessor = tuple(accessor)

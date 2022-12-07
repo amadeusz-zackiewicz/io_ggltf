@@ -156,15 +156,6 @@ def create_filter(pattern: str, whitelist: bool):
     return (pattern, whitelist)
 
 def get_all_nodes_in_scene(bucket, sceneID) -> set[int]:
-    def __recursive(bucket, node: dict, nodes: set):
-        if not __c.NODE_CHILDREN in node:
-            return
-        for c in node[__c.NODE_CHILDREN]:
-            if c in nodes:
-                continue
-            __recursive[bucket, bucket.data[__c.BUCKET_DATA_NODES][c], nodes]
-            nodes.add(c)
-        
     if not __c.BUCKET_DATA_SCENES in bucket.data or not __c.BUCKET_DATA_NODES in bucket.data:
         return None
     
@@ -177,9 +168,26 @@ def get_all_nodes_in_scene(bucket, sceneID) -> set[int]:
     for nodeID in scene[__c.SCENE_NODES]:
         if nodeID in nodes:
             continue
-        __recursive(bucket, bucket.data[__c.BUCKET_DATA_NODES][nodeID], nodes)
-        nodes.add(nodeID)
+        hierarchy = get_all_nodes_in_hierarchy(bucket, nodeID)
+        nodes.update(hierarchy)
         
+    return nodes
+
+def get_all_nodes_in_hierarchy(bucket, topNodeID):
+    def add_children(bucket, node: dict, nodes: set):
+        if not __c.NODE_CHILDREN in node:
+            return
+        for c in node[__c.NODE_CHILDREN]:
+            if c in nodes:
+                continue
+            add_children[bucket, bucket.data[__c.BUCKET_DATA_NODES][c], nodes]
+            nodes.add(c)
+
+    nodes = set()
+    node = bucket.data[__c.BUCKET_DATA_NODES][topNodeID]
+
+    add_children(bucket, node, nodes)
+
     return nodes
 
 def get_yup_transforms(childAccessor, parent):

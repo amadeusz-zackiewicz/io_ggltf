@@ -3,10 +3,15 @@ from io_ggltf.Constants import *
 
 def collect(bucket: Bucket):
     #bucket.data[BUCKET_DATA_SCENES] = [None] * bucket.preScoopCounts[BUCKET_DATA_SCENES]
-    bucket.data[BUCKET_DATA_SKINS] = [None] * bucket.preScoopCounts[BUCKET_DATA_SKINS]
-    bucket.data[BUCKET_DATA_MESHES] = [None] * bucket.preScoopCounts[BUCKET_DATA_MESHES]
-    bucket.data[BUCKET_DATA_NODES] = [None] * bucket.preScoopCounts[BUCKET_DATA_NODES]
-    bucket.nodeSpace = [None] * bucket.preScoopCounts[BUCKET_DATA_NODES]
+    for dataType in [BUCKET_DATA_SKINS, BUCKET_DATA_MESHES, BUCKET_DATA_NODES]:
+        expectedLength = bucket.preScoopCounts[dataType]
+        length = len(bucket.data[dataType])
+        if length != expectedLength:
+            bucket.data[dataType].extend([None for _ in range(expectedLength - length)])
+
+    if len(bucket.nodeSpace) != bucket.preScoopCounts[dataType]:
+        bucket.nodeSpace.extend([None for _ in range(bucket.preScoopCounts[BUCKET_DATA_NODES] - len(bucket.nodeSpace))])
+
     try:
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_SETUP])
         bucket.currentDependencyGraph.update()
@@ -24,7 +29,7 @@ def collect(bucket: Bucket):
         bucket.currentDependencyGraph.update()
         del bucket.commandQueue
         bucket.commandQueue = []
-        for i in range(0, BUCKET_COMMAND_QUEUE_TYPES):
+        for _ in range(0, BUCKET_COMMAND_QUEUE_TYPES):
             bucket.commandQueue.append([])
 
 def __execute_queue(commandQueue: list, inReverse = False):
