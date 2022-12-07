@@ -264,6 +264,7 @@ if __name__ == "__main__":
             oldFile.close()
 
         else:
+            sys.stdout.write("\033[2K\033[1G")
             print(f"Warning: {outputFileName} -- Failed to find comparison file")
             continue
 
