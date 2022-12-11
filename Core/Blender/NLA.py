@@ -32,19 +32,19 @@ def get_track_framerange(obj, nlaTrack: str):
         if type(obj) == tuple:
             obj = Util.try_get_object(obj)
         strips = obj.animation_data.nla_tracks[nlaTrack].strips
-        start = 999999
-        end = -999999
+        start = 999999.0
+        end = -999999.0
         for strip in strips:
-            start = min(start, strip.frame_start)
-            end = max(end, strip.frame_end)
+            start = min(start, float(strip.frame_start))
+            end = max(end, float(strip.frame_end))
 
         return start, end
     except:
-        return 0, 0
+        return 0.0, 0.0
 
 def get_framerange_for_map(animMap: dict):
-    start = 999999
-    end = -999999
+    start = 999999.0
+    end = -999999.0
 
     for objAcc, trackNames in animMap.items():
         try:
@@ -54,7 +54,7 @@ def get_framerange_for_map(animMap: dict):
                 start = min(start, trackRange[0])
                 end = max(end, trackRange[1])
         except:
-            return 0, 0
+            return 0.0, 0.0
 
     return start, end
 
