@@ -1,7 +1,7 @@
 from io_ggltf.Core import Util
 
 class AnimationDescriber:
-    def __init__(self, name: str, frameStart=None, frameEnd=None, objAccessor=None, trackName=None):
+    def __init__(self, name: str, frameStart=None, frameEnd=None, objAccessor=None, trackName=None, frameStep=1.0, useStepInterpolation=False):
         self.__name = name
         self.__frameStart = frameStart
         self.__frameEnd = frameEnd
@@ -9,6 +9,8 @@ class AnimationDescriber:
         self.__nodes = set()
         self.__hierarchies = set()
         self.__scenes = set()
+        self.__frameStep = frameStep
+        self.__stepInter = useStepInterpolation
 
         if objAccessor != None and trackName !=None:
             self.add_track(objAccessor, trackName)
@@ -80,6 +82,18 @@ class AnimationDescriber:
         For internal use only
         """
         return self.__frameStart, self.__frameEnd
+
+    def _get_frame_step(self):
+        """
+        For internal use only
+        """
+        return self.__frameStep
+
+    def _use_step_interpolation(self):
+        """
+        For internal use only
+        """
+        return self._use_step_interpolation
 
     def copy(self):
         newDesc = AnimationDescriber(self.__frameStart, self.__frameEnd)
