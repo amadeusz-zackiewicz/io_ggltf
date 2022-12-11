@@ -13,3 +13,6 @@ def is_frame_step_valid(frameStart: float, frameEnd: float, frameStep: float):
 def snapshot_timeline_state(bucket):
     bucket.commandQueue[__c.COMMAND_QUEUE_CLEAN_UP].append((set_frame, (get_current_frame(), )))
     bucket.commandQueue[__c.COMMAND_QUEUE_SETUP].append((set_frame, (bucket.settings[__c.BUCKET_SETTING_TARGET_FRAME], )))
+
+def get_real_time(frame: float):
+    return frame / float(bpy.context.scene.render.fps)

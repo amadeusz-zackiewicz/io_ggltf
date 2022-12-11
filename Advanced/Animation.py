@@ -1,6 +1,7 @@
 from io_ggltf import Constants as __c
 from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 from io_ggltf.Core.AnimationDescriber import AnimationDescriber
+from io_ggltf.Core.Scoops.Animation import Animation
 
 @__ShowInUI()
 def create_describer(name: str, frameStart=None, frameEnd=None):
@@ -8,4 +9,6 @@ def create_describer(name: str, frameStart=None, frameEnd=None):
 
 @__ShowInUI()
 def add(bucket, animDescriber: AnimationDescriber):
-    pass
+    copyDescriber = animDescriber.copy()
+
+    bucket.commandQueue[__c.COMMAND_QUEUE_ANIMATION].append((Animation.scoop, (bucket, copyDescriber)))

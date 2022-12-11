@@ -53,10 +53,10 @@ def get_custom_property(bucket, nodeID: int, propertyName: str):
         return None
 
 __defaultProperties = {
-    "translation": get_translation,
-    "rotation": get_rotation,
-    "scale": get_scale,
-    "weights": get_weights
+    __c.NODE_TRANSLATION: get_translation,
+    __c.NODE_ROTATION: get_rotation,
+    __c.NODE_SCALE: get_scale,
+    __c.NODE_WEIGHTS: get_weights
 }
 
 def is_default_property(propertyName: str) -> bool:

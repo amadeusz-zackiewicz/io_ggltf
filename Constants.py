@@ -213,9 +213,10 @@ COMMAND_QUEUE_NODE              = 3
 COMMAND_QUEUE_NAMING            = 4
 COMMAND_QUEUE_LINKER            = 5
 COMMAND_QUEUE_ANIM_SETUP        = 6
-COMMAND_QUEUE_CLEAN_UP          = 7
+COMMAND_QUEUE_ANIMATION         = 7
+COMMAND_QUEUE_CLEAN_UP          = 8
 
-BUCKET_COMMAND_QUEUE_TYPES      = 8
+BUCKET_COMMAND_QUEUE_TYPES      = 9
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.17 glTF
 BUCKET_DATA_EXTENSIONS_USED          = "extensionsUsed"

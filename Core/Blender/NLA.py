@@ -28,23 +28,29 @@ def get_track_framerange(obj, nlaTrack: str):
 
     Returns: (tuple[int, int]) A range of frames required to play the animation in full.
     """
-    try:
-        if type(obj) == tuple:
-            obj = Util.try_get_object(obj)
-        strips = obj.animation_data.nla_tracks[nlaTrack].strips
-        start = 999999.0
-        end = -999999.0
-        for strip in strips:
-            start = min(start, float(strip.frame_start))
-            end = max(end, float(strip.frame_end))
-
-        return start, end
-    except:
-        return 0.0, 0.0
-
-def get_framerange_for_map(animMap: dict):
+    if type(obj) == tuple:
+        obj = Util.try_get_object(obj)
+    strips = obj.animation_data.nla_tracks[nlaTrack].strips
     start = 999999.0
     end = -999999.0
+    for strip in strips:
+        start = min(start, float(strip.frame_start))
+        end = max(end, float(strip.frame_end))
+    return start, end
+
+
+def get_framerange(animMap: dict, extraTracks: set):
+    start = 999999.0
+    end = -999999.0
+
+    for obj in bpy.data.objects:
+        for track in extraTracks:
+            try:
+                trackRange = get_track_framerange(obj, track)
+                start = min(start, trackRange[0])
+                end = max(end, trackRange[1])
+            except:
+                pass
 
     for objAcc, trackNames in animMap.items():
         try:
@@ -55,6 +61,11 @@ def get_framerange_for_map(animMap: dict):
                 end = max(end, trackRange[1])
         except:
             return 0.0, 0.0
+
+    if start == 999999.0:
+        start = 0.0
+    if end == -999999.0:
+        end = start
 
     return start, end
 
@@ -96,17 +107,26 @@ def snapshot_tracks_state(bucket):
         except:
             continue
 
-def prep_tracks_for_animation(animMap: dict):
+def prep_tracks_for_animation(animMap: dict, extraTracks: set):
     """
     Mute all tracks except the ones required for the animation.
 
     Args:
         animMap (dict[tuple:list[str]]): A map describing which NLA tracks to activate for the animation
+        extra (list[str]): A list of track names that will be activated for every object.
     """
     mute_all()
 
-    for objAcc, trackName in animMap.items():
-        set_track_mute(objAcc, trackName, False)
+    for objAcc, trackNames in animMap.items():
+        for trackName in trackNames:
+            set_track_mute(objAcc, trackName, False)
+    
+    for obj in bpy.data.objects:
+        for trackName in extraTracks:
+            try:
+                obj.animation_data.nla_tracks[trackName].mute = False
+            except:
+                continue
 
 def produce_tracks_anim_map() -> dict:
     """

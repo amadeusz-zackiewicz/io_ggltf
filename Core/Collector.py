@@ -12,6 +12,10 @@ def collect(bucket: Bucket):
     if len(bucket.nodeSpace) != bucket.preScoopCounts[dataType]:
         bucket.nodeSpace.extend([None for _ in range(bucket.preScoopCounts[BUCKET_DATA_NODES] - len(bucket.nodeSpace))])
 
+    # TODO: this needs to be done when node is added as currently it's impossible to change which properties are animated
+    if len(bucket.nodeProperties) != bucket.preScoopCounts[dataType]:
+        bucket.nodeProperties.extend([[NODE_TRANSLATION, NODE_ROTATION, NODE_SCALE] for _ in range(bucket.preScoopCounts[BUCKET_DATA_NODES] - len(bucket.nodeProperties))])
+
     try:
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_SETUP])
         bucket.currentDependencyGraph.update()
@@ -20,6 +24,7 @@ def collect(bucket: Bucket):
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NODE])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_LINKER])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_ANIM_SETUP])
+        __execute_queue(bucket.commandQueue[COMMAND_QUEUE_ANIMATION])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NAMING])
     except Exception as e:
         print("Encountered exception during command execution:",e)
