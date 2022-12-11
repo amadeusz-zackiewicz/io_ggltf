@@ -8,14 +8,15 @@ class Bucket():
     fileName, 
     binPath,
     fileType = FILE_TYPE_GLTF_EMBEDDED,
-    dependencyGraph = None
+    dependencyGraph = None,
+    targetFrame = 0.0
     ):
 
         filePath = os.path.abspath(bpy.path.abspath(filePath))
         if filePath[-1] != os.path.sep:
             filePath = filePath + os.path.sep
 
-        self.__get_default_settings(filePath, fileName, binPath, fileType)
+        self.__get_default_settings(filePath, fileName, binPath, fileType, targetFrame)
         self.__fill_in_data()
         self.blobs = []
         self.currentDependencyGraph = bpy.context.evaluated_depsgraph_get() if dependencyGraph == None else dependencyGraph
@@ -66,11 +67,12 @@ class Bucket():
             BUCKET_DATA_BUFFERS : []
         }
 
-    def __get_default_settings(self, filePath, fileName, binPath, fileType) -> dict:
+    def __get_default_settings(self, filePath, fileName, binPath, fileType, targetFrame) -> dict:
         self.settings = {
             BUCKET_SETTING_FILEPATH : filePath,
             BUCKET_SETTING_FILENAME : fileName,
             BUCKET_SETTING_BINPATH : binPath,
             BUCKET_SETTING_FILE_TYPE: fileType,
+            BUCKET_SETTING_TARGET_FRAME: targetFrame
         }
 
