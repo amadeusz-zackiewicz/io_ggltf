@@ -9,6 +9,8 @@ def get_current_frame():
     return bpy.context.scene.frame_float
 
 def is_frame_step_valid(frameStart: float, frameEnd: float, frameStep: float):
+    if frameStep <= 0.0:
+        raise AnimationExceptions.InvalidFrameStepException(frameStart, frameEnd, frameStep)
     if (frameEnd - frameStart) % frameStep == 0.0:
         return True
     raise AnimationExceptions.InvalidFrameStepException(frameStart, frameEnd, frameStep)
