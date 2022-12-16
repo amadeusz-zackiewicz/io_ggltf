@@ -9,7 +9,7 @@ class Bucket():
     binPath,
     fileType = FILE_TYPE_GLTF_EMBEDDED,
     dependencyGraph = None,
-    targetFrame = 0.0
+    targetFrame = 0.0 or str
     ):
 
         filePath = os.path.abspath(bpy.path.abspath(filePath))

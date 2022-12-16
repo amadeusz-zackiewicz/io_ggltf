@@ -23,6 +23,11 @@ class BakedAnimation():
         nlaMap = animDescriber._get_map()
         extraTracks = animDescriber._get_extra_tracks()
 
+        if type(startFrame) == str:
+            startFrame = Timeline.get_marker_frame(startFrame)
+        if type(endFrame) == str:
+            endFrame = Timeline.get_marker_frame(endFrame)
+
         if startFrame == None or endFrame == None:
             newStart, newEnd = NLA.get_framerange(nlaMap, extraTracks)
             if startFrame == None:
