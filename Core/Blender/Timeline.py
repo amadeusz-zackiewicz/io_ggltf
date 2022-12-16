@@ -4,6 +4,7 @@ from io_ggltf.Core.Exceptions import AnimationExceptions
 
 def set_frame(frame: float):
     bpy.context.scene.frame_float = frame
+    bpy.context.evaluated_depsgraph_get().update()
 
 def get_current_frame():
     return bpy.context.scene.frame_float
