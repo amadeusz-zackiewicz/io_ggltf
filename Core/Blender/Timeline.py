@@ -9,7 +9,9 @@ def get_current_frame():
     return bpy.context.scene.frame_float
 
 def is_frame_step_valid(frameStart: float, frameEnd: float, frameStep: float):
-    return (frameEnd - frameStart) % frameStep == 0.0
+    if (frameEnd - frameStart) % frameStep == 0.0:
+        return True
+    raise AnimationExceptions.InvalidFrameStepException(frameStart, frameEnd, frameStep)
 
 def snapshot_timeline_state(bucket):
     targetFrame = bucket.settings[__c.BUCKET_SETTING_TARGET_FRAME]

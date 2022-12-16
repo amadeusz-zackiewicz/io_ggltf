@@ -42,8 +42,6 @@ class BakedAnimation():
             print("Animation Map:", nlaMap)
             print("Extra tracks:", extraTracks)
             self.__bake(bucket, startFrame=startFrame, endFrame=endFrame, nodeIDs=animDescriber._get_nodes(bucket), step=step, clean=False)
-        else:
-            raise Exception("Invalid frame step")
 
     def get_animation(self):
         return self.bakedAnim
