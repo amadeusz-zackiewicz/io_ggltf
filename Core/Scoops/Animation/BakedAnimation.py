@@ -15,7 +15,7 @@ class BakedAnimation():
             nodeIDs (list[int]): Nodes to include in this animation
             sceneID (int): Scene to get nodes from if nodes are blank
         """
-        self.bakedAnim = {}
+        self._bakedAnim = {}
 
         self.name = animDescriber._get_name()
         startFrame, endFrame = animDescriber._get_frame_range()
@@ -36,15 +36,13 @@ class BakedAnimation():
                 endFrame = newEnd
 
         step = animDescriber._get_frame_step()
-        print("Frame range:", startFrame, endFrame)
+
         if Timeline.is_frame_step_valid(startFrame, endFrame, step):
             NLA.prep_tracks_for_animation(nlaMap, extraTracks)
-            print("Animation Map:", nlaMap)
-            print("Extra tracks:", extraTracks)
-            self.__bake(bucket, startFrame=startFrame, endFrame=endFrame, nodeIDs=animDescriber._get_nodes(bucket), step=step, clean=False)
+            self.__bake(bucket, startFrame=startFrame, endFrame=endFrame, nodeIDs=animDescriber._get_nodes(bucket), step=step, clean=animDescriber._optimise())
 
     def get_animation(self):
-        return self.bakedAnim
+        return self._bakedAnim
 
     def __bake(self, bucket: Bucket, startFrame: float, endFrame: float, nodeIDs: list, step: float, clean: bool):
         """
@@ -61,30 +59,54 @@ class BakedAnimation():
         #
         # Dict[NodeID: 
         #               Dict[NodeProperty: 
-        #                                   list[list[Time, Value]]]]
+        #                                   list[list[Time], list[Value]]]]
         #
         # Which is enough information to add samplers and buffers from
 
-        nodeAnim = {}
+        bake = {}
         for nodeID in nodeIDs:
             properties = bucket.nodeProperties[nodeID]
             propDict = {}
             for prop in properties:
                 propDict[prop] = [[], []]
-            nodeAnim[nodeID] = propDict
-        
+            bake[nodeID] = propDict
+
         possibleSteps = int((endFrame - startFrame) / step)
         frames = [float(s) * step for s in range(possibleSteps)]
 
         for frame in frames:
-            for nodeID, properties in nodeAnim.items():
-                for property, data in properties.items():
+            for nodeID, properties in bake.items():
+                for property, keys in properties.items():
                     Timeline.set_frame(frame + startFrame)
                     value = Properties.get_property(bucket, nodeID, property)
                     if value != None:
                         time = Timeline.get_real_time(frame)
-                        data[0].append(time)
-                        data[1].append(value)
+                        keys[0].append(time)
+                        keys[1].append(value)
                         #print(f"{nodeID}({property}): {time} - {value}")
 
-        print(nodeAnim) 
+        if clean:
+            for nodeID, properties in bake.items():
+                for property, keys in properties.items():
+                    popKey = []
+                    print(property, len(keys[0]))
+                    for i, key in enumerate(keys[1]):
+                        if i == 0: continue
+                        if i == len(keys[1]) - 1: continue
+                        leftKey = keys[1][i - 1]
+                        rightKey = keys[1][i + 1]
+                        if leftKey == key and rightKey == key:
+                            popKey.append(i)
+                    for p in reversed(popKey):
+                        del keys[0][p]
+                        del keys[1][p]
+
+                removeProperty = []
+                for property, keys in properties.items():
+                    if len(keys[0]) == 0:
+                        removeProperty.append(property)
+
+                for p in removeProperty:
+                    del properties[p]
+
+        self._bakedAnim = bake
