@@ -1,0 +1,218 @@
+{
+    "animations": [
+        {
+            "name": "Track 2",
+            "channels": [
+                {
+                    "sampler": 0,
+                    "target": {
+                        "node": 0,
+                        "path": "translation"
+                    }
+                },
+                {
+                    "sampler": 1,
+                    "target": {
+                        "node": 0,
+                        "path": "rotation"
+                    }
+                },
+                {
+                    "sampler": 2,
+                    "target": {
+                        "node": 0,
+                        "path": "scale"
+                    }
+                }
+            ],
+            "samplers": [
+                {
+                    "input": 3,
+                    "output": 4,
+                    "interpolation": "LINEAR"
+                },
+                {
+                    "input": 5,
+                    "output": 6,
+                    "interpolation": "LINEAR"
+                },
+                {
+                    "input": 7,
+                    "output": 8,
+                    "interpolation": "LINEAR"
+                }
+            ]
+        }
+    ],
+    "asset": {
+        "generator": "Blender ggltf",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "scene",
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "Cube",
+            "mesh": 0
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Cube",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "indices": 1,
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 2
+                    }
+                }
+            ]
+        }
+    ],
+    "accessors": [
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 24,
+            "min": [
+                -1.0,
+                -1.0,
+                -1.0
+            ],
+            "max": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "bufferView": 0
+        },
+        {
+            "componentType": 5125,
+            "type": "SCALAR",
+            "count": 36,
+            "bufferView": 1
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 24,
+            "bufferView": 2
+        },
+        {
+            "componentType": 5126,
+            "type": "SCALAR",
+            "count": 99,
+            "min": [
+                0.0
+            ],
+            "max": [
+                4.083333333333333
+            ],
+            "bufferView": 3
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 99,
+            "bufferView": 4
+        },
+        {
+            "componentType": 5126,
+            "type": "SCALAR",
+            "count": 99,
+            "min": [
+                0.0
+            ],
+            "max": [
+                4.083333333333333
+            ],
+            "bufferView": 5
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC4",
+            "count": 99,
+            "bufferView": 6
+        },
+        {
+            "componentType": 5126,
+            "type": "SCALAR",
+            "count": 2,
+            "min": [
+                0.0
+            ],
+            "max": [
+                4.083333333333333
+            ],
+            "bufferView": 7
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 2,
+            "bufferView": 8
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 288
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 288,
+            "byteLength": 144
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 432,
+            "byteLength": 288
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 720,
+            "byteLength": 396
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 1116,
+            "byteLength": 1188
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 2304,
+            "byteLength": 396
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 2700,
+            "byteLength": 1584
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 4284,
+            "byteLength": 8
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 4292,
+            "byteLength": 24
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 4316,
+            "uri": "animated_cube_track_2_0.bin"
+        }
+    ],
+    "scene": 0
+}

@@ -1,0 +1,87 @@
+{
+    "Expected Results": {
+        "Node Count": 2,
+        "Mesh Count": 2,
+        "Node Basis": [
+            [
+                "Cube",
+                null
+            ],
+            [
+                "Sphere",
+                null
+            ]
+        ],
+        "Mesh Basis": [
+            [
+                "Cube",
+                null
+            ],
+            [
+                "Sphere",
+                null
+            ]
+        ],
+        "Track 1 start": 1.0,
+        "Track 1 end": 199.0,
+        "Track 2 start": 1.0,
+        "Track 2 end": 100.0,
+        "Node Properties": [
+            [
+                "translation",
+                "rotation",
+                "scale"
+            ],
+            [
+                "translation",
+                "rotation",
+                "scale"
+            ]
+        ],
+        "Marker start": 1,
+        "Marker end": 140
+    },
+    "Results": {
+        "Node Count": 2,
+        "Mesh Count": 2,
+        "Node Basis": [
+            [
+                "Cube",
+                null
+            ],
+            [
+                "Sphere",
+                null
+            ]
+        ],
+        "Mesh Basis": [
+            [
+                "Cube",
+                null
+            ],
+            [
+                "Sphere",
+                null
+            ]
+        ],
+        "Track 1 start": 1.0,
+        "Track 1 end": 199.0,
+        "Track 2 start": 1.0,
+        "Track 2 end": 100.0,
+        "Node Properties": [
+            [
+                "translation",
+                "rotation",
+                "scale"
+            ],
+            [
+                "translation",
+                "rotation",
+                "scale"
+            ]
+        ],
+        "Marker start": 1,
+        "Marker end": 140
+    },
+    "Failures": 0
+}
