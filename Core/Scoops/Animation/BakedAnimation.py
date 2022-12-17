@@ -75,12 +75,12 @@ class BakedAnimation():
         frames = [float(s) * step for s in range(possibleSteps)]
 
         for frame in frames:
+            Timeline.set_frame(frame + startFrame, bucket.currentDependencyGraph)
+            time = Timeline.get_real_time(frame)
             for nodeID, properties in bake.items():
                 for property, keys in properties.items():
-                    Timeline.set_frame(frame + startFrame)
                     value = Properties.get_property(bucket, nodeID, property)
                     if value != None:
-                        time = Timeline.get_real_time(frame)
                         keys[0].append(time)
                         keys[1].append(value)
                         #print(f"{nodeID}({property}): {time} - {value}")
@@ -89,7 +89,6 @@ class BakedAnimation():
             for nodeID, properties in bake.items():
                 for property, keys in properties.items():
                     popKey = []
-                    print(property, len(keys[0]))
                     for i, key in enumerate(keys[1]):
                         if i == 0: continue
                         if i == len(keys[1]) - 1: continue
@@ -105,7 +104,6 @@ class BakedAnimation():
                 for property, keys in properties.items():
                     if len(keys[0]) == 0:
                         removeProperty.append(property)
-
                 for p in removeProperty:
                     del properties[p]
 

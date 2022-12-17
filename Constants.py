@@ -292,8 +292,8 @@ ACCESSOR_SPARSE_VALUE_EXTENSION        = __VAR_EXTENSION
 ACCESSOR_SPARSE_VALUE_EXTRA            = __VAR_EXTRA
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.5 Animation
-ANIMATION_CHANNEL                               = "channels"
-ANIMATION_SAMPLER                               = "samplers"
+ANIMATION_CHANNELS                              = "channels"
+ANIMATION_SAMPLERS                              = "samplers"
 ANIMATION_NAME                                  = __VAR_NAME
 ANIMATION_EXTENSION                             = __VAR_EXTENSION
 ANIMATION_EXTRA                                 = __VAR_EXTRA

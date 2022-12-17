@@ -2,9 +2,12 @@ import bpy
 from io_ggltf import Constants as __c
 from io_ggltf.Core.Exceptions import AnimationExceptions
 
-def set_frame(frame: float):
+def set_frame(frame: float, depsGraph=None):
     bpy.context.scene.frame_float = frame
-    bpy.context.evaluated_depsgraph_get().update()
+    if depsGraph == None:
+        bpy.context.evaluated_depsgraph_get().update()
+    else:
+        depsGraph.update()
 
 def get_current_frame():
     return bpy.context.scene.frame_float
