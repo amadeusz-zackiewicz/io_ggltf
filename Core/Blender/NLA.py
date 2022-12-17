@@ -123,7 +123,10 @@ def prep_tracks_for_animation(animMap: dict, extraTracks: set):
     
     for obj in bpy.data.objects:
         for trackName in extraTracks:
-            obj.animation_data.nla_tracks[trackName].mute = False  
+            try:
+                obj.animation_data.nla_tracks[trackName].mute = False  
+            except:
+                continue
 
 def produce_tracks_anim_map() -> dict:
     """
