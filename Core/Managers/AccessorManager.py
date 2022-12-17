@@ -1,14 +1,15 @@
 import struct
-from io_ggltf.Constants import *
+from io_ggltf import Constants as __c
 from io_ggltf.Core import Util
 from io_ggltf.Core.Managers import BufferViewManager
+import mathutils
 
-VECTOR_TYPES = [ACCESSOR_TYPE_VECTOR_2, ACCESSOR_TYPE_VECTOR_3, ACCESSOR_TYPE_VECTOR_4]
-MATRIX_TYPES = [ACCESSOR_TYPE_MATRIX_2, ACCESSOR_TYPE_MATRIX_3, ACCESSOR_TYPE_MATRIX_4]
-SCALAR_TYPES = [ACCESSOR_TYPE_SCALAR]
+VECTOR_TYPES = [__c.ACCESSOR_TYPE_VECTOR_2, __c.ACCESSOR_TYPE_VECTOR_3, __c.ACCESSOR_TYPE_VECTOR_4]
+MATRIX_TYPES = [__c.ACCESSOR_TYPE_MATRIX_2, __c.ACCESSOR_TYPE_MATRIX_3, __c.ACCESSOR_TYPE_MATRIX_4]
+SCALAR_TYPES = [__c.ACCESSOR_TYPE_SCALAR]
 
 def add_accessor(bucket, componentType, type, packingFormat, data: list,
-    min = None, max = None, name=None):
+    min = None, max = None, name=None, minMaxAsArray=False):
     """
     This function does not check for duplicates, it creates an accessor object, buffer view and writes into the buffer, returning the ID
 
@@ -21,24 +22,32 @@ def add_accessor(bucket, componentType, type, packingFormat, data: list,
         min (int or float): lowest value a component can be
         max (int or float): highest value a component can be
         name (str): optionally name the accessor
+        minMaxAsArray (bool): convert the min and max values to arrays, required for animation samplers
 
     Returns: (int) ID of the new buffer view
     """
+    if componentType == None:
+        componentType = assume_component_type(data)
+    if type == None:
+        type = assume_type(data)
+    if packingFormat == None:
+        packingFormat = assume_packing_format(data)
+
     bytes = None
     # create the dictionary for the accessor
     accessor = {
-        ACCESSOR_COMPONENT_TYPE: componentType,
-        ACCESSOR_TYPE: type,
-        ACCESSOR_COUNT: len(data)
+        __c.ACCESSOR_COMPONENT_TYPE: componentType,
+        __c.ACCESSOR_TYPE: type,
+        __c.ACCESSOR_COUNT: len(data)
     }
 
     if name != None:
-        accessor[ACCESSOR_NAME] = name
+        accessor[__c.ACCESSOR_NAME] = name
 
     if min != None:
-        accessor[ACCESSOR_MIN] = min
+        accessor[__c.ACCESSOR_MIN] = [min] if minMaxAsArray else min
     if max != None:
-        accessor[ACCESSOR_MAX] = max
+        accessor[__c.ACCESSOR_MAX] = [max] if minMaxAsArray else max
 
     # determine which flattening method to use
     if type in VECTOR_TYPES:
@@ -51,11 +60,11 @@ def add_accessor(bucket, componentType, type, packingFormat, data: list,
         bytes = bytearray()
 
     # assign ID to the accesosr
-    accessorID = len(bucket.data[BUCKET_DATA_ACCESSORS])
+    accessorID = len(bucket.data[__c.BUCKET_DATA_ACCESSORS])
     # assign ID of the buffer that this accessor describes
-    accessor[ACCESSOR_BUFFER_VIEW] = BufferViewManager.add_bytes(bucket, bytes)
+    accessor[__c.ACCESSOR_BUFFER_VIEW] = BufferViewManager.add_bytes(bucket, bytes)
 
-    bucket.data[BUCKET_DATA_ACCESSORS].append(accessor)
+    bucket.data[__c.BUCKET_DATA_ACCESSORS].append(accessor)
 
     return accessorID
 
@@ -92,3 +101,41 @@ def __scalar_into_bytearray(_format, data: list):
         st.pack_into(_bytes, i * size, s)
 
     return _bytes
+
+__vector_types = [None, None, __c.ACCESSOR_TYPE_VECTOR_2, __c.ACCESSOR_TYPE_VECTOR_3, __c.ACCESSOR_TYPE_VECTOR_4]
+__matrix_types = [None, None, __c.ACCESSOR_TYPE_MATRIX_2, __c.ACCESSOR_TYPE_MATRIX_3, __c.ACCESSOR_TYPE_MATRIX_4]
+
+def assume_type(data: list):
+    typeOf = type(data[0])
+    if typeOf == int or typeOf == float or typeOf == bool:
+        return __c.ACCESSOR_TYPE_SCALAR
+    if typeOf == mathutils.Vector:
+        length = len(data[0])
+        try: return __vector_types[length]
+        except: return None
+    if typeOf == mathutils.Quaternion:
+        return __c.ACCESSOR_TYPE_VECTOR_4
+    if typeOf == mathutils.Matrix:
+        row = len(data[0])
+        col = len(data[0][0])
+        if row != col: return None
+        return __matrix_types[row]
+
+def assume_component_type(data: list):
+    typeOf = type(data[0])
+    if typeOf == float or typeOf == mathutils.Vector or typeOf == mathutils.Quaternion or typeOf == mathutils.Matrix:
+        return __c.ACCESSOR_COMPONENT_TYPE_FLOAT
+    if typeOf == int:
+        return __c.ACCESSOR_COMPONENT_TYPE_SHORT
+    if typeOf == bool:
+        return __c.ACCESSOR_COMPONENT_TYPE_BYTE
+    
+
+def assume_packing_format(data: list):
+    typeOf = type(data[0])
+    if typeOf == float or typeOf == mathutils.Vector or typeOf == mathutils.Quaternion or typeOf == mathutils.Matrix:
+        return __c.PACKING_FORMAT_FLOAT
+    if typeOf == int:
+        return __c.PACKING_FORMAT_SHORT
+    if typeOf == bool:
+        return __c.PACKING_FORMAT_BOOL
