@@ -71,9 +71,10 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
             childrenIDs.extend(based_on_collection(bucket=bucket, collectionName=get_object_accessor(obj.instance_collection), blacklist=blacklist, parent=True, checkRedundancies=checkRedundancies))
         else:
             for c in obj.children:
-                childID = __recursive(bucket, c, blacklist, True, checkRedundancies, filters, autoAttachData, True)
-                if childID != None:
-                    childrenIDs.append(childID)
+                if obj.type == __c.BLENDER_TYPE_ARMATURE and c.parent_type == __c.BLENDER_TYPE_OBJECT: # ignore children that belong to the armature of the current object
+                    childID = __recursive(bucket, c, blacklist, True, checkRedundancies, filters, autoAttachData, True)
+                    if childID != None:
+                        childrenIDs.append(childID)
 
         if checkRedundancies:
             redundant, nodeID = RM.register_unique(bucket, get_object_accessor(obj), __c.BUCKET_DATA_NODES)
