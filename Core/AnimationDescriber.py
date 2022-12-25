@@ -1,6 +1,7 @@
 from io_ggltf.Core import Util
 
 class AnimationDescriber:
+    from io_ggltf.Constants import BUCKET_DATA_SKINS, SKIN_JOINTS
     def __init__(self, name: str, frameStart=None, frameEnd=None, frameStep=1.0, useStepInterpolation=False, optimiseKeys=True):
         self.__name = name
         self.__frameStart = frameStart
@@ -67,10 +68,10 @@ class AnimationDescriber:
 
         for node in self.__nodes:
             nodes.add(node)
-
-        for skin in self.__skins:
-            for _, nodeID in skin:
-                nodes.update(Util.get_all_nodes_in_hierarchy(bucket, nodeID)) # TODO: this is very inefficient
+        
+        for skinID in self.__skins:
+            skin = bucket.data[self.BUCKET_DATA_SKINS][skinID]
+            nodes.update(skin[self.SKIN_JOINTS])
 
         return nodes
 
