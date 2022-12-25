@@ -108,7 +108,6 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
     jointTree = []
     rootBones = []
     rootNodes = []
-    skeleton = []
     joints = []
 
     skinDict = {}
@@ -139,13 +138,9 @@ def scoop_skin(bucket: Bucket, objAccessors: tuple, getInversedBinds = False, bl
         __get_joint_list(rootJoint, joints)
         __get_joint_dictionary(rootJoint, skinDefinition)
         rootNodes.append(rootJoint.nodeID)
-        skeleton.append(rootJoint.jointID)
 
 
     skinDict[__c.SKIN_JOINTS] = joints
-
-    if len(skeleton) == 1:
-        skinDict[__c.SKIN_SKELETON] = skeleton[0]
 
     if getInversedBinds:
         inversedBinds = []
