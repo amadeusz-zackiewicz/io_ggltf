@@ -66,6 +66,7 @@ def based_on_object(
     rigify = __is_rigify(obj)
     if rigify:
         boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
+        __queue_trim_names(bucket, skinID, rigifyFlags)
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, [accessor], boneBlackList, boneFilters)
     bucket.skinDefinition.append(skinDefinition)
     bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [accessor], getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
@@ -144,6 +145,7 @@ def based_on_object_modifiers(
     BlenderUtil.queue_update_depsgraph(bucket, __c.COMMAND_QUEUE_SKIN)
     if rigify:
         boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
+        __queue_trim_names(bucket, skinID, rigifyFlags)
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, objectAccessors, boneBlackList)
     bucket.skinDefinition.append(skinDefinition)
     bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectAccessors, getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
@@ -165,3 +167,19 @@ def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filt
 
 def __is_rigify(armatureObj):
     return armatureObj.data.get("rig_id") != None
+
+def __queue_trim_names(bucket, skinID, rigifyFlags):
+    if rigifyFlags & __c.RIGIFY_TRIM_NAMES == __c.RIGIFY_TRIM_NAMES:
+            if rigifyFlags & __c.RIGIFY_INCLUDE_CONTROLS == __c.RIGIFY_INCLUDE_CONTROLS:
+                return
+            if rigifyFlags & (__c.RIGIFY_INCLUDE_DEFORMS | __c.RIGIFY_INCLUDE_ORIGINAL) == (__c.RIGIFY_INCLUDE_DEFORMS | __c.RIGIFY_INCLUDE_ORIGINAL):
+                return
+            
+            if rigifyFlags & __c.RIGIFY_INCLUDE_DEFORMS == __c.RIGIFY_INCLUDE_DEFORMS:
+                pattern = "^DEF-"
+            elif rigifyFlags & __c.RIGIFY_INCLUDE_ORIGINAL == __c.RIGIFY_INCLUDE_ORIGINAL:
+                pattern = "^ORG-"
+            else:
+                return
+
+            bucket.commandQueue[__c.COMMAND_QUEUE_NAMING].append((Util.pattern_replace_skin_joint_names, (bucket, skinID, pattern, "")))

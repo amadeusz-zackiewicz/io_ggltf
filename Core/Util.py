@@ -150,7 +150,35 @@ def pattern_replace(bucket, dataType: str, pattern: str, newStr: str):
                 for unique in uniqueMatches:
                     name = name.replace(unique, newStr)
                 obj[__c.__VAR_NAME] = name
+
+def pattern_replace_node_name(bucket, nodeID, pattern: str, newStr: str):
+    node = bucket.data[__c.BUCKET_DATA_NODES][nodeID]
+    if __c.NODE_NAME in node:
+        name = node[__c.NODE_NAME]
+        matches = re.findall(pattern, name)
+        uniqueMatches = set()
+        if len(matches) > 0:
+            if type(matches[0]) == tuple:
+                for group in matches:
+                    for match in group:
+                        if match != "":
+                            uniqueMatches.add(match)
+            else:
+                for match in matches:
+                    uniqueMatches.add(match)
+
+            
+            for unique in uniqueMatches:
+                name = name.replace(unique, newStr)
                 
+            node[__c.NODE_NAME] = name
+
+def pattern_replace_skin_joint_names(bucket, skinID: int, pattern: str, newStr: str):
+    skin = bucket.data[__c.BUCKET_DATA_SKINS][skinID]
+
+    if __c.SKIN_JOINTS in skin:
+        for joint in skin[__c.SKIN_JOINTS]:
+            pattern_replace_node_name(bucket, joint, pattern, newStr)
 
 def create_filter(pattern: str, whitelist: bool):
     return (pattern, whitelist)
