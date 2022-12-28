@@ -216,6 +216,7 @@ if __name__ == "__main__":
     differ = difflib.HtmlDiff(wrapcolumn=80)
 
     ## comparison tests
+    toDiff = []
     for outputFileName in os.listdir(testOutputPath):
         if re.search("(\.txt$)|(\.html$)", outputFileName):
             continue 
@@ -246,32 +247,36 @@ if __name__ == "__main__":
                         compareFailed = True
                         print(f"\rFailure (file data mismatch): {outputFileName}")
                         break
-
-            # binary takes far too long to produce a diff and its unreadable anyway
-            if compareFailed and not compareBinary:
-                newFile.seek(0)
-                oldFile.seek(0)
-                # if compareBinary:
-                #     # newSeq = str(binascii.b2a_base64(bytes(newFile.read())))
-                #     # oldSeq = str(binascii.b2a_base64(bytes(oldFile.read())))
-                #     # newSeq = [newSeq[i:i+80] for i in range(0, len(newSeq), 80)]
-                #     # oldSeq = [oldSeq[i:i+80] for i in range(0, len(oldSeq), 80)]
-                # else:
-
-                newSeq = newFile.readlines()
-                oldSeq = oldFile.readlines()
-
-                f = open(testOutputPath + f"__diff_{outputFileName}.html", "w")
-                f.write(differ.make_file(oldSeq, newSeq))
-                f.close()
-
+            
             newFile.close()
             oldFile.close()
-
+            # binary takes far too long to produce a diff and its unreadable anyway
+            if compareFailed and not compareBinary:
+                toDiff.append((testComparisonOutputPath + outputFileName, testOutputPath + outputFileName))
         else:
             sys.stdout.write("\033[2K\033[1G")
             print(f"Warning: {outputFileName} -- Failed to find comparison file")
             continue
+
+    for oldFilePath, newFilePath in toDiff:
+        newFile = open(newFilePath, "r")
+        oldFile = open(oldFilePath, "r")
+        # if compareBinary:
+        #     # newSeq = str(binascii.b2a_base64(bytes(newFile.read())))
+        #     # oldSeq = str(binascii.b2a_base64(bytes(oldFile.read())))
+        #     # newSeq = [newSeq[i:i+80] for i in range(0, len(newSeq), 80)]
+        #     # oldSeq = [oldSeq[i:i+80] for i in range(0, len(oldSeq), 80)]
+        # else:
+
+        newSeq = newFile.readlines()
+        oldSeq = oldFile.readlines()
+
+        f = open(testOutputPath + f"__diff_{outputFileName}.html", "w")
+        f.write(differ.make_file(oldSeq, newSeq))
+        f.close()
+        newFile.close()
+        oldFile.close()
+        
 
     sys.stdout.write("\033[2K\033[1G")
     print("\t\tComparison tests finished")
