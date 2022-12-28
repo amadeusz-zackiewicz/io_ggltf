@@ -323,7 +323,7 @@ def __calculate_inverse_binds(joint: Joint, objWorldMatrix):
     for c in joint.children:
         __calculate_inverse_binds(c, objWorldMatrix)
 
-    joint.inverseBind = objWorldMatrix.inverted_safe() @ joint.worldRestMatrix.inverted_safe()
+    joint.inverseBind = Util.y_up_matrix(objWorldMatrix.inverted_safe() @ joint.worldRestMatrix.inverted_safe())
     joint.inverseBind.transpose()
 
 def __inverse_binds_to_list(joint: Joint, binds, nodeIDOffset):

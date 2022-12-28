@@ -262,22 +262,14 @@ def evaluate_matrix(childAccessor, parent):
     if childAccessor != None and type(parent) == tuple:
         childWorldMatrix = get_world_matrix(childAccessor)
         parentWorldMatrix = get_world_matrix(parent)
-        childBone = try_get_bone(childAccessor)
-        parentBone = try_get_bone(parent)
-        if childBone != None and parentBone == None: #bone with no parent
-            return True, parentWorldMatrix.inverted_safe() @ y_up_matrix(childWorldMatrix)
-        elif childBone != None and parentBone != None: #bone parented to bone
-            return True, y_up_matrix(parentWorldMatrix).inverted_safe() @ y_up_matrix(childWorldMatrix)
-        elif childBone == None and parentBone != None: #obj parented to bone
-            return True, (parentWorldMatrix.inverted_safe() @ childWorldMatrix) @ get_basis_matrix_conversion().inverted_safe()
-        else:
-            return False, parentWorldMatrix.inverted_safe() @ childWorldMatrix
+        
+        return False, parentWorldMatrix.inverted_safe() @ childWorldMatrix
     else:
         if type(parent) == tuple:
             parentWorldMatrix = get_world_matrix(parent)
-            return False, parentWorldMatrix.inverted_safe() @ Matrix()
+            return True, parentWorldMatrix.inverted_safe() @ get_basis_matrix_conversion()
         else:
-            return False, Matrix()
+            return True, get_basis_matrix_conversion()
 
 def get_world_matrix(accessor: tuple):
     bone = try_get_bone(accessor)
