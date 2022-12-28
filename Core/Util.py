@@ -76,6 +76,13 @@ def bl_math_to_gltf_list(obj):
     else:
         return list(obj)
 
+def round_float_list_to_precision(data: list, precision: int):
+    """
+    Round floats to specified decimal point.
+    """
+    for i, f in enumerate(data):
+        data[i] = round(f, precision)
+
 def cleanup_keys(d: dict):
     to_pop = []
     for k in d.keys():

@@ -33,8 +33,8 @@ def scoop(bucket, describer: AnimationDescriber):
             samplerID = len(samplers)
             minTime = keyframes[0][0]
             maxTime = keyframes[0][-1:][0]
-            inputID = AccessorManager.add_accessor(bucket, componentType=__c.ACCESSOR_COMPONENT_TYPE_FLOAT, 
-            type=__c.ACCESSOR_TYPE_SCALAR, packingFormat=__c.PACKING_FORMAT_FLOAT, data=keyframes[0], min=[minTime], max=[maxTime])
+            inputID = AccessorManager.add_accessor(bucket, componentType=__c.ACCESSOR_COMPONENT_TYPE_FLOAT, type=__c.ACCESSOR_TYPE_SCALAR,
+            packingFormat=__c.PACKING_FORMAT_FLOAT, data=keyframes[0], min=[minTime], max=[maxTime])
             outputID = AccessorManager.add_accessor(bucket, componentType=None, type=None, packingFormat=None, data=keyframes[1])
 
             sampler = {

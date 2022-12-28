@@ -181,6 +181,8 @@ BUCKET_SETTING_FILENAME             = "filename"
 BUCKET_SETTING_FILE_TYPE            = "file_type"
 BUCKET_SETTING_ENFORCE_SCENE        = "enforce_scene"
 BUCKET_SETTING_TARGET_FRAME         = "target_frame"
+BUCKET_SETTING_TEXT_PRECISION       = "t_float_precision"
+BUCKET_SETTING_BINARY_PRECISION     = "b_float_precision"
 ############## Node specific settings
 BUCKET_SETTING_REDUNDANCY_CHECK_NODE        = "redundancy_check_node"
 BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE    = "default_to_parent_space"

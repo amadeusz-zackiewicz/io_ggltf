@@ -14,7 +14,8 @@ def obj_to_node(
     skin = None,
     weights = None,
     extensions = None,
-    extras = None
+    extras = None,
+    floatPrecision=6
 ):
 
     if name == None:
@@ -30,6 +31,7 @@ def obj_to_node(
 
     if translation != None:
         t = Util.bl_math_to_gltf_list(translation)
+        Util.round_float_list_to_precision(t, floatPrecision)
         if t[0] == 0.0 and t[1] == 0.0 and t[2] == 0.0:
             pass
         else: 
@@ -37,6 +39,7 @@ def obj_to_node(
 
     if rotation != None:
         r = Util.bl_math_to_gltf_list(rotation)
+        Util.round_float_list_to_precision(r, floatPrecision)
         if r[0] == 0.0 and r[1] == 0.0 and r[2] == 0.0 and r[3] == 1.0:
             pass
         else:
@@ -44,6 +47,7 @@ def obj_to_node(
 
     if scale != None:
         s = Util.bl_math_to_gltf_list(scale)
+        Util.round_float_list_to_precision(s, floatPrecision)
         if s[0] == 1.0 and s[1] == 1.0 and s[2] == 1.0:
             pass
         else:
@@ -81,6 +85,7 @@ def scoop(bucket: Bucket, assignedID, accessor, parent = False):
     translation=loc,
     rotation=rot,
     scale=sc,
+    floatPrecision=bucket.settings[BUCKET_SETTING_TEXT_PRECISION]
     )
     __record_space(bucket, assignedID, accessor, parent)
 
