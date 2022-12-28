@@ -21,36 +21,56 @@ class BoneNotFoundException(Exception):
     def __str__(self):
         return f"Bone '{self.accessor[2]}' not found in '{self.accessor[0]}'"
 
-def y_up_matrix(org_mat : Matrix) -> Matrix:
-    return get_basis_matrix_conversion() @ org_mat
+def y_up_matrix(orgMat : Matrix) -> Matrix:
+    """
+    Multiply the matrix to make it Y+ up
+    """
+    return get_basis_matrix_conversion() @ orgMat
 
-def y_up_location(org_loc : Vector) -> Vector:
-    return Vector((org_loc[0], org_loc[2], -org_loc[1]))
+def y_up_location(orgLoc : Vector) -> Vector:
+    """
+    Move and flip individual components to match Y+ up coordinate system.
+    """
+    return Vector((orgLoc[0], orgLoc[2], -orgLoc[1]))
 
+def y_up_rotation(orgRot : Quaternion) -> Quaternion:
+    """
+    Move and flip individual components to match Y+ up coordinate system.
+    Warning: This does not swizzle the order from WXYZ to XYZW.
+    """
+    return Quaternion((orgRot[0], orgRot[1], orgRot[3], -orgRot[2]))
 
-def y_up_rotation(org_rot : Quaternion) -> Quaternion:
-    return Quaternion((org_rot[0], org_rot[1], org_rot[3], -org_rot[2]))
+def y_up_scale(orgScl : Vector) -> Vector:
+    """
+    Move and flip indivual components to match Y+ up coordinate system
+    """
+    return Vector((orgScl[0], orgScl[2], orgScl[1]))
 
+def y_up_direction(orgDir: Vector) -> Vector:
+    """
+    Move and flip individual components to match Y+ up coordinate system.
+    """
+    return Vector((orgDir[0], orgDir[2], -orgDir[1]))
 
-def y_up_scale(org_scl : Vector) -> Vector:
-    return Vector((org_scl[0], org_scl[2], org_scl[1]))
-
-
-def y_up_direction(org_dir: Vector) -> Vector:
-    return Vector((org_dir[0], org_dir[2], -org_dir[1]))
-
-def correct_uv(org_uv: Vector) -> Vector:
-    return Vector((org_uv[0], -org_uv[1] + 1.0))
+def correct_uv(orgUV: Vector) -> Vector:
+    """
+    Move, flip and compensate for difference in V coordinates.
+    """
+    return Vector((orgUV[0], -orgUV[1] + 1.0))
 
 def bl_math_to_gltf_list(obj):
+    """
+    Flatten the object into a list.
+    For Quaternions: Swizzle the order from WXYZ to XYZW.
+    """
     if isinstance(obj, Quaternion):
         return [obj[1], obj[2], obj[3], obj[0]]
     elif isinstance(obj, Matrix):
         l = []
-        row_count = len(obj)
-        col_count = len(obj[0])
-        for r in range(0, row_count):
-            for c in range(0, col_count):
+        rows = len(obj)
+        cols = len(obj[0])
+        for r in range(0, rows):
+            for c in range(0, cols):
                 l.append(obj[r][c])
         return l
     else:
@@ -262,7 +282,7 @@ def evaluate_matrix(childAccessor, parent):
     if childAccessor != None and type(parent) == tuple:
         childWorldMatrix = get_world_matrix(childAccessor)
         parentWorldMatrix = get_world_matrix(parent)
-        
+
         return False, parentWorldMatrix.inverted_safe() @ childWorldMatrix
     else:
         if type(parent) == tuple:
