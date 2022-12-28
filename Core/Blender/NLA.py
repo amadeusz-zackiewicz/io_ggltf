@@ -10,6 +10,17 @@ def set_track_mute(objAccessor, nlaTrack: str, mute: bool):
     obj = Util.try_get_object(objAccessor)
     obj.animation_data.nla_tracks[nlaTrack].mute = mute
 
+def set_data_track_mute(objAccessor, nlaTrack: str, mute: bool):
+    """
+    Set mute on the specified track of data (armature or mesh). Blender UI works on the opposite basis,
+    which means that mute bool is flipped in the UI
+    """
+    obj = Util.try_get_object(objAccessor)
+    if obj.type == __c.BLENDER_TYPE_ARMATURE:
+        obj.data.animation_data.nla_tracks[nlaTrack].mute = mute
+    elif obj.type == __c.BLENDER_TYPE_MESH:
+        obj.data.shape_keys.animation_data.nla_tracks[nlaTrack].mute = mute
+
 
 def set_track_solo(objAccessor, nlaTrack: str, solo: bool):
     """
@@ -17,6 +28,13 @@ def set_track_solo(objAccessor, nlaTrack: str, solo: bool):
     """
     obj = Util.try_get_object(objAccessor)
     obj.animation_data.nla_tracks[nlaTrack].is_solo = solo
+
+def set_data_track_solo(objAccessor, nlaTrack: str, solo: bool):
+    obj = Util.try_get_object(objAccessor)
+    if obj.type == __c.BLENDER_TYPE_ARMATURE:
+        obj.data.animation_data.nla_tracks[nlaTrack].solo = solo
+    elif obj.type == __c.BLENDER_TYPE_MESH:
+        obj.data.shape_keys.animation_data.nla_tracks[nlaTrack].solo = solo
 
 def get_track_framerange(obj, nlaTrack: str):
     """

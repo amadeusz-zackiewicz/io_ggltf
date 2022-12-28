@@ -22,6 +22,9 @@ def get_object_accessor(obj):
 def get_bone_accessor(armatureObj, bone):
     return (armatureObj.name, armatureObj.library.filepath if armatureObj.library != None else None, bone)
 
+def get_data_accessor(obj):
+    return (obj.data.name, obj.library.filepath if obj.library != None else None)
+
 __disable_modifier_command = lambda bucket, objAccessor, modifierID: set_object_modifier(bucket=bucket, objAccessor=objAccessor, modifierID=modifierID, setActive=False)
 __enable_modifier_command = lambda bucket, objAccessor, modifierID: set_object_modifier(bucket=bucket, objAccessor=objAccessor, modifierID=modifierID, setActive=True)
 
