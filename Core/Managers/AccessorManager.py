@@ -71,9 +71,13 @@ def add_accessor(bucket, componentType, type, packingFormat, data: list,
 def __vector_into_bytearray(format, data: list):
     scalar = []
 
-    for v in data:
-        for f in v:
-            scalar.append(f)
+    if type(data[0]) == mathutils.Quaternion:
+        for q in data:
+            scalar.extend(Util.bl_math_to_gltf_list(q))
+    else:
+        for v in data:
+            for f in v:
+                scalar.append(f)
 
     return __scalar_into_bytearray(format, scalar)
 
