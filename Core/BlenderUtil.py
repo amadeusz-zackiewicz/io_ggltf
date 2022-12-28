@@ -44,7 +44,7 @@ def queue_update_depsgraph(bucket: Bucket, queue):
     bucket.commandQueue[queue].append((bucket.currentDependencyGraph.update, ()))
 
 def queue_reset_armature_pose(bucket: Bucket, obj):
-    bucket.commandQueue[__c.COMMAND_QUEUE_CLEAN_UP].append((set_object_pose_mode, (bucket, get_object_accessor(obj), obj.data.pose_position)))
+    bucket.commandQueue[__c.COMMAND_QUEUE_ANIM_SETUP].append((set_object_pose_mode, (bucket, get_object_accessor(obj), obj.data.pose_position)))
     
 
 def create_rigify_filters(rigifyFlags):

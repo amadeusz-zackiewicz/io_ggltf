@@ -1,5 +1,3 @@
-import bpy
-from mathutils import Quaternion, Vector
 from io_ggltf.Core import Util
 from io_ggltf.Constants import *
 from io_ggltf.Simple import Mesh
@@ -68,6 +66,7 @@ def obj_to_node(
 
 def make_dummy(bucket: Bucket, assignedID, name):
     bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(name)
+    __record_space(bucket, assignedID, None, None, None)
 
 
 def scoop(bucket: Bucket, assignedID, accessor, parent = False):

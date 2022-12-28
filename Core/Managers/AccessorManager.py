@@ -9,7 +9,7 @@ MATRIX_TYPES = [__c.ACCESSOR_TYPE_MATRIX_2, __c.ACCESSOR_TYPE_MATRIX_3, __c.ACCE
 SCALAR_TYPES = [__c.ACCESSOR_TYPE_SCALAR]
 
 def add_accessor(bucket, componentType, type, packingFormat, data: list,
-    min = None, max = None, name=None, minMaxAsArray=False):
+    min = None, max = None, name=None):
     """
     This function does not check for duplicates, it creates an accessor object, buffer view and writes into the buffer, returning the ID
 
@@ -45,9 +45,9 @@ def add_accessor(bucket, componentType, type, packingFormat, data: list,
         accessor[__c.ACCESSOR_NAME] = name
 
     if min != None:
-        accessor[__c.ACCESSOR_MIN] = [min] if minMaxAsArray else min
+        accessor[__c.ACCESSOR_MIN] = min
     if max != None:
-        accessor[__c.ACCESSOR_MAX] = [max] if minMaxAsArray else max
+        accessor[__c.ACCESSOR_MAX] = max
 
     # determine which flattening method to use
     if type in VECTOR_TYPES:
@@ -123,7 +123,12 @@ def assume_type(data: list):
 
 def assume_component_type(data: list):
     typeOf = type(data[0])
-    if typeOf == float or typeOf == mathutils.Vector or typeOf == mathutils.Quaternion or typeOf == mathutils.Matrix:
+    if typeOf == mathutils.Vector:
+        if type(data[0][0]) == float:
+            return __c.ACCESSOR_COMPONENT_TYPE_FLOAT
+        if type(data[0][0]) == int:
+            return __c.ACCESSOR_COMPONENT_TYPE_SHORT
+    if typeOf == float or typeOf == mathutils.Quaternion or typeOf == mathutils.Matrix:
         return __c.ACCESSOR_COMPONENT_TYPE_FLOAT
     if typeOf == int:
         return __c.ACCESSOR_COMPONENT_TYPE_SHORT
@@ -133,7 +138,12 @@ def assume_component_type(data: list):
 
 def assume_packing_format(data: list):
     typeOf = type(data[0])
-    if typeOf == float or typeOf == mathutils.Vector or typeOf == mathutils.Quaternion or typeOf == mathutils.Matrix:
+    if typeOf == mathutils.Vector:
+        if type(data[0][0]) == float:
+            return __c.PACKING_FORMAT_FLOAT
+        if type(data[0][0]) == int:
+            return __c.PACKING_FORMAT_SHORT
+    if typeOf == float or typeOf == mathutils.Quaternion or typeOf == mathutils.Matrix:
         return __c.PACKING_FORMAT_FLOAT
     if typeOf == int:
         return __c.PACKING_FORMAT_SHORT

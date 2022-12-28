@@ -29,12 +29,13 @@ def scoop(bucket, describer: AnimationDescriber):
     #           __c.ANIMATION_CHANNEL_TARGET_PATH: path of the property to apply this channel to
     
     for nodeID, properties in anim.items():
-        for property, keys in properties.items():
+        for property, keyframes in properties.items():
             samplerID = len(samplers)
-            minTime = min(keys[0])
-            maxTime = max(keys[0])
-            inputID = AccessorManager.add_accessor(bucket, componentType=None, type=None, packingFormat=None, data=keys[0], min=minTime, max=maxTime, minMaxAsArray=True)
-            outputID = AccessorManager.add_accessor(bucket, componentType=None, type=None, packingFormat=None, data=keys[1])
+            minTime = keyframes[0][0]
+            maxTime = keyframes[0][-1:][0]
+            inputID = AccessorManager.add_accessor(bucket, componentType=__c.ACCESSOR_COMPONENT_TYPE_FLOAT, 
+            type=__c.ACCESSOR_TYPE_SCALAR, packingFormat=__c.PACKING_FORMAT_FLOAT, data=keyframes[0], min=[minTime], max=[maxTime])
+            outputID = AccessorManager.add_accessor(bucket, componentType=None, type=None, packingFormat=None, data=keyframes[1])
 
             sampler = {
                 __c.ANIMATION_SAMPLER_INPUT: inputID,
