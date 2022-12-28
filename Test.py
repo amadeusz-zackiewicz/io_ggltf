@@ -58,8 +58,9 @@ if __name__ == "__main__":
     pythonFiles = []
     _print = False
     report = False
+    skipExports = False
 
-    cmdOptions, _ = getopt.gnu_getopt(sys.argv[1:], "f:b:t:pr", ["folder=", "blend=", "test=", "print", "report"])
+    cmdOptions, _ = getopt.gnu_getopt(sys.argv[1:], "f:b:t:prc", ["folder=", "blend=", "test=", "print", "report", "compare_only"])
 
     for o, a in cmdOptions:
         if o == "-f" or o == "--folder":
@@ -80,6 +81,8 @@ if __name__ == "__main__":
             _print = True
         if o == "-r" or o == "--report":
             report = True
+        if o == "-c" or o == "--compare_only":
+            skipExports = True
     
     if testFolders[0] == "":
         testFolders = os.listdir(testFilesRootPath)
@@ -131,11 +134,6 @@ if __name__ == "__main__":
             blendFiles = []
             pythonFiles = [] # clear the lists
 
-    for file in os.listdir(testOutputPath):
-        absFilePath = testOutputPath + file
-        if os.path.isfile(absFilePath):
-            os.remove(absFilePath)
-
     def find_issues(text: str) -> bool:
         matches = re.finditer("([eE]xception)|([eE]rror)", text)
         for m in matches:
@@ -147,46 +145,53 @@ if __name__ == "__main__":
         return text.replace("Error: Vertex not in group\n", "")
 
     ## export tests
-    for i, test in enumerate(testList):
-        testName = f"{os.path.basename(test[0]).replace('.blend', '')}_{os.path.basename(test[1]).replace('.py', '')}"
-        try:
-            sys.stdout.write("\033[2K\033[1G")
-            print(f"\r({i}/{len(testList)}) Export test - {testName}", end="")
-            process = subprocess.run([blenderPath, test[0], "-b", "--factory-startup", "--addons", addonName, "-P", test[1]], capture_output=True)
-        except:
-            print(f"\r{testName}", traceback.format_exc())
-        finally:
+    if not skipExports:
 
-            errString = str(process.stderr, encoding="ascii")
-            outString = str(process.stdout, encoding="ascii")
+        for file in os.listdir(testOutputPath):
+            absFilePath = testOutputPath + file
+            if os.path.isfile(absFilePath):
+                os.remove(absFilePath)
 
-            errString = strip_useless_errors(errString)
-            outString = strip_useless_errors(outString)
+        for i, test in enumerate(testList):
+            testName = f"{os.path.basename(test[0]).replace('.blend', '')}_{os.path.basename(test[1]).replace('.py', '')}"
+            try:
+                sys.stdout.write("\033[2K\033[1G")
+                print(f"\r({i}/{len(testList)}) Export test - {testName}", end="")
+                process = subprocess.run([blenderPath, test[0], "-b", "--factory-startup", "--addons", addonName, "-P", test[1]], capture_output=True)
+            except:
+                print(f"\r{testName}", traceback.format_exc())
+            finally:
 
-            errHasIssues = find_issues(errString)
-            outHasIssues = find_issues(outString)
+                errString = str(process.stderr, encoding="ascii")
+                outString = str(process.stdout, encoding="ascii")
+
+                errString = strip_useless_errors(errString)
+                outString = strip_useless_errors(outString)
+
+                errHasIssues = find_issues(errString)
+                outHasIssues = find_issues(outString)
 
 
-            if errHasIssues or outHasIssues or _print:
-                if errHasIssues or outHasIssues:
-                    sys.stdout.write("\033[2K\033[1G")
-                    print(f"\r{testName} failed, please check the .txt file for details")
+                if errHasIssues or outHasIssues or _print:
+                    if errHasIssues or outHasIssues:
+                        sys.stdout.write("\033[2K\033[1G")
+                        print(f"\r{testName} failed, please check the .txt file for details")
 
-                outputFilePath = f"{testOutputPath}_{testName}.txt"
+                    outputFilePath = f"{testOutputPath}_{testName}.txt"
 
-                if os.path.exists(outputFilePath):
-                    outputFile = open(outputFilePath, "w")
-                else:
-                    outputFile = open(outputFilePath, "x")
+                    if os.path.exists(outputFilePath):
+                        outputFile = open(outputFilePath, "w")
+                    else:
+                        outputFile = open(outputFilePath, "x")
 
-                outputFile.write(errString)
-                outputFile.write(outString)
-                outputFile.close()
+                    outputFile.write(errString)
+                    outputFile.write(outString)
+                    outputFile.close()
 
-    del testList
+        del testList
 
-    sys.stdout.write("\033[2K\033[1G")
-    print("\t\tExport tests finished")
+        sys.stdout.write("\033[2K\033[1G")
+        print("\t\tExport tests finished")
 
 ####################################################################################### Export tests finished
 
