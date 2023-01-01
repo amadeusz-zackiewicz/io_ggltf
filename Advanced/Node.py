@@ -217,7 +217,7 @@ def __add_skin(bucket, obj, blacklist, filters):
     if Settings.get_setting(bucket, __c.BUCKET_SETTING_INCLUDE_SKIN):
         if BlenderUtil.object_is_armature(obj):
             from io_ggltf.Advanced import Skin
-            Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
+            Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoAttach=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
 
 @__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#dummy")
 def dummy(bucket: Bucket, name: str, sceneID = None):

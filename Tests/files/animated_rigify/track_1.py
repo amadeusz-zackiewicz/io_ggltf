@@ -18,7 +18,7 @@ else:
     binPath = ""
 
     def test(bucket):
-        skin = Skin.based_on_object(bucket, "rigify_rig", getInverseBinds=False, rigifyFlags=RIGIFY_ONLY_DEFORMS, autoAttach=False)
+        skin, _ = Skin.based_on_object(bucket, "rigify_rig", getInverseBinds=False, rigifyFlags=RIGIFY_ONLY_DEFORMS, autoAttach=False)
 
         desc = AnimationDescriber("Run")
         desc.add_track("rigify_rig", "Run")

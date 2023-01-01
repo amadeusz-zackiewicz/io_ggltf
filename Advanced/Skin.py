@@ -53,7 +53,7 @@ def based_on_object(
         redundant, skinID = RM.register_unique(bucket, accessor, __c.BUCKET_DATA_SKINS)
 
         if redundant:
-            return skinID
+            return skinID, []
     else:
         skinID = RM.register_unsafe(bucket, accessor, __c.BUCKET_DATA_SKINS)
     
@@ -71,12 +71,12 @@ def based_on_object(
     bucket.skinDefinition.append(skinDefinition)
     bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [accessor], getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
 
-    __link_bone_attachments(bucket, Skin.get_attachments([accessor], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
+    attachments = __link_bone_attachments(bucket, Skin.get_attachments([accessor], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
 
     if autoAttach:
         Attach.skin_to_unsafe_node(bucket, skinID, accessor)
 
-    return skinID
+    return skinID, attachments
 
 
 def based_on_object_modifiers(
@@ -127,7 +127,7 @@ def based_on_object_modifiers(
         redundant, skinID = RM.register_unique(bucket, objectAccessors, __c.BUCKET_DATA_SKINS)
 
         if redundant:
-            return skinID
+            return skinID, []
     else:
         skinID = RM.register_unsafe(bucket, objectAccessors, __c.BUCKET_DATA_SKINS)
 
@@ -150,20 +150,24 @@ def based_on_object_modifiers(
     bucket.skinDefinition.append(skinDefinition)
     bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectAccessors, getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
 
-    __link_bone_attachments(bucket, Skin.get_attachments(objectAccessors, boneBlacklist=boneBlackList, boneFilters=boneFilters, attachmentBlacklist=attachmentBlacklist, attachmentFilters=attachmentFilters))
+    attachments = __link_bone_attachments(bucket, Skin.get_attachments(objectAccessors, boneBlacklist=boneBlackList, boneFilters=boneFilters, attachmentBlacklist=attachmentBlacklist, attachmentFilters=attachmentFilters))
 
     if autoAttach:
         Attach.skin_to_unsafe_node(bucket, skinID, BlenderUtil.get_object_accessor(obj))
 
-    return skinID
+    return skinID, attachments
 
 
 def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filters = []):
     from io_ggltf.Advanced import Node
+    attachIDs = []
     for attachment in attachments:
         attachmentAccessor = BlenderUtil.get_object_accessor(attachment)
         parentAccessor = BlenderUtil.get_parent_accessor(attachmentAccessor)
-        Node.based_on_hierarchy(bucket, attachmentAccessor, blacklist=blacklist, filters=filters, parent=parentAccessor)
+        attachmentID = Node.based_on_hierarchy(bucket, attachmentAccessor, blacklist=blacklist, filters=filters, parent=parentAccessor)
+        attachIDs.append(attachIDs)
+
+    return attachIDs
 
 def __is_rigify(armatureObj):
     return armatureObj.data.get("rig_id") != None

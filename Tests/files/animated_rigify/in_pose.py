@@ -18,8 +18,7 @@ else:
     binPath = ""
 
     def test(bucket):
-        skin = Skin.based_on_object(bucket, "rigify_rig", getInverseBinds=False, rigifyFlags=RIGIFY_ONLY_DEFORMS, autoAttach=False, forceRestPose=False)
-
+        Skin.based_on_object(bucket, "rigify_rig", getInverseBinds=False, rigifyFlags=RIGIFY_ONLY_DEFORMS, autoAttach=False, forceRestPose=False)
         File.dump_bucket(bucket)
 
     print("---------- Start gltf embedded")
