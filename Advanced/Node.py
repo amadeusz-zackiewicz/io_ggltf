@@ -11,7 +11,7 @@ from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 from io_ggltf.Core.Validation import FilterValidation
 
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
-__scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop_object(bucket=bucket, assignedID=assignedID, objAccessor=objID, parent=parent)
+__scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop(bucket=bucket, assignedID=assignedID, accessor=objID, parent=parent)
 
 @__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_object")
 def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoAttachData=None, inSpace=None, sceneID=None) -> int:
@@ -71,6 +71,8 @@ def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=No
             childrenIDs.extend(based_on_collection(bucket=bucket, collectionName=get_object_accessor(obj.instance_collection), blacklist=blacklist, parent=True, checkRedundancies=checkRedundancies))
         else:
             for c in obj.children:
+                if obj.type == __c.BLENDER_TYPE_ARMATURE and c.parent_type == __c.BLENDER_TYPE_BONE: # ignore children that belong to the armature of the current object
+                    continue
                 childID = __recursive(bucket, c, blacklist, True, checkRedundancies, filters, autoAttachData, True)
                 if childID != None:
                     childrenIDs.append(childID)
@@ -174,7 +176,7 @@ def __auto_parent(bucket: Bucket, childObj, childID, parent):
     if type(parent) == bool:
         if parent:
             if childObj.parent != None:
-                parent = BlenderUtil.get_parent_accessor(childObj) # this will trigger  == tuple below
+                parent = BlenderUtil.get_parent_accessor(BlenderUtil.get_object_accessor(childObj)) # this will trigger  == tuple below
             else:
                 return
         else:
@@ -215,7 +217,7 @@ def __add_skin(bucket, obj, blacklist, filters):
     if Settings.get_setting(bucket, __c.BUCKET_SETTING_INCLUDE_SKIN):
         if BlenderUtil.object_is_armature(obj):
             from io_ggltf.Advanced import Skin
-            Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoLink=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
+            Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoAttach=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
 
 @__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#dummy")
 def dummy(bucket: Bucket, name: str, sceneID = None):

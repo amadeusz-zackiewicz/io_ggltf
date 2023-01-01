@@ -3,9 +3,19 @@ from io_ggltf.Constants import *
 
 def collect(bucket: Bucket):
     #bucket.data[BUCKET_DATA_SCENES] = [None] * bucket.preScoopCounts[BUCKET_DATA_SCENES]
-    bucket.data[BUCKET_DATA_SKINS] = [None] * bucket.preScoopCounts[BUCKET_DATA_SKINS]
-    bucket.data[BUCKET_DATA_MESHES] = [None] * bucket.preScoopCounts[BUCKET_DATA_MESHES]
-    bucket.data[BUCKET_DATA_NODES] = [None] * bucket.preScoopCounts[BUCKET_DATA_NODES]
+    for dataType in [BUCKET_DATA_SKINS, BUCKET_DATA_MESHES, BUCKET_DATA_NODES]:
+        expectedLength = bucket.preScoopCounts[dataType]
+        length = len(bucket.data[dataType])
+        if length != expectedLength:
+            bucket.data[dataType].extend([None for _ in range(expectedLength - length)])
+
+    if len(bucket.nodeSpace) != bucket.preScoopCounts[dataType]:
+        bucket.nodeSpace.extend([None for _ in range(bucket.preScoopCounts[BUCKET_DATA_NODES] - len(bucket.nodeSpace))])
+
+    # TODO: this needs to be done when node is added as currently it's impossible to change which properties are animated
+    if len(bucket.nodeProperties) != bucket.preScoopCounts[dataType]:
+        bucket.nodeProperties.extend([[NODE_TRANSLATION, NODE_ROTATION, NODE_SCALE] for _ in range(bucket.preScoopCounts[BUCKET_DATA_NODES] - len(bucket.nodeProperties))])
+
     try:
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_SETUP])
         bucket.currentDependencyGraph.update()
@@ -14,14 +24,22 @@ def collect(bucket: Bucket):
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NODE])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_LINKER])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_ANIM_SETUP])
+        __execute_queue(bucket.commandQueue[COMMAND_QUEUE_ANIMATION])
         __execute_queue(bucket.commandQueue[COMMAND_QUEUE_NAMING])
-        __execute_queue(bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP], True)
-        bucket.currentDependencyGraph.update()
     except Exception as e:
         print("Encountered exception during command execution:",e)
-        del bucket
         raise Exception("Export was aborted due to an exception being encountered, check above for details.")
+    finally:
+        __execute_queue(bucket.commandQueue[COMMAND_QUEUE_CLEAN_UP], True)
+        bucket.currentDependencyGraph.update()
+        del bucket.commandQueue
+        bucket.commandQueue = []
+        for _ in range(0, BUCKET_COMMAND_QUEUE_TYPES):
+            bucket.commandQueue.append([])
 
 def __execute_queue(commandQueue: list, inReverse = False):
+    if inReverse:
+        commandQueue.reverse()
+
     for c in commandQueue:
         c[0](*c[1])

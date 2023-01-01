@@ -1,6 +1,7 @@
 from io_ggltf import Constants as __c
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import RedundancyManager as RM
+from io_ggltf.Core import Util
 import bpy
 import re
 
@@ -20,6 +21,9 @@ def get_object_accessor(obj):
 
 def get_bone_accessor(armatureObj, bone):
     return (armatureObj.name, armatureObj.library.filepath if armatureObj.library != None else None, bone)
+
+def get_data_accessor(obj):
+    return (obj.data.name, obj.library.filepath if obj.library != None else None)
 
 __disable_modifier_command = lambda bucket, objAccessor, modifierID: set_object_modifier(bucket=bucket, objAccessor=objAccessor, modifierID=modifierID, setActive=False)
 __enable_modifier_command = lambda bucket, objAccessor, modifierID: set_object_modifier(bucket=bucket, objAccessor=objAccessor, modifierID=modifierID, setActive=True)
@@ -43,7 +47,7 @@ def queue_update_depsgraph(bucket: Bucket, queue):
     bucket.commandQueue[queue].append((bucket.currentDependencyGraph.update, ()))
 
 def queue_reset_armature_pose(bucket: Bucket, obj):
-    bucket.commandQueue[__c.COMMAND_QUEUE_CLEAN_UP].append((set_object_pose_mode, (bucket, get_object_accessor(obj), obj.data.pose_position)))
+    bucket.commandQueue[__c.COMMAND_QUEUE_ANIM_SETUP].append((set_object_pose_mode, (bucket, get_object_accessor(obj), obj.data.pose_position)))
     
 
 def create_rigify_filters(rigifyFlags):
@@ -92,14 +96,20 @@ def rigify_rename(bucket, rigifyFlags):
 
     return None
 
-def get_parent_accessor(obj):
-    if obj.parent != None:
-        if obj.parent_type == __c.BLENDER_TYPE_BONE:
-            return get_bone_accessor(obj.parent, obj.parent_bone)
-        else:
-            return get_object_accessor(obj.parent)
+def get_parent_accessor(accessor: tuple):
+    bone = Util.try_get_bone(accessor)
+    obj = Util.try_get_object(accessor)
+    if bone != None:
+        if bone.parent != None:
+            return (accessor[0], accessor[1], bone.parent.name)
     else:
-        return None
+        if obj.parent != None:
+            if obj.parent_type == __c.BLENDER_TYPE_BONE:
+                return get_bone_accessor(obj.parent, obj.parent_bone)
+            else:
+                return get_object_accessor(obj.parent)
+        else:
+            return None
 
 def rigify_get_potential_parent_name(childName: str) -> str or None:
     match = re.search(r"\.[0-9]*$", childName)

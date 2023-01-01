@@ -53,7 +53,7 @@ def based_on_object(
         redundant, skinID = RM.register_unique(bucket, accessor, __c.BUCKET_DATA_SKINS)
 
         if redundant:
-            return skinID
+            return skinID, []
     else:
         skinID = RM.register_unsafe(bucket, accessor, __c.BUCKET_DATA_SKINS)
     
@@ -66,16 +66,17 @@ def based_on_object(
     rigify = __is_rigify(obj)
     if rigify:
         boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
+        __queue_trim_names(bucket, skinID, rigifyFlags)
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, [accessor], boneBlackList, boneFilters)
     bucket.skinDefinition.append(skinDefinition)
     bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, [accessor], getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
 
-    __link_bone_attachments(bucket, Skin.get_attachments([accessor], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
+    attachments = __link_bone_attachments(bucket, Skin.get_attachments([accessor], boneBlackList, boneFilters), attachmentBlacklist, attachmentFilters)
 
     if autoAttach:
         Attach.skin_to_unsafe_node(bucket, skinID, accessor)
 
-    return skinID
+    return skinID, attachments
 
 
 def based_on_object_modifiers(
@@ -126,7 +127,7 @@ def based_on_object_modifiers(
         redundant, skinID = RM.register_unique(bucket, objectAccessors, __c.BUCKET_DATA_SKINS)
 
         if redundant:
-            return skinID
+            return skinID, []
     else:
         skinID = RM.register_unsafe(bucket, objectAccessors, __c.BUCKET_DATA_SKINS)
 
@@ -144,23 +145,45 @@ def based_on_object_modifiers(
     BlenderUtil.queue_update_depsgraph(bucket, __c.COMMAND_QUEUE_SKIN)
     if rigify:
         boneFilters.extend(BlenderUtil.create_rigify_filters(rigifyFlags))
+        __queue_trim_names(bucket, skinID, rigifyFlags)
     boneOffset, skinDefinition = Skin.get_skin_definition(bucket, objectAccessors, boneBlackList)
     bucket.skinDefinition.append(skinDefinition)
     bucket.commandQueue[__c.COMMAND_QUEUE_SKIN].append((__scoopSkinCommand, (bucket, skinID, objectAccessors, getInverseBinds, boneBlackList, boneOffset, boneFilters, rigify)))
 
-    __link_bone_attachments(bucket, Skin.get_attachments(objectAccessors, boneBlacklist=boneBlackList, boneFilters=boneFilters, attachmentBlacklist=attachmentBlacklist, attachmentFilters=attachmentFilters))
+    attachments = __link_bone_attachments(bucket, Skin.get_attachments(objectAccessors, boneBlacklist=boneBlackList, boneFilters=boneFilters, attachmentBlacklist=attachmentBlacklist, attachmentFilters=attachmentFilters))
 
     if autoAttach:
         Attach.skin_to_unsafe_node(bucket, skinID, BlenderUtil.get_object_accessor(obj))
 
-    return skinID
+    return skinID, attachments
 
 
 def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filters = []):
     from io_ggltf.Advanced import Node
+    attachIDs = []
     for attachment in attachments:
-        parentAccessor = BlenderUtil.get_parent_accessor(attachment)
-        Node.based_on_hierarchy(bucket, BlenderUtil.get_object_accessor(attachment), blacklist=blacklist, filters=filters, parent=parentAccessor)
+        attachmentAccessor = BlenderUtil.get_object_accessor(attachment)
+        parentAccessor = BlenderUtil.get_parent_accessor(attachmentAccessor)
+        attachmentID = Node.based_on_hierarchy(bucket, attachmentAccessor, blacklist=blacklist, filters=filters, parent=parentAccessor)
+        attachIDs.append(attachIDs)
+
+    return attachIDs
 
 def __is_rigify(armatureObj):
     return armatureObj.data.get("rig_id") != None
+
+def __queue_trim_names(bucket, skinID, rigifyFlags):
+    if rigifyFlags & __c.RIGIFY_TRIM_NAMES == __c.RIGIFY_TRIM_NAMES:
+            if rigifyFlags & __c.RIGIFY_INCLUDE_CONTROLS == __c.RIGIFY_INCLUDE_CONTROLS:
+                return
+            if rigifyFlags & (__c.RIGIFY_INCLUDE_DEFORMS | __c.RIGIFY_INCLUDE_ORIGINAL) == (__c.RIGIFY_INCLUDE_DEFORMS | __c.RIGIFY_INCLUDE_ORIGINAL):
+                return
+            
+            if rigifyFlags & __c.RIGIFY_INCLUDE_DEFORMS == __c.RIGIFY_INCLUDE_DEFORMS:
+                pattern = "^DEF-"
+            elif rigifyFlags & __c.RIGIFY_INCLUDE_ORIGINAL == __c.RIGIFY_INCLUDE_ORIGINAL:
+                pattern = "^ORG-"
+            else:
+                return
+
+            bucket.commandQueue[__c.COMMAND_QUEUE_NAMING].append((Util.pattern_replace_skin_joint_names, (bucket, skinID, pattern, "")))

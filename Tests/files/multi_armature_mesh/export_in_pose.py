@@ -21,7 +21,7 @@ else:
         Settings.set_setting(bucket, BUCKET_SETTING_NODE_AUTO_ATTACH_DATA, False)
         Settings.set_setting(bucket, BUCKET_SETTING_MESH_AUTO_ATTACH, False)
         Settings.set_setting(bucket, BUCKET_SETTING_SKIN_AUTO_ATTACH, False)
-        skin = Skin.based_on_object_modifiers(bucket, "MeshObj", getInverseBinds=True, forceRestPose=False)
+        skin, _ = Skin.based_on_object_modifiers(bucket, "MeshObj", getInverseBinds=True, forceRestPose=False)
         mesh = Mesh.based_on_object(bucket, "MeshObj", skinID=skin, uvMaps=False)
         node = Node.based_on_object(bucket, "MeshObj")
         Attach.skin_to_node(bucket, skin, node)

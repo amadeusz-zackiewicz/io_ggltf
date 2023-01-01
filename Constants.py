@@ -121,6 +121,7 @@ BLENDER_TYPE_CURVE          = "CURVE"
 BLENDER_TYPE_EMPTY          = "EMPTY"
 BLENDER_TYPE_SURFACE        = "SURFACE"
 BLENDER_TYPE_MESH           = "MESH"
+BLENDER_TYPE_OBJECT         = "OBJECT"
 
 # General
 BLENDER_AREA_VIEW_3D            = "VIEW_3D"
@@ -179,6 +180,13 @@ BUCKET_SETTING_BINPATH              = "binpath"
 BUCKET_SETTING_FILENAME             = "filename"
 BUCKET_SETTING_FILE_TYPE            = "file_type"
 BUCKET_SETTING_ENFORCE_SCENE        = "enforce_scene"
+BUCKET_SETTING_TARGET_FRAME         = "target_frame"
+BUCKET_SETTING_TEXT_PRECISION       = "t_float_precision"
+BUCKET_SETTING_BINARY_PRECISION     = "b_float_precision"
+############## Animation specific settings
+BUCKET_SETTING_FRAME_STEP           = "frame_step"
+BUCKET_SETTING_STEP_INTERPOLATION   = "step_interpolation"
+BUCKET_SETTING_OPTIMISE_ANIMATION   = "optimise_keyframes"
 ############## Node specific settings
 BUCKET_SETTING_REDUNDANCY_CHECK_NODE        = "redundancy_check_node"
 BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE    = "default_to_parent_space"
@@ -212,9 +220,10 @@ COMMAND_QUEUE_NODE              = 3
 COMMAND_QUEUE_NAMING            = 4
 COMMAND_QUEUE_LINKER            = 5
 COMMAND_QUEUE_ANIM_SETUP        = 6
-COMMAND_QUEUE_CLEAN_UP          = 7
+COMMAND_QUEUE_ANIMATION         = 7
+COMMAND_QUEUE_CLEAN_UP          = 8
 
-BUCKET_COMMAND_QUEUE_TYPES      = 8
+BUCKET_COMMAND_QUEUE_TYPES      = 9
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.17 glTF
 BUCKET_DATA_EXTENSIONS_USED          = "extensionsUsed"
@@ -290,8 +299,8 @@ ACCESSOR_SPARSE_VALUE_EXTENSION        = __VAR_EXTENSION
 ACCESSOR_SPARSE_VALUE_EXTRA            = __VAR_EXTRA
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.5 Animation
-ANIMATION_CHANNEL                               = "channels"
-ANIMATION_SAMPLER                               = "samplers"
+ANIMATION_CHANNELS                              = "channels"
+ANIMATION_SAMPLERS                              = "samplers"
 ANIMATION_NAME                                  = __VAR_NAME
 ANIMATION_EXTENSION                             = __VAR_EXTENSION
 ANIMATION_EXTRA                                 = __VAR_EXTRA

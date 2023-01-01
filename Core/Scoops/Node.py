@@ -1,5 +1,3 @@
-import bpy
-from mathutils import Quaternion, Vector
 from io_ggltf.Core import Util
 from io_ggltf.Constants import *
 from io_ggltf.Simple import Mesh
@@ -16,7 +14,8 @@ def obj_to_node(
     skin = None,
     weights = None,
     extensions = None,
-    extras = None
+    extras = None,
+    floatPrecision=6
 ):
 
     if name == None:
@@ -32,6 +31,7 @@ def obj_to_node(
 
     if translation != None:
         t = Util.bl_math_to_gltf_list(translation)
+        Util.round_float_list_to_precision(t, floatPrecision)
         if t[0] == 0.0 and t[1] == 0.0 and t[2] == 0.0:
             pass
         else: 
@@ -39,6 +39,7 @@ def obj_to_node(
 
     if rotation != None:
         r = Util.bl_math_to_gltf_list(rotation)
+        Util.round_float_list_to_precision(r, floatPrecision)
         if r[0] == 0.0 and r[1] == 0.0 and r[2] == 0.0 and r[3] == 1.0:
             pass
         else:
@@ -46,6 +47,7 @@ def obj_to_node(
 
     if scale != None:
         s = Util.bl_math_to_gltf_list(scale)
+        Util.round_float_list_to_precision(s, floatPrecision)
         if s[0] == 1.0 and s[1] == 1.0 and s[2] == 1.0:
             pass
         else:
@@ -68,71 +70,25 @@ def obj_to_node(
 
 def make_dummy(bucket: Bucket, assignedID, name):
     bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(name)
+    __record_space(bucket, assignedID, None, None, None)
 
 
-def scoop_object(bucket: Bucket, assignedID, objAccessor, parent = False):
+def scoop(bucket: Bucket, assignedID, accessor, parent = False):
 
-    obj = bpy.data.objects.get(objAccessor)
+    obj = Util.try_get_object(accessor)
+    bone = Util.try_get_bone(accessor)
 
-    correctedMatrix = False
-    if parent == False:
-        m = obj.matrix_world
-    elif parent == True:
-        m = obj.matrix_local
-    else: # we assume that this is an accessor
-        parentObj = Util.try_get_object(parent)
-        try:
-            bone = Util.try_get_bone(parent)
-        except:
-            bone = None
-
-        if bone != None:
-            correctedMatrix = True
-            pMatrix = parentObj.matrix_world @ bone.matrix
-            m = pMatrix.inverted_safe() @ obj.matrix_world
-            m @= Util.get_basis_matrix_conversion().inverted_safe()
-            # This looks wrong, but it produces the correct result, good enough for now
-        else:
-            m = parentObj.matrix_world.inverted_safe() @ obj.matrix_world
-
-    if correctedMatrix:
-        loc, rot, sc = m.decompose()
-    else:
-        loc, rot, sc = m.decompose()
-        loc = Util.y_up_location(loc)
-        rot = Util.y_up_rotation(rot)
-        sc = Util.y_up_scale(sc)
-        
+    loc, rot, sc = Util.get_yup_transforms(accessor, parent)
 
     bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(
-    name=obj.name,
+    name=obj.name if bone == None else bone.name,
     translation=loc,
     rotation=rot,
     scale=sc,
+    floatPrecision=bucket.settings[BUCKET_SETTING_TEXT_PRECISION]
     )
+    __record_space(bucket, assignedID, accessor, parent)
 
-# def __include_data(bucket, obj):
-#     mesh = None
-#     skin = None
-#     weights = None
-
-#     if obj.type in BLENDER_MESH_CONVERTIBLE:
-#             if obj.type == BLENDER_TYPE_MESH:
-#                 normals = bucket.settings[BUCKET_SETTING_MESH_GET_NORMALS]
-#                 tangents = bucket.settings[BUCKET_SETTING_MESH_GET_TANGENTS]
-#                 getSkin = bucket.settings[BUCKET_SETTING_MESH_GET_BONE_INFLUENCE]
-#                 uvs = bucket.settings[BUCKET_SETTING_MESH_GET_UVS]
-#                 vColors = bucket.settings[BUCKET_SETTING_MESH_GET_VERTEX_COLORS]
-#                 sk = bucket.settings[BUCKET_SETTING_MESH_GET_SHAPE_KEYS]
-                
-
-#                 mesh, skin, weights = Mesh.add_based_on_object((obj.name, obj.library),
-#                 normals=normals,
-#                 tangents=tangents, 
-#                 uv=uvs, 
-#                 boneInfluences=getSkin,
-#                 boneGetInverseBinds=getSkin,
-#                 shapeKeys=sk, 
-#                 vertexColors=vColors)
-    
-#     return (mesh, skin, weights)
+def __record_space(bucket, ID, selfAccessor, parentAccessor):
+    #print(f"Node space ({ID}): {selfAccessor}, {parentAccessor}")
+    bucket.nodeSpace[ID] = (selfAccessor, parentAccessor)

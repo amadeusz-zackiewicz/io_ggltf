@@ -8,7 +8,7 @@
 This addon is still a work in progress, and does not support all data types:
 Type | Support | Note
 :---: | :---: | :---
-Animation | <t style="color:red">0.2.0</t> | Animations are coming in the next release, they require a lot of features which are currently not implemented
+Animation | <t style="color:green">Yes</t> |
 Scene | <t style="color:green">Yes</t> | 
 Node | <t style="color:green">Yes</t> |
 Mesh | <t style="color:green">Yes</t> |
@@ -37,16 +37,23 @@ Otherwise get started [here](https://github.com/amadeusz-zackiewicz/io_ggltf/wik
 
 * Easily add hierarchies, collections or singular objects.
 
-* Non-destructively remove objects with with filters and blacklists.
+* Non-destructively remove objects with filters and blacklists.
 
 * No glTF scenes required, making it possible to create asset libraries (for example file containing only meshes).
 
 * Non-destructively strip bones from armatures with filters and blacklists.
   
-* Automate excluding useless control bones and trimming bone prefixes when using rigify armatures.
+* Automated trimming of control bones and bone prefixes when using rigify armatures.
 
-* Easily create buttons to run your code from outside of the text editor.
+* Use timeline markers, manual frame ranges or NLA tracks to bake animations.
+
+* Manually specify which NLA tracks are to be grouped together into one animation, allowing use of additive tracks.
+  
+* Force animation to be use stepped interpolation.
+
+* Easily create buttons to run your code from UI, allowing for fast iterations.
 
 # Limitations
-* Cannot export base meshes, each mesh has to be assigned to an object in scene in order to be exported.
+* Cannot export data (such as mesh) directly, all data must be assigned to an object in scene in order to be exported.
 * Meshes can only be based on blender meshes, no curves, NURBS, etc.
+* When merging meshes, UV map, vertex color and shape key names must match.

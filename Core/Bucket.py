@@ -8,18 +8,22 @@ class Bucket():
     fileName, 
     binPath,
     fileType = FILE_TYPE_GLTF_EMBEDDED,
-    dependencyGraph = None
+    dependencyGraph = None,
+    targetFrame = 0.0 or str
     ):
 
         filePath = os.path.abspath(bpy.path.abspath(filePath))
         if filePath[-1] != os.path.sep:
             filePath = filePath + os.path.sep
 
-        self.__get_default_settings(filePath, fileName, binPath, fileType)
+        self.__get_default_settings(filePath, fileName, binPath, fileType, targetFrame)
         self.__fill_in_data()
         self.blobs = []
         self.currentDependencyGraph = bpy.context.evaluated_depsgraph_get() if dependencyGraph == None else dependencyGraph
-        self.skinDefinition = []
+        self.skinDefinition = [] # dictionary of bone names : node IDs
+        self.nodeSpace = [] # accessors to objects / bones to get own space and parent space from
+        self.nodeProperties = [] # record a list of names of properties to animate, this includes the translation, rotation and scale (separately)
+        #self.meshShapekeys = [] # Ordered list of names of shapekeys used by this mesh. Used for getting weights when baking animation.
         self.commandQueue = []
         for _ in range(BUCKET_COMMAND_QUEUE_TYPES):
             self.commandQueue.append([])
@@ -30,10 +34,15 @@ class Bucket():
             BUCKET_DATA_MESHES: 0,
             BUCKET_DATA_SKINS: 0
         }
-        self.accessors = { # to get accessor from the assigned ID
+        self.accessors = { # used to get ID using accessor
             BUCKET_DATA_NODES: {},
             BUCKET_DATA_MESHES: {},
             BUCKET_DATA_SKINS: {}
+        }
+        self.basis = { # used to get accessor using ID
+            BUCKET_DATA_NODES: [],
+            BUCKET_DATA_MESHES: [],
+            BUCKET_DATA_SKINS: []
         }
 
     def __fill_in_data(self) -> dict:
@@ -58,11 +67,12 @@ class Bucket():
             BUCKET_DATA_BUFFERS : []
         }
 
-    def __get_default_settings(self, filePath, fileName, binPath, fileType) -> dict:
+    def __get_default_settings(self, filePath, fileName, binPath, fileType, targetFrame) -> dict:
         self.settings = {
             BUCKET_SETTING_FILEPATH : filePath,
             BUCKET_SETTING_FILENAME : fileName,
             BUCKET_SETTING_BINPATH : binPath,
             BUCKET_SETTING_FILE_TYPE: fileType,
+            BUCKET_SETTING_TARGET_FRAME: targetFrame
         }
 

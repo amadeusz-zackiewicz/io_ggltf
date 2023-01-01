@@ -1,6 +1,6 @@
 from io_ggltf import Constants as __c
 from io_ggltf.Core import BlenderUtil
-from io_ggltf.Core.Exceptions import MissingVertexColorsException, MissingShapeKeysException, MissingUVMapsException, MeshComponentValidationFailedException
+from io_ggltf.Core.Exceptions import MeshExceptions
 import bpy 
 
 def validate_mesh(obj):
@@ -78,7 +78,7 @@ def validate_mesh_component(objects, expectedNames, comparisonMethod, singleComp
             print(exc)
 
         if len(exceptions) > 0:
-            raise MeshComponentValidationFailedException()
+            raise MeshExceptions.MeshComponentValidationFailedException()
 
 def validate_uv_maps(objects, uvMaps: list[str]):
     validate_mesh_component(
@@ -86,7 +86,7 @@ def validate_uv_maps(objects, uvMaps: list[str]):
         expectedNames=uvMaps, 
         comparisonMethod=objects_have_uv_maps,
         singleComparisonMethod=object_has_uv_map,
-        exceptionType=MissingUVMapsException
+        exceptionType=MeshExceptions.MissingUVMapsException
         )
 
 def validate_vertex_colors(objects, vColors: list[str]):
@@ -94,7 +94,7 @@ def validate_vertex_colors(objects, vColors: list[str]):
     expectedNames=vColors,
     comparisonMethod=objects_have_vertex_colors,
     singleComparisonMethod=object_has_vertex_color,
-    exceptionType=MissingVertexColorsException
+    exceptionType=MeshExceptions.MissingVertexColorsException
     )
 
 def validate_shape_keys(objects, sKeys: list[str]):
@@ -102,5 +102,5 @@ def validate_shape_keys(objects, sKeys: list[str]):
     expectedNames=sKeys,
     comparisonMethod=objects_have_shape_keys,
     singleComparisonMethod=object_has_shape_key,
-    exceptionType=MissingShapeKeysException
+    exceptionType=MeshExceptions.MissingShapeKeysException
     )

@@ -25,28 +25,22 @@
             "name": "Arm-02.L",
             "translation": [
                 0.0,
-                2.0,
-                4.76837158203125e-07
-            ],
-            "rotation": [
                 0.0,
-                0.0,
-                3.552713678800501e-15,
-                1.0
+                -2.0
             ]
         },
         {
             "name": "Arm-01.L",
             "translation": [
                 0.0,
-                3.000000476837158,
-                -1.0
+                -1.0,
+                -3.0
             ],
             "rotation": [
-                -0.7071068286895752,
+                -0.707107,
                 0.0,
-                0.0,
-                0.7071068286895752
+                -0.0,
+                0.707107
             ],
             "children": [
                 0
@@ -55,28 +49,22 @@
         {
             "name": "Arm-02.R",
             "translation": [
-                4.76837158203125e-07,
-                2.0,
-                0.0
-            ],
-            "rotation": [
-                3.552713678800501e-15,
-                1.351025389340066e-07,
-                2.92929878259155e-22,
-                1.0
+                0.0,
+                0.0,
+                -2.0
             ]
         },
         {
             "name": "Arm-01.R",
             "translation": [
                 0.0,
-                3.000000476837158,
-                1.0
+                1.0,
+                -3.0
             ],
             "rotation": [
-                0.5000000596046448,
                 0.5,
                 0.5,
+                -0.5,
                 0.5
             ],
             "children": [
@@ -87,8 +75,8 @@
             "name": "Spine-03",
             "translation": [
                 0.0,
-                2.000000476837158,
-                0.0
+                0.0,
+                -2.0
             ],
             "children": [
                 1,
@@ -99,8 +87,8 @@
             "name": "Spine-02",
             "translation": [
                 0.0,
-                2.0,
-                0.0
+                0.0,
+                -2.0
             ],
             "children": [
                 4
@@ -109,15 +97,10 @@
         {
             "name": "Spine-01",
             "rotation": [
-                0.0,
-                0.7071068286895752,
-                0.0,
-                0.7071068286895752
-            ],
-            "scale": [
-                1.0,
-                0.9999999403953552,
-                1.0
+                0.5,
+                0.5,
+                -0.5,
+                0.5
             ],
             "children": [
                 5
@@ -128,7 +111,13 @@
             "translation": [
                 -3.0,
                 4.0,
-                0.0
+                -0.0
+            ],
+            "rotation": [
+                0.707107,
+                0.0,
+                -0.0,
+                0.707107
             ]
         },
         {
@@ -136,7 +125,13 @@
             "translation": [
                 3.0,
                 4.0,
-                0.0
+                -0.0
+            ],
+            "rotation": [
+                0.707107,
+                0.0,
+                -0.0,
+                0.707107
             ]
         },
         {
@@ -144,7 +139,13 @@
             "translation": [
                 -5.0,
                 2.0,
-                0.0
+                -0.0
+            ],
+            "rotation": [
+                0.707107,
+                0.0,
+                -0.0,
+                0.707107
             ]
         },
         {
@@ -152,35 +153,35 @@
             "translation": [
                 5.0,
                 2.0,
-                0.0
+                -0.0
+            ],
+            "rotation": [
+                0.707107,
+                0.0,
+                -0.0,
+                0.707107
             ]
         },
         {
             "name": "Arm-02.L",
             "translation": [
                 0.0,
-                2.0,
-                4.76837158203125e-07
-            ],
-            "rotation": [
                 0.0,
-                0.0,
-                3.552713678800501e-15,
-                1.0
+                -2.0
             ]
         },
         {
             "name": "Arm-01.L",
             "translation": [
                 0.0,
-                3.000000476837158,
-                -1.0
+                -1.0,
+                -3.0
             ],
             "rotation": [
-                -0.7071068286895752,
+                -0.707107,
                 0.0,
-                0.0,
-                0.7071068286895752
+                -0.0,
+                0.707107
             ],
             "children": [
                 11
@@ -189,28 +190,22 @@
         {
             "name": "Arm-02.R",
             "translation": [
-                4.76837158203125e-07,
-                2.0,
-                0.0
-            ],
-            "rotation": [
-                3.552713678800501e-15,
-                1.351025389340066e-07,
-                2.92929878259155e-22,
-                1.0
+                0.0,
+                0.0,
+                -2.0
             ]
         },
         {
             "name": "Arm-01.R",
             "translation": [
                 0.0,
-                3.000000476837158,
-                1.0
+                1.0,
+                -3.0
             ],
             "rotation": [
-                0.5000000596046448,
                 0.5,
                 0.5,
+                -0.5,
                 0.5
             ],
             "children": [
@@ -221,8 +216,8 @@
             "name": "Spine-03",
             "translation": [
                 0.0,
-                2.000000476837158,
-                0.0
+                0.0,
+                -2.0
             ],
             "children": [
                 12,
@@ -233,8 +228,8 @@
             "name": "Spine-02",
             "translation": [
                 0.0,
-                2.0,
-                0.0
+                0.0,
+                -2.0
             ],
             "children": [
                 15
@@ -243,15 +238,10 @@
         {
             "name": "Spine-01",
             "rotation": [
-                0.0,
-                0.7071068286895752,
-                0.0,
-                0.7071068286895752
-            ],
-            "scale": [
-                1.0,
-                0.9999999403953552,
-                1.0
+                0.5,
+                0.5,
+                -0.5,
+                0.5
             ],
             "children": [
                 16
@@ -262,7 +252,13 @@
             "translation": [
                 -3.0,
                 4.0,
-                0.0
+                -0.0
+            ],
+            "rotation": [
+                0.707107,
+                0.0,
+                -0.0,
+                0.707107
             ]
         },
         {
@@ -270,7 +266,13 @@
             "translation": [
                 3.0,
                 4.0,
-                0.0
+                -0.0
+            ],
+            "rotation": [
+                0.707107,
+                0.0,
+                -0.0,
+                0.707107
             ]
         },
         {
@@ -278,7 +280,13 @@
             "translation": [
                 -5.0,
                 2.0,
-                0.0
+                -0.0
+            ],
+            "rotation": [
+                0.707107,
+                0.0,
+                -0.0,
+                0.707107
             ]
         },
         {
@@ -286,7 +294,13 @@
             "translation": [
                 5.0,
                 2.0,
-                0.0
+                -0.0
+            ],
+            "rotation": [
+                0.707107,
+                0.0,
+                -0.0,
+                0.707107
             ]
         }
     ],
@@ -355,7 +369,7 @@
     "buffers": [
         {
             "byteLength": 1408,
-            "uri": "data:application/octet-stream;base64,ML07swAAgL8AAAAAAAAAAAAAAAAAAAAAAQCAPwAAAAAAAIC/ML07MwAAAAAAAAAAAQAAqQAAQMABAODAAACAPy69O7MAAIC/AAAAAAAAAAAAAAAAAAAAAAEAgD8AAAAAAACAvy69OzMAAAAAAAAAAAAAAAAAAIC/AQDgwAAAgD+0URkoAACAPzC9O7MAAAAAAQCAPwAAAAC1EFE0AAAAALMQUTQwvTuzAACAvwAAAAABAODAAABAwJ/utrUAAIA/b8xtpwAAgD8uvTuzAAAAAAEAgD8AAAAAaiGiswAAAABpIaKzLr07swAAgL8AAAAAAQDgwAAAgL893Q01AACAPy69O7MAAAAAAACAPwAAAAAAAAAAAQCAPwAAAAAAAAAAAACAvwAAAAAuvTuzAAAAAAAAAAABAIDAAAAAAAAAgD8uvTuzAAAAAAAAgD8AAAAAAAAAAAEAgD8AAAAAAAAAAAAAgL8AAAAALr07swAAAAAAAAAAAAAAwAAAAAAAAIA/Lr07swAAAAAAAIA/AAAAAAAAAAABAIA/AAAAAAAAAAAAAIC/AAAAAC69O7MAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAQEAAAIDAAAAAAAAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAEDAAACAwAAAAAAAAIA/AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAACgQAAAAMAAAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAoMAAAADAAAAAAAAAgD8wvTuzAACAvwAAAAAAAAAAAAAAAAAAAAABAIA/AAAAAAAAgL8wvTszAAAAAAAAAAABAACpAABAwAEA4MAAAIA/Lr07swAAgL8AAAAAAAAAAAAAAAAAAAAAAQCAPwAAAAAAAIC/Lr07MwAAAAAAAAAAAAAAAAAAgL8BAODAAACAP7RRGSgAAIA/ML07swAAAAABAIA/AAAAALUQUTQAAAAAsxBRNDC9O7MAAIC/AAAAAAEA4MAAAEDAn+62tQAAgD9vzG2nAACAPy69O7MAAAAAAQCAPwAAAABqIaKzAAAAAGkhorMuvTuzAACAvwAAAAABAODAAACAvz3dDTUAAIA/Lr07swAAAAAAAIA/AAAAAAAAAAABAIA/AAAAAAAAAAAAAIC/AAAAAC69O7MAAAAAAAAAAAEAgMAAAAAAAACAPy69O7MAAAAAAACAPwAAAAAAAAAAAQCAPwAAAAAAAAAAAACAvwAAAAAuvTuzAAAAAAAAAAAAAADAAAAAAAAAgD8uvTuzAAAAAAAAgD8AAAAAAAAAAAEAgD8AAAAAAAAAAAAAgL8AAAAALr07swAAAAAAAAAAAAAAAAAAAAAAAIA/AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAABAQAAAgMAAAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAQMAAAIDAAAAAAAAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAKBAAAAAwAAAAAAAAIA/AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAACgwAAAAMAAAAAAAACAPw=="
+            "uri": "data:application/octet-stream;base64,AAAAgAAAAAAAAIA/AAAAAAAAAAABAIA/AAAAAAAAAAAAAIC/AAAAAAAAAIAAAAAAAAAAgAEA4MAAAEBAAACAPwAAAIAAAAAAAACAPwAAAAAAAAAAAQCAPwAAAAAAAAAAAACAvwAAAAAAAACAAAAAAAAAAAABAODAAACAPwAAgD8AAAAAAAAAgAAAgL8AAAAAAQCAP5W/VjQAAAAAAAAAAJW/VjQAAIC/AAAAAAAAAAABAODAoue7tQAAQEAAAIA/AAAAgAAAAIAAAIC/AAAAAAEAgD+Vv9azAAAAAAAAAACVv9azAACAvwAAAAAAAAAAAQDgwL03BjUAAIA/AACAPwAAAIAAAIA/AAAAAAAAAAAAAAAAAAAAAAEAgL8AAAAAAACAvwAAAIAAAAAAAAAAAAAAAAAAAAAAAQCAQAAAgD8AAACAAACAPwAAAAAAAAAAAAAAAAAAAAABAIC/AAAAAAAAgL8AAACAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAIA/AAAAgAAAgD8AAAAAAAAAAAAAAAAAAAAAAQCAvwAAAAAAAIC/AAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAQEAAAAAAAACAQAAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAEDAAAAAAAAAgEAAAIA/AACAPwAAAAAAAAAAAAAAAAAAAAAAAAAAAACAvwAAAAAAAAAAAACAPwAAAAAAAAAAAACgQAAAAAAAAABAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAoMAAAAAAAAAAQAAAgD8AAACAAAAAAAAAgD8AAAAAAAAAAAEAgD8AAAAAAAAAAAAAgL8AAAAAAAAAgAAAAAAAAACAAQDgwAAAQEAAAIA/AAAAgAAAAAAAAIA/AAAAAAAAAAABAIA/AAAAAAAAAAAAAIC/AAAAAAAAAIAAAAAAAAAAAAEA4MAAAIA/AACAPwAAAAAAAACAAACAvwAAAAABAIA/lb9WNAAAAAAAAAAAlb9WNAAAgL8AAAAAAAAAAAEA4MCi57u1AABAQAAAgD8AAACAAAAAgAAAgL8AAAAAAQCAP5W/1rMAAAAAAAAAAJW/1rMAAIC/AAAAAAAAAAABAODAvTcGNQAAgD8AAIA/AAAAgAAAgD8AAAAAAAAAAAAAAAAAAAAAAQCAvwAAAAAAAIC/AAAAgAAAAAAAAAAAAAAAAAAAAAABAIBAAACAPwAAAIAAAIA/AAAAAAAAAAAAAAAAAAAAAAEAgL8AAAAAAACAvwAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAgD8AAACAAACAPwAAAAAAAAAAAAAAAAAAAAABAIC/AAAAAAAAgL8AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AACAPwAAAAAAAAAAAAAAAAAAAAAAAAAAAACAvwAAAAAAAAAAAACAPwAAAAAAAAAAAABAQAAAAAAAAIBAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAQMAAAAAAAACAQAAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAKBAAAAAAAAAAEAAAIA/AACAPwAAAAAAAAAAAAAAAAAAAAAAAAAAAACAvwAAAAAAAAAAAACAPwAAAAAAAAAAAACgwAAAAAAAAABAAACAPw=="
         }
     ],
     "scene": 0

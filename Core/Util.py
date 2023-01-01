@@ -1,4 +1,5 @@
 from io_ggltf import Constants as __c
+from io_ggltf.Core import BlenderUtil
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
 import bpy
@@ -20,40 +21,67 @@ class BoneNotFoundException(Exception):
     def __str__(self):
         return f"Bone '{self.accessor[2]}' not found in '{self.accessor[0]}'"
 
-def y_up_matrix(org_mat : Matrix) -> Matrix:
-    return get_basis_matrix_conversion() @ org_mat
+def y_up_matrix(orgMat : Matrix) -> Matrix:
+    """
+    Multiply the matrix to make it Y+ up
+    """
+    return get_basis_matrix_conversion() @ orgMat
 
-def y_up_location(org_loc : Vector) -> Vector:
-    return Vector((org_loc[0], org_loc[2], -org_loc[1]))
+def y_up_location(orgLoc : Vector) -> Vector:
+    """
+    Move and flip individual components to match Y+ up coordinate system.
+    """
+    return Vector((orgLoc[0], orgLoc[2], -orgLoc[1]))
 
+def y_up_rotation(orgRot : Quaternion) -> Quaternion:
+    """
+    Move and flip individual components to match Y+ up coordinate system.
+    Warning: This does not swizzle the order from WXYZ to XYZW.
+    """
+    return Quaternion((orgRot[0], orgRot[1], orgRot[3], -orgRot[2]))
 
-def y_up_rotation(org_rot : Quaternion) -> Quaternion:
-    return Quaternion((org_rot[0], org_rot[1], org_rot[3], -org_rot[2]))
+def y_up_scale(orgScl : Vector) -> Vector:
+    """
+    Move and flip indivual components to match Y+ up coordinate system
+    """
+    return Vector((orgScl[0], orgScl[2], orgScl[1]))
 
+def y_up_direction(orgDir: Vector) -> Vector:
+    """
+    Move and flip individual components to match Y+ up coordinate system.
+    """
+    return Vector((orgDir[0], orgDir[2], -orgDir[1]))
 
-def y_up_scale(org_scl : Vector) -> Vector:
-    return Vector((org_scl[0], org_scl[2], org_scl[1]))
-
-
-def y_up_direction(org_dir: Vector) -> Vector:
-    return Vector((org_dir[0], org_dir[2], -org_dir[1]))
-
-def correct_uv(org_uv: Vector) -> Vector:
-    return Vector((org_uv[0], -org_uv[1] + 1.0))
+def correct_uv(orgUV: Vector) -> Vector:
+    """
+    Move, flip and compensate for difference in V coordinates.
+    """
+    return Vector((orgUV[0], -orgUV[1] + 1.0))
 
 def bl_math_to_gltf_list(obj):
+    """
+    Flatten the object into a list.
+    For Quaternions: Swizzle the order from WXYZ to XYZW.
+    """
     if isinstance(obj, Quaternion):
         return [obj[1], obj[2], obj[3], obj[0]]
     elif isinstance(obj, Matrix):
         l = []
-        row_count = len(obj)
-        col_count = len(obj[0])
-        for r in range(0, row_count):
-            for c in range(0, col_count):
+        rows = len(obj)
+        cols = len(obj[0])
+        for r in range(0, rows):
+            for c in range(0, cols):
                 l.append(obj[r][c])
         return l
     else:
         return list(obj)
+
+def round_float_list_to_precision(data: list, precision: int):
+    """
+    Round floats to specified decimal point.
+    """
+    for i, f in enumerate(data):
+        data[i] = round(f, precision)
 
 def cleanup_keys(d: dict):
     to_pop = []
@@ -149,7 +177,132 @@ def pattern_replace(bucket, dataType: str, pattern: str, newStr: str):
                 for unique in uniqueMatches:
                     name = name.replace(unique, newStr)
                 obj[__c.__VAR_NAME] = name
+
+def pattern_replace_node_name(bucket, nodeID, pattern: str, newStr: str):
+    node = bucket.data[__c.BUCKET_DATA_NODES][nodeID]
+    if __c.NODE_NAME in node:
+        name = node[__c.NODE_NAME]
+        matches = re.findall(pattern, name)
+        uniqueMatches = set()
+        if len(matches) > 0:
+            if type(matches[0]) == tuple:
+                for group in matches:
+                    for match in group:
+                        if match != "":
+                            uniqueMatches.add(match)
+            else:
+                for match in matches:
+                    uniqueMatches.add(match)
+
+            
+            for unique in uniqueMatches:
+                name = name.replace(unique, newStr)
                 
+            node[__c.NODE_NAME] = name
+
+def pattern_replace_skin_joint_names(bucket, skinID: int, pattern: str, newStr: str):
+    skin = bucket.data[__c.BUCKET_DATA_SKINS][skinID]
+
+    if __c.SKIN_JOINTS in skin:
+        for joint in skin[__c.SKIN_JOINTS]:
+            pattern_replace_node_name(bucket, joint, pattern, newStr)
 
 def create_filter(pattern: str, whitelist: bool):
     return (pattern, whitelist)
+
+def get_all_nodes_in_scene(bucket, sceneID) -> set[int]:
+    if not __c.BUCKET_DATA_SCENES in bucket.data or not __c.BUCKET_DATA_NODES in bucket.data:
+        return None
+    
+    nodes = set()
+    scene = bucket.data[__c.BUCKET_DATA_SCENES][sceneID]
+
+    if not __c.SCENE_NODES in scene:
+        return None
+
+    for nodeID in scene[__c.SCENE_NODES]:
+        if nodeID in nodes:
+            continue
+        hierarchy = get_all_nodes_in_hierarchy(bucket, nodeID)
+        nodes.update(hierarchy)
+        
+    return nodes
+
+def get_all_nodes_in_hierarchy(bucket, topNodeID):
+    def add_children(bucket, node: dict, nodes: set):
+        if not __c.NODE_CHILDREN in node:
+            return
+        for c in node[__c.NODE_CHILDREN]:
+            if c in nodes:
+                continue
+            add_children[bucket, bucket.data[__c.BUCKET_DATA_NODES][c], nodes]
+            nodes.add(c)
+
+    nodes = set()
+    node = bucket.data[__c.BUCKET_DATA_NODES][topNodeID]
+
+    add_children(bucket, node, nodes)
+
+    return nodes
+
+def get_yup_transforms(childAccessor, parent):
+    corrected, m = evaluate_matrix(childAccessor, parent)
+
+    if corrected:
+        position, rotation, scale = m.decompose()
+    else:
+        position, rotation, scale = m.decompose()
+        position = y_up_location(position)
+        rotation = y_up_rotation(rotation)
+        scale = y_up_scale(scale)
+
+    return position, rotation, scale
+
+def evaluate_matrix(childAccessor, parent):
+    """
+    Returns a matrix for the child accessor within parent space.
+    
+    Args:
+        childAccessor (tuple[str, str] or tuple[str, str, str]): Child object accessor
+        parent (tuple[str, str], tuple[str, str, str] or bool): When using boolean set to
+        True the parent will be found automatically, if False then use world space. If
+        If accessor is given then use that object / bone space.
+
+    Returns: tuple[bool, matrix] bool indicates if matrix is Y up
+    """
+
+    if type(childAccessor) == str:
+        childAccessor = (childAccessor, None)
+    if type(parent) == str:
+        parent = (parent, None)
+
+    if childAccessor != None and type(parent) == bool:
+        childObj = bpy.data.objects.get(childAccessor)
+        if parent:
+            if childObj.parent_type == __c.BLENDER_TYPE_BONE:
+                parent = BlenderUtil.get_parent_accessor(childAccessor)
+            else:
+                return False, childObj.matrix_local
+        else:
+            return False, childObj.matrix_world
+
+    if childAccessor != None and type(parent) == tuple:
+        childWorldMatrix = get_world_matrix(childAccessor)
+        parentWorldMatrix = get_world_matrix(parent)
+
+        return False, parentWorldMatrix.inverted_safe() @ childWorldMatrix
+    else:
+        if type(parent) == tuple:
+            parentWorldMatrix = get_world_matrix(parent)
+            return True, parentWorldMatrix.inverted_safe() @ get_basis_matrix_conversion()
+        else:
+            return True, get_basis_matrix_conversion()
+
+def get_world_matrix(accessor: tuple):
+    bone = try_get_bone(accessor)
+    obj = try_get_object(accessor)
+
+    if bone != None:
+        return obj.matrix_world @ bone.matrix
+    else:
+        return obj.matrix_world
