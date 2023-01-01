@@ -183,6 +183,10 @@ BUCKET_SETTING_ENFORCE_SCENE        = "enforce_scene"
 BUCKET_SETTING_TARGET_FRAME         = "target_frame"
 BUCKET_SETTING_TEXT_PRECISION       = "t_float_precision"
 BUCKET_SETTING_BINARY_PRECISION     = "b_float_precision"
+############## Animation specific settings
+BUCKET_SETTING_FRAME_STEP           = "frame_step"
+BUCKET_SETTING_STEP_INTERPOLATION   = "step_interpolation"
+BUCKET_SETTING_OPTIMISE_ANIMATION   = "optimise_keyframes"
 ############## Node specific settings
 BUCKET_SETTING_REDUNDANCY_CHECK_NODE        = "redundancy_check_node"
 BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE    = "default_to_parent_space"

@@ -2,7 +2,9 @@ from io_ggltf.Core import Util
 
 class AnimationDescriber:
     from io_ggltf.Constants import BUCKET_DATA_SKINS, SKIN_JOINTS
-    def __init__(self, name: str, frameStart=None, frameEnd=None, frameStep=1.0, useStepInterpolation=False, optimiseKeys=True):
+    def __init__(self, name: str, frameStart=None, frameEnd=None, frameStep=None, useStepInterpolation=False, optimiseKeys=True):
+        if frameStep == None:
+            frameStep = 1.0
         self.__name = name
         self.__frameStart = frameStart
         self.__frameEnd = frameEnd

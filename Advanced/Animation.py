@@ -4,7 +4,7 @@ from io_ggltf.Core.AnimationDescriber import AnimationDescriber
 from io_ggltf.Core.Scoops.Animation import Animation
 
 @__ShowInUI()
-def create_describer(name: str, frameStart=None, frameEnd=None):
+def create_describer(name: str, frameStart=None, frameEnd=None, frameStep=None, useSteppedInterpolation=None, optimiseKeys=None):
     return AnimationDescriber(name=name, frameStart=frameStart, frameEnd=frameEnd)
 
 @__ShowInUI()

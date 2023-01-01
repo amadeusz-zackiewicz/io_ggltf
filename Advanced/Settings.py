@@ -14,6 +14,10 @@ def get_setting(bucket: Bucket, setting: str):
         return bucket.settings[setting]
 
 __default = {
+        ####### ANIMATION
+        __c.BUCKET_SETTING_FRAME_STEP: 1.0,
+        __c.BUCKET_SETTING_STEP_INTERPOLATION: False,
+        __c.BUCKET_SETTING_OPTIMISE_ANIMATION: True,
         ####### NODE
         __c.BUCKET_SETTING_REDUNDANCY_CHECK_NODE: False,
         __c.BUCKET_SETTING_NODE_DEFAULT_PARENT_SPACE: False,
