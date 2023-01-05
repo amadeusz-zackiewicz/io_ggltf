@@ -1,18 +1,16 @@
 from io_ggltf import Constants as __c
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Managers import RedundancyManager as RM
-from io_ggltf.Core import BlenderUtil, Util
+from io_ggltf.Core import BlenderUtil, Util, ShowFunction
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops.Mesh import ScoopMesh
 from io_ggltf.Advanced import Settings, Attach
 from io_ggltf.Core.Validation import MeshValidation, FilterValidation
 import bpy
-from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 
 __scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)
 __scoop_mesh_command = lambda bucket, objAccessor, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones, name: ScoopMesh.scoop_from_obj(bucket=bucket, objAccessor=objAccessor, normals=normals, tangents=tangents, uvMaps=uvMaps, vertexColors=vertexColors, skinID=skinID, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, maxBoneInfluences=maxBones, assignedID=meshID, name=name)
 
-@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#based_on_object")
 def based_on_object(bucket: Bucket, objAccessor,
 normals=None,
 tangents=None,
@@ -88,7 +86,6 @@ origin=None
 
     return meshID
 
-@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_hierarchy")
 def merged_based_on_hierarchy(bucket: Bucket,
 topObjectAccessor,
 blacklist = {},
@@ -189,3 +186,7 @@ def __resolve_component_arg(bucket, arg, obj, settingName, whenTrue):
     if type(arg) == str:
         arg = [arg]
     return arg
+
+
+ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#based_on_object")
+ShowFunction.Register(merged_based_on_hierarchy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_hierarchy")

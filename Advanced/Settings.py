@@ -1,12 +1,10 @@
 from io_ggltf.Core.Bucket import Bucket
 from io_ggltf import Constants as __c
-from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
+from io_ggltf.Core import ShowFunction
 
-@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Settings-Module#set_setting")
 def set_setting(bucket: Bucket, setting: str, value):
     bucket.settings[setting] = value
 
-@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Settings-Module#get_setting")
 def get_setting(bucket: Bucket, setting: str):
     if not setting in bucket.settings:
         return get_default_dict(setting)
@@ -48,9 +46,12 @@ __default = {
         __c.BUCKET_SETTING_SKIN_AUTO_ATTACH: True
     }
 
-@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Settings-Module#get_default")
 def get_default(setting: str):
     return __default[setting]
 
 def get_default_dict():
     return __default
+
+ShowFunction.Register(set_setting, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Settings-Module#set_setting")
+ShowFunction.Register(get_setting, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Settings-Module#get_setting")
+ShowFunction.Register(get_default, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Settings-Module#get_default")

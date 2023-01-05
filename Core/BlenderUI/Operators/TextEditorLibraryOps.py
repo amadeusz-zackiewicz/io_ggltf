@@ -1,7 +1,7 @@
 import bpy
 import uuid
 import webbrowser
-from io_ggltf.Core.Decorators import _DocsUI
+from io_ggltf.Core import ShowFunction
 
 @classmethod
 def __paste_poll(cls, context):
@@ -40,7 +40,7 @@ def __generate_classes():
         Advanced.Util
         ]
     for module in modules:
-        methods = _DocsUI.scan_module(module)
+        methods = ShowFunction.scan_module(module)
         splitName = module.__name__.split('.')
         moduleName = splitName[-1]
         classes[moduleName] = []

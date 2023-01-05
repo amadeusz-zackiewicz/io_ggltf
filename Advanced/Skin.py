@@ -3,16 +3,14 @@ from io_ggltf.Core.Bucket import Bucket
 from io_ggltf.Core.Util import try_get_object
 from io_ggltf.Core.Scoops import Skin
 from io_ggltf.Core.Managers import RedundancyManager as RM
-from io_ggltf.Core import BlenderUtil, Util
+from io_ggltf.Core import BlenderUtil, Util, ShowFunction
 from io_ggltf.Advanced import Settings, Attach
 import bpy
-from io_ggltf.Core.Decorators import ShowInUI as __ShowInUI
 from io_ggltf.Core.Validation import FilterValidation
 
 __setArmaturePoseCommand = lambda bucket, objAccessor, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objAccessor=objAccessor, poseMode=poseMode)
 __scoopSkinCommand = lambda bucket, skinID, objAccessor, getInverse, boneBlackList, boneOffset, filters, rigify: Skin.scoop_skin(bucket=bucket, objAccessors=objAccessor,getInversedBinds=getInverse, blacklist=boneBlackList, nodeIDOffset=boneOffset, skinID=skinID, filters=filters, stitch=rigify) # TODO: need to provide bone node offsets and skin id
 
-@__ShowInUI(docsURL="https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Skin-Module#based_on_object")
 def based_on_object(
     bucket: Bucket, 
     objAccessor,
@@ -77,7 +75,6 @@ def based_on_object(
         Attach.skin_to_unsafe_node(bucket, skinID, accessor)
 
     return skinID, attachments
-
 
 def based_on_object_modifiers(
     bucket: Bucket, 
@@ -157,7 +154,6 @@ def based_on_object_modifiers(
 
     return skinID, attachments
 
-
 def __link_bone_attachments(bucket: Bucket, attachments, blacklist = set(), filters = []):
     from io_ggltf.Advanced import Node
     attachIDs = []
@@ -187,3 +183,5 @@ def __queue_trim_names(bucket, skinID, rigifyFlags):
                 return
 
             bucket.commandQueue[__c.COMMAND_QUEUE_NAMING].append((Util.pattern_replace_skin_joint_names, (bucket, skinID, pattern, "")))
+
+ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Skin-Module#based_on_object")
