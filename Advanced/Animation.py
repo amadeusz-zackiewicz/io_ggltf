@@ -3,8 +3,8 @@ from io_ggltf.Core import ShowFunction
 from io_ggltf.Core.AnimationDescriber import AnimationDescriber
 from io_ggltf.Core.Scoops.Animation import Animation
 
-def create_describer(name: str, frameStart=None, frameEnd=None, frameStep=None, useSteppedInterpolation=None, optimiseKeys=None):
-    return AnimationDescriber(name=name, frameStart=frameStart, frameEnd=frameEnd, frameStep=frameStep, useSteppedInterpolation=useSteppedInterpolation, optimiseKeys=optimiseKeys)
+def create_describer(name: str, frameStart=None, frameEnd=None, frameStep=None, useStepInterpolation=None, optimiseKeys=None):
+    return AnimationDescriber(name=name, frameStart=frameStart, frameEnd=frameEnd, frameStep=frameStep, useStepInterpolation=useStepInterpolation, optimiseKeys=optimiseKeys)
 
 def add(bucket, animDescriber: AnimationDescriber):
     copyDescriber = animDescriber.copy()
