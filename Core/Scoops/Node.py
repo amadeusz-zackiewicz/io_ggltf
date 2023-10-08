@@ -70,7 +70,7 @@ def obj_to_node(
 
 def make_dummy(bucket: Bucket, assignedID, name):
     bucket.data[BUCKET_DATA_NODES][assignedID] = obj_to_node(name)
-    __record_space(bucket, assignedID, None, None, None)
+    __record_space(bucket, assignedID, None, None)
 
 
 def scoop(bucket: Bucket, assignedID, accessor, parent = False):
