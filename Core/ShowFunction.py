@@ -22,9 +22,9 @@ def scan_module(module):
             for name in dir(module):
                 moduleAttr = getattr(module, name)
                 if inspect.isfunction(moduleAttr):
-                    print(moduleAttr)
+                    #print(moduleAttr)
                     show = getattr(moduleAttr, "_showInUI", 0)
-                    print(show)
+                    #print(show)
                     if show == True:
                         yield moduleAttr.__name__, moduleAttr.__doc__, moduleAttr._prettySignature, moduleAttr._docURL
         
