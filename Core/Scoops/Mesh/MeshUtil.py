@@ -124,12 +124,9 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
                 p.positions.append(compound.position)
                 p.normals.append(compound.normal)
                 p.tangents.append(compound.tangent)
-
-                for division in range(influenceDivisions): # vectorize the IDs and influences
-                    vbID = [compound.boneID[division], compound.boneID[division + 1], compound.boneID[division + 2], compound.boneID[division + 3]]
-                    vInf = [compound.boneInfluence[division], compound.boneInfluence[division + 1], compound.boneInfluence[division + 2], compound.boneInfluence[division + 3]]
-                    p.boneID[division].append(vbID)
-                    p.boneInfluence[division].append(vInf)
+                for division in range(0, influenceDivisions): # vectorize the IDs and influences
+                    p.boneID[division].append([compound.boneID[division * 4], compound.boneID[division * 4 + 1], compound.boneID[division * 4 + 2], compound.boneID[division * 4 + 3]])
+                    p.boneInfluence[division].append([compound.boneInfluence[division * 4], compound.boneInfluence[division * 4 + 1], compound.boneInfluence[division * 4 + 2], compound.boneInfluence[division * 4 + 3]])
 
                 for i, uv in enumerate(compound.uv):
                     p.uv[i].append(uv)

@@ -92,8 +92,9 @@ class Primitive:
         self.positions.extend(other.positions)
         self.normals.extend(other.normals)
         self.tangents.extend(other.tangents)
-        self.boneID.extend(other.boneID)
-        self.boneInfluence.extend(other.boneInfluence)
+        for div, _ in enumerate(self.boneID):
+            self.boneID[div].extend(other.boneID[div])
+            self.boneInfluence[div].extend(other.boneInfluence[div])
 
         self.indices.extend([index + maxIndex for index in other.indices])
 
