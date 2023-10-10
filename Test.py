@@ -215,6 +215,12 @@ if __name__ == "__main__":
 
     differ = difflib.HtmlDiff(wrapcolumn=80)
 
+    # TODO: rework this in 0.3.0 to allow small differenes (such as floats being off by 0.000001) 
+    # and stop using HTML diff lib as its super slow on large files and useless on binary ones
+    # make a small and cheap importing lib to compare everything, 
+    # production_character_export_skinned will always raise data / size error even if its
+    # identical due to differing in size by 1b.... why?!?!?
+
     ## comparison tests
     toDiff = []
     for outputFileName in os.listdir(testOutputPath):
@@ -258,9 +264,9 @@ if __name__ == "__main__":
             print(f"Warning: {outputFileName} -- Failed to find comparison file")
             continue
 
-    for oldFilePath, newFilePath in toDiff:
-        newFile = open(newFilePath, "r")
-        oldFile = open(oldFilePath, "r")
+    #for oldFilePath, newFilePath in toDiff:
+        #newFile = open(newFilePath, "r")
+        #oldFile = open(oldFilePath, "r")
         # if compareBinary:
         #     # newSeq = str(binascii.b2a_base64(bytes(newFile.read())))
         #     # oldSeq = str(binascii.b2a_base64(bytes(oldFile.read())))
@@ -268,14 +274,14 @@ if __name__ == "__main__":
         #     # oldSeq = [oldSeq[i:i+80] for i in range(0, len(oldSeq), 80)]
         # else:
 
-        newSeq = newFile.readlines()
-        oldSeq = oldFile.readlines()
+        #newSeq = newFile.readlines()
+        #oldSeq = oldFile.readlines()
 
-        f = open(testOutputPath + f"__diff_{outputFileName}.html", "w")
-        f.write(differ.make_file(oldSeq, newSeq))
-        f.close()
-        newFile.close()
-        oldFile.close()
+        #f = open(testOutputPath + f"__diff_{outputFileName}.html", "w")
+        #f.write(differ.make_file(oldSeq, newSeq))
+        #f.close()
+        #newFile.close()
+        #oldFile.close()
         
 
     sys.stdout.write("\033[2K\033[1G")
