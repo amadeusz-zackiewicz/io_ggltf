@@ -80,7 +80,7 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
             tangent = Vector((tangent[0], tangent[1], tangent[2], loop.bitangent_sign))
         else:
             tangent = Vector((0.0, 0.0, 0.0, 0.0))
-        boneID, boneInflu = get_vertex_bone_info(loop.vertex_index, vertexGroups, skinDefinition, maxInfluences)
+        boneID, boneInflu = get_vertex_weights(vertices[loop.vertex_index], vertexGroups, skinDefinition, maxInfluences)
         uv = [None] * len(uvLoops)
         vColor = [None] * len(vcLoops)
         shapeKey = [None] * len(shapeIDs)
@@ -144,44 +144,35 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
     return primitives
 
 
-def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
+def get_vertex_weights(vertex, vertexGroups, skinDefinition, maxInfleunces):
     """
-    Returns array of boneIDs and array of bone influences (normalized)
+    Returns array of boneIDs and array of bone influences (normalized), always divisible by 4
     """
     if maxInfleunces <= 0:
         return ([], [])
 
-    boneInfo = []
+    vertexWeights = []
 
-    for boneName in skinDefinition.keys():
-        group = vertexGroups.get(boneName)
-        if group != None:
-            try:
-                weight = group.weight(vertID)
-            except RuntimeError:
-                weight = 0.0
-            boneInfo.append((skinDefinition[boneName], weight))
+    for vertexGroupElement in vertex.groups:
+        vertexGroupName = vertexGroups[vertexGroupElement.group].name
+        if vertexGroupName in skinDefinition.keys():
+            vertexWeights.append((skinDefinition[vertexGroupName], vertexGroupElement.weight))
 
+    if maxInfleunces > len(vertexWeights):
+        for _ in range(len(vertexWeights), maxInfleunces):
+            vertexWeights.append((0, 0.0)) # insert empty data if there isn't enough to match the influence count
 
-    if maxInfleunces > len(boneInfo):
-        for _ in range(len(boneInfo), maxInfleunces):
-            boneInfo.append((0, 0.0)) # insert empty data if there isn't enough to match the influence count
+    vertexWeights.sort(key=lambda k: k[1], reverse=True) # sort by weight, highest -> lowest
+    vertexWeights = vertexWeights[:maxInfleunces] # slice list to ensure it is divisable by 4
 
-    boneInfo.sort(key=lambda k: k[1], reverse=True) # sort by weight, highest -> lowest
-
-    if len(boneInfo) > maxInfleunces:
-        boneInfo = boneInfo[:maxInfleunces] # slice the list
-
+    # convert both to arrays since thats how they will be stored by the primitives, tuples were just for easier sorting
     boneID = []
     boneInflu = []
-    for bf in boneInfo:
-        if bf[1] == 0.0:
-            boneID.append(0)
-            boneInflu.append(0.0)
-        else:
-            boneID.append(bf[0])
-            boneInflu.append(bf[1])
+    for bf in vertexWeights:
+        boneID.append(bf[0])
+        boneInflu.append(bf[1])
 
+    # ensure that total weight of all influences is 1.0 (or as close to it as float allows *shrug*)
     normalizer = sum(boneInflu)
     if normalizer != 0.0:
         normalizer = 1.0 / normalizer
@@ -189,7 +180,7 @@ def get_vertex_bone_info(vertID, vertexGroups, skinDefinition, maxInfleunces):
             boneInflu[i] = b * normalizer
     else:
         boneInflu[0] = 1.0
-    #print(vertID, boneID, boneInflu, boneInfo, sum(boneInflu))
+
     return boneID, boneInflu
 
 
