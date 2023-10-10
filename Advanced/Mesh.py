@@ -273,4 +273,4 @@ origin=None
 
 ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#based_on_object")
 ShowFunction.Register(merged_based_on_hierarchy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_hierarchy")
-ShowFunction.Register(merged_based_on_list)
+ShowFunction.Register(merged_based_on_list, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_list")
