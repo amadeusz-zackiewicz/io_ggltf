@@ -187,6 +187,90 @@ def __resolve_component_arg(bucket, arg, obj, settingName, whenTrue):
         arg = [arg]
     return arg
 
+def merged_based_on_list(bucket: Bucket,
+objectAccessors,
+blacklist = {},
+name="NewMesh",
+normals=None,
+tangents=None,
+uvMaps=None,
+vertexColors=None,
+boneInfluenceCount=None,
+skinID=None,
+shapeKeys=None,
+shapeKeyNormals=None,
+shapeKeyTangents=None,
+shapeKeyUVs=None,
+filters=[],
+origin=None
+) -> int:
+    """Merge all the meshes in the list into one, using a custom origin point (first object by default). 
+    In case of UV maps, vertex colors and shape keys, all meshes must contain each one specified"""
+
+    def collect_mesh_objects(accessors: list, collected: list, blacklist, filters):
+        for accessor in accessors:
+            obj = try_get_object(accessor)
+            if obj == None:
+                continue
+
+            if obj.name in blacklist or not Util.name_passes_filters(filters, obj.name):
+                continue
+
+            if obj.type == __c.BLENDER_TYPE_MESH:
+                collected.append(obj)
+
+    filters = FilterValidation.validate_filter_arg(filters)
+    if normals == None:
+        normals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_NORMALS]
+    if tangents == None:
+        tangents = bucket.settings[__c.BUCKET_SETTING_MESH_GET_TANGENTS]
+    if skinID != None:
+        if boneInfluenceCount == None:
+            boneInfluenceCount = bucket.settings[__c.BUCKET_SETTING_MESH_MAX_BONES]
+    else:
+        boneInfluenceCount = 0
+    if shapeKeyNormals == None:
+        shapeKeyNormals = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_NORMALS]
+    if shapeKeyTangents == None:
+        shapeKeyTangents = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_TANGENTS]
+    if shapeKeyUVs == None:
+        shapeKeyUVs = bucket.settings[__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS_UV]
+
+    meshObjects = []
+
+    collect_mesh_objects(objectAccessors, meshObjects, blacklist, filters)
+
+    if len(meshObjects) > 0:
+        uvMaps = __resolve_component_arg(bucket=bucket, arg=uvMaps, obj=meshObjects[0], settingName=__c.BUCKET_SETTING_MESH_GET_UVS, whenTrue=BlenderUtil.get_active_uv_map_name)
+        vertexColors = __resolve_component_arg(bucket=bucket, arg=vertexColors, obj=meshObjects[0], settingName=__c.BUCKET_SETTING_MESH_GET_VERTEX_COLORS, whenTrue=BlenderUtil.get_active_vertex_color_name)
+        shapeKeys = __resolve_component_arg(bucket=bucket, arg=shapeKeys, obj=meshObjects[0], settingName=__c.BUCKET_SETTING_MESH_GET_SHAPE_KEYS, whenTrue=BlenderUtil.get_active_shape_key_names)
+
+        MeshValidation.validate_meshes(meshObjects)
+        MeshValidation.validate_uv_maps(meshObjects, uvMaps)
+        MeshValidation.validate_vertex_colors(meshObjects, vertexColors)
+        MeshValidation.validate_shape_keys(meshObjects, shapeKeys)
+
+        meshID = RM.register_unsafe(bucket, [BlenderUtil.get_object_accessor(o) for o in meshObjects], __c.BUCKET_DATA_MESHES)
+
+        for obj in meshObjects:
+            BlenderUtil.queue_reset_modifier_changes(bucket, obj, __c.BLENDER_MODIFIER_ARMATURE)
+            BlenderUtil.queue_disable_modifier_type(bucket, obj, __c.BLENDER_MODIFIER_ARMATURE, __c.COMMAND_QUEUE_MESH)
+            
+        BlenderUtil.queue_update_depsgraph(bucket, __c.COMMAND_QUEUE_MESH)
+        
+        if origin == None:
+            origin = BlenderUtil.get_object_accessor(meshObjects[0])
+        else:
+            originObj = try_get_object(origin)
+            origin = BlenderUtil.get_object_accessor(originObj)
+
+        bucket.commandQueue[__c.COMMAND_QUEUE_MESH].append((__scoop_merged_command, (bucket, [BlenderUtil.get_object_accessor(obj) for obj in meshObjects], origin, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, boneInfluenceCount)))
+
+        return meshID
+    else:
+        print(f"No meshes found in list: {objectAccessors}")
+        return None
 
 ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#based_on_object")
 ShowFunction.Register(merged_based_on_hierarchy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_hierarchy")
+ShowFunction.Register(merged_based_on_list)
