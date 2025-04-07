@@ -25,9 +25,9 @@ class Compound:
             if a.normal[i] != b.normal[i]: return False
         for i in range(len(a.uv)): # compare each uv
             if a.uv[i].x != b.uv[i].x or a.uv[i].y != b.uv[i].y: return False
-        for i in range(len(a.vColor)): # compare each vertex color
-            for vc_i in range(len(a.vColor)):
-                if a.vColor[i][vc_i] != b.vColor[i][vc_i]: return False
+        for i in range(len(a.color)): # compare each vertex color
+            for vc_i in range(len(a.color)):
+                if a.color[i][vc_i] != b.color[i][vc_i]: return False
         for i in range(len(a.shapeKey)): # compare shape keys
             if a.shapeKey[i] != b.shapeKey[i]: return False
         if a.tangent != None:

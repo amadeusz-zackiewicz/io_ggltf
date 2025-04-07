@@ -29,9 +29,6 @@ def decompose_into_indexed_triangles(mesh, vertexGroups, normals, tangents, uvID
 
     influenceDivisions = int(maxInfluences / 4)
 
-    if normals:
-        mesh.calc_normals_split()
-
     if tangents:
         mesh.calc_tangents()
         
