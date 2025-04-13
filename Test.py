@@ -9,6 +9,11 @@ import getopt
 import binascii
 import difflib
 
+sys.path.append("/")
+os.system("")
+
+from Tests.comparers import CompareFile as CompareFile
+
 blenderPath = None
 addonName = "io_ggltf"
 pathSplit = os.path.sep
@@ -146,7 +151,7 @@ if __name__ == "__main__":
 
     ## export tests
     if not skipExports:
-
+        print("Export tests:")
         for file in os.listdir(testOutputPath):
             absFilePath = testOutputPath + file
             if os.path.isfile(absFilePath):
@@ -155,11 +160,10 @@ if __name__ == "__main__":
         for i, test in enumerate(testList):
             testName = f"{os.path.basename(test[0]).replace('.blend', '')}_{os.path.basename(test[1]).replace('.py', '')}"
             try:
-                sys.stdout.write("\033[2K\033[1G")
-                print(f"\r({i}/{len(testList)}) Export test - {testName}", end="")
+                print(f"\x1b[1A\x1b[2K({i}/{len(testList)}) Export test - {testName}")
                 process = subprocess.run([blenderPath, test[0], "-b", "--factory-startup", "--addons", addonName, "-P", test[1]], capture_output=True)
             except:
-                print(f"\r{testName}", traceback.format_exc())
+                print(f"\x1b[1A\x1b[2K{testName}", traceback.format_exc())
             finally:
 
                 errString = str(process.stderr, encoding="ascii")
@@ -174,8 +178,7 @@ if __name__ == "__main__":
 
                 if errHasIssues or outHasIssues or _print:
                     if errHasIssues or outHasIssues:
-                        sys.stdout.write("\033[2K\033[1G")
-                        print(f"\r{testName} failed, please check the .txt file for details")
+                        print(f"\x1b[1A\x1b[2K{testName} failed, please check the .txt file for details.\n")
 
                     outputFilePath = f"{testOutputPath}_{testName}.txt"
 
@@ -190,8 +193,7 @@ if __name__ == "__main__":
 
         del testList
 
-        sys.stdout.write("\033[2K\033[1G")
-        print("\t\tExport tests finished")
+        print("\x1b[1A\x1b[2K\t\tExport tests finished")
 
 ####################################################################################### Export tests finished
 
@@ -213,7 +215,7 @@ if __name__ == "__main__":
             else:
                 return None # end of file
 
-    differ = difflib.HtmlDiff(wrapcolumn=80)
+    #differ = difflib.HtmlDiff(wrapcolumn=80)
 
     # TODO: rework this in 0.3.0 to allow small differenes (such as floats being off by 0.000001) 
     # and stop using HTML diff lib as its super slow on large files and useless on binary ones
@@ -222,67 +224,23 @@ if __name__ == "__main__":
     # identical due to differing in size by 1b.... why?!?!?
 
     ## comparison tests
-    toDiff = []
+    print("")
     for outputFileName in os.listdir(testOutputPath):
-        if re.search("(\.txt$)|(\.html$)", outputFileName):
-            continue 
-        sys.stdout.write("\033[2K\033[1G")
-        print("\rComparison test:", outputFileName, end="")
-        if os.path.exists(testComparisonOutputPath + outputFileName):
-            
-            newFileSize = os.stat(testOutputPath + outputFileName).st_size
-            oldFileSize = os.stat(testComparisonOutputPath + outputFileName).st_size
+        if re.search("(\.gltf$)|(\.glb$)", outputFileName):
+            sys.stdout.flush()
+            print("\x1b[1A\x1b[2KComparison test:", outputFileName)
+            if os.path.exists(testComparisonOutputPath + outputFileName):
+                errStr = CompareFile.compare_files(testComparisonOutputPath + outputFileName, testOutputPath + outputFileName)
+                
+                if errStr != "":
+                    comparisonReport = open(testOutputPath + "_comparison__" + outputFileName + ".txt", "+w")
+                    comparisonReport.write(errStr)
+                    comparisonReport.close()
 
-            compareFailed = False
-            compareBinary = re.search("(.*\.bin$)|(.*\.glb$)", outputFileName) != None
-
-            if newFileSize != oldFileSize:
-                print(f"\rFailure (file size mismatch): {outputFileName}")
-                compareFailed = True
-
-            if compareBinary:
-                newFile = open(testOutputPath + outputFileName, "rb")
-                oldFile = open(testComparisonOutputPath + outputFileName, "rb")
+                    print(f"\x1b[1A\x1b[2KFailure (check .txt file for details): {outputFileName}\n")
             else:
-                newFile = open(testOutputPath + outputFileName, "r")
-                oldFile = open(testComparisonOutputPath + outputFileName, "r")
+                print(f"\x1b[1A\x1b[2KWarning: {outputFileName} -- Failed to find comparison file\n")
+                continue
 
-            if not compareFailed:
-                for chunkMismatched in compare_chunk(oldFile, newFile, 256, compareBinary):
-                    if chunkMismatched != False:
-                        compareFailed = True
-                        print(f"\rFailure (file data mismatch): {outputFileName}")
-                        break
-            
-            newFile.close()
-            oldFile.close()
-            # binary takes far too long to produce a diff and its unreadable anyway
-            if compareFailed and not compareBinary:
-                toDiff.append((testComparisonOutputPath + outputFileName, testOutputPath + outputFileName))
-        else:
-            sys.stdout.write("\033[2K\033[1G")
-            print(f"Warning: {outputFileName} -- Failed to find comparison file")
-            continue
-
-    #for oldFilePath, newFilePath in toDiff:
-        #newFile = open(newFilePath, "r")
-        #oldFile = open(oldFilePath, "r")
-        # if compareBinary:
-        #     # newSeq = str(binascii.b2a_base64(bytes(newFile.read())))
-        #     # oldSeq = str(binascii.b2a_base64(bytes(oldFile.read())))
-        #     # newSeq = [newSeq[i:i+80] for i in range(0, len(newSeq), 80)]
-        #     # oldSeq = [oldSeq[i:i+80] for i in range(0, len(oldSeq), 80)]
-        # else:
-
-        #newSeq = newFile.readlines()
-        #oldSeq = oldFile.readlines()
-
-        #f = open(testOutputPath + f"__diff_{outputFileName}.html", "w")
-        #f.write(differ.make_file(oldSeq, newSeq))
-        #f.close()
-        #newFile.close()
-        #oldFile.close()
-        
-
-    sys.stdout.write("\033[2K\033[1G")
-    print("\t\tComparison tests finished")
+    sys.stdout.flush()
+    print("\x1b[1A\x1b[2K\t\tComparison tests finished")
