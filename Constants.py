@@ -331,6 +331,13 @@ ANIMATION_SAMPLER_INTERPOLATION_TYPE_STEP       = "STEP"
 ANIMATION_SAMPLER_INTERPOLATION_TYPE_CUBIC      = "CUBICSPLINE"
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.9 Asset
+ASSET_COPYRIGHT									= "copyright"
+ASSET_GENERATOR									= "generator"
+ASSET_VERSION									= "version"
+ASSET_MIN_VERSION								= "minVersion"
+ASSET_EXTENSTIONS								= "extensions"
+ASSET_EXTRAS									= "extras"
+
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.10 Buffer
 BUFFER_URI                                      = "uri"
 BUFFER_BYTE_LENGTH                              = "byteLength"
@@ -352,6 +359,27 @@ BUFFER_VIEW_EXTRA = __VAR_EXTRA
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.12 Camera
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.15 Extension
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.16 Extras
+
+#https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.17 glTF
+GLTF_EXTENSIONS_USED					= "extensionsUsed"
+GLTF_EXTENSIONS_REQUIRED				= "extensionsRequired"
+GLTF_ACCESSOR							= "accessors"
+GLTF_ANIMATION							= "animations"
+GLTF_ASSET								= "asset"
+GLTF_BUFFER								= "buffers"
+GLTF_BUFFER_VIEW						= "bufferViews"
+GLTF_CAMERA								= "cameras"
+GLTF_TYPE_IMAGE 						= "images"
+GLTF_MATERIAL 							= "materials"
+GLTF_MESH 								= "meshes"
+GLTF_NODE								= "nodes"
+GLTF_SAMPLER							= "samplers"
+GLTF_DEFAULT_SCENE						= "scene"
+GLTF_SCENE								= "scenes"
+GLTF_SKIN								= "skins"
+GLTF_TEXTURE							= "textures"
+GLTF_EXTENSION							= __VAR_EXTENSION
+GLTF_EXTRA								= __VAR_EXTRA
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.18 Image
 IMAGE_URI                               = __VAR_URI
