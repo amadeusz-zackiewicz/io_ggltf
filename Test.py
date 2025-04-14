@@ -197,32 +197,6 @@ if __name__ == "__main__":
 
 ####################################################################################### Export tests finished
 
-    def compare_chunk(file1: io.FileIO, file2: io.FileIO, chunkSize, isBinary):
-        """Return true if chunks do not match"""
-        while True:
-            if isBinary:
-                chunk1 = binascii.b2a_hex(file1.read(chunkSize))
-                chunk2 = binascii.b2a_hex(file2.read(chunkSize))
-            else:
-                chunk1 = file1.read(chunkSize)
-                chunk2 = file2.read(chunkSize)
-
-            if chunk1 and chunk2:
-                if chunk1 == chunk2:
-                    yield False
-                else:
-                    yield True
-            else:
-                return None # end of file
-
-    #differ = difflib.HtmlDiff(wrapcolumn=80)
-
-    # TODO: rework this in 0.3.0 to allow small differenes (such as floats being off by 0.000001) 
-    # and stop using HTML diff lib as its super slow on large files and useless on binary ones
-    # make a small and cheap importing lib to compare everything, 
-    # production_character_export_skinned will always raise data / size error even if its
-    # identical due to differing in size by 1b.... why?!?!?
-
     ## comparison tests
     print("")
     for outputFileName in os.listdir(testOutputPath):
