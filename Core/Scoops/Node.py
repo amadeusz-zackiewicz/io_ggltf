@@ -3,7 +3,7 @@ from io_ggltf.Constants import *
 from io_ggltf.Simple import Mesh
 from io_ggltf.Core.Bucket import Bucket
 
-scaleErrorCorrection = 0.000001
+scaleErrorCorrection = 0.000002
 
 def obj_to_node(
     name = None,
@@ -49,14 +49,15 @@ def obj_to_node(
 
     if scale != None:
         s = Util.bl_math_to_gltf_list(scale)
-        Util.round_float_list_to_precision(s, floatPrecision)
-        
+
         for i in range(3):
-            if abs(s[i] - 1.0) < scaleErrorCorrection:
+            if abs(s[i] - 1.0) <= scaleErrorCorrection:
                 if s[i] < 0.0:
                     s[i] = -1.0
-            else:
-             s[i] = 1.0
+                else:
+                    s[i] = 1.0
+
+        Util.round_float_list_to_precision(s, floatPrecision)
         
         if s[0] == 1.0 and s[1] == 1.0 and s[2] == 1.0:
             pass
