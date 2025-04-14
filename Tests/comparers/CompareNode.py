@@ -201,6 +201,6 @@ def _compare_weights(originalNode, testNode, nodeName, floatTolerance) -> str:
 	if errStr != "": # if rotation size has mismatch then return
 		return errStr
 	
-	errStr += _compare_float_array(scaleLenght, originalWeights, testWeights, nodeName, C.NODE_WEIGHTS, floatTolerance)
+	errStr += _compare_float_array(len(originalWeights), originalWeights, testWeights, nodeName, C.NODE_WEIGHTS, floatTolerance)
 
 	return errStr
