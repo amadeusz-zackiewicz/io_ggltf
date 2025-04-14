@@ -8,9 +8,6 @@ from io_ggltf.Constants import *
 from io_ggltf.Core import Collector
 
 # https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf ----- 4.4 glTF Layout
-__BINARY_MAGIC_NUMBER = 0x46546C67
-__BINARY_JSON_NUMBER = 0x4E4F534A
-__BINARY_CHUNK_NUMBER = 0x004E4942
 __BINARY_JSON_PAD = b" "
 __BINARY_PAD = b"\0"
 __BINARY_VERSION_NUMBER = 2
@@ -91,17 +88,17 @@ def dump_glb(path : str, data, blobs):
     __prep_path(path)
     f = open(path + FILE_EXT_GLB, "w+b")
 
-    f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_MAGIC_NUMBER))
+    f.write(struct.pack(PACKING_FORMAT_U_INT, FILE_BIN_MAGIC_NUMBER))
     f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_VERSION_NUMBER))
     f.write(struct.pack(PACKING_FORMAT_U_INT, 0)) # temporarily write empty bytes where the file size should be
     f.write(struct.pack(PACKING_FORMAT_U_INT, js_len))
-    f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_JSON_NUMBER))
+    f.write(struct.pack(PACKING_FORMAT_U_INT, FILE_BIN_CHUNK_TYPE_JSON))
     f.write(js)
     f.write(__BINARY_JSON_PAD * (len(js) % 4))
 
     for b in blobs:
         f.write(struct.pack(PACKING_FORMAT_U_INT, len(b) + len(b) % 4))
-        f.write(struct.pack(PACKING_FORMAT_U_INT, __BINARY_CHUNK_NUMBER))
+        f.write(struct.pack(PACKING_FORMAT_U_INT, FILE_BIN_CHUNK_TYPE_BIN))
         f.write(b)
         f.write(__BINARY_PAD * (len(b) % 4))
     
