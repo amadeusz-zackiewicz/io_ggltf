@@ -4,7 +4,6 @@ import os
 import base64
 
 __GLTF_GLB_PADDING = b"\x00"
-__GLTF_EMBEDDED_PREFIX = "data:application/octet-stream;base64,"
 
 def add_bytes(bucket, bytes: bytearray):
     """
@@ -85,8 +84,12 @@ def __get_uri(bucket, id):
     if fileType == FILE_TYPE_GLTF:
         return bucket.settings[BUCKET_SETTING_BINPATH] + bucket.settings[BUCKET_SETTING_FILENAME]+ "_" + str(id) + FILE_EXT_BIN
     if fileType == FILE_TYPE_GLTF_EMBEDDED:
-        return __GLTF_EMBEDDED_PREFIX
+        return FILE_INTERNAL_BASE64_PREFIX
 
     
-def __into_base64(bytes):
-    return base64.b64encode(bytes)
+def __into_base64(rawBytes):
+    bs64Bytes = bytearray(base64.b64encode(rawBytes))
+    padAmount = len(bs64Bytes) % 4
+    if padAmount > 0:
+        bs64Bytes.append("=" * padAmount)
+    return bytes(bs64Bytes)
