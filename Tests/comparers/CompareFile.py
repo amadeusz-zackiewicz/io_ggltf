@@ -3,9 +3,10 @@ import os
 import struct
 import base64
 import Constants as C
-from . import CompareBuffer as CompareBuffer
-from . import CompareAsset as CompareAsset
-from . import CompareNode as CompareNode
+from . import CompareBuffer
+from . import CompareAsset
+from . import CompareNode
+from . import CompareSkin
 
 floatErrTolerance = 0.01
 
@@ -160,6 +161,7 @@ def _compare_glb(originalFilePath, testFilePath) -> str:
 
 	errorStr += _compare_asset(originalGltf, testGltf)
 	errorStr += _compare_nodes(originalGltf, testGltf)
+	errorStr += _compare_skins(originalGltf, testGltf, originalBuffersMap, testBuffersMap, floatErrTolerance)
 
 	return errorStr
 
@@ -188,6 +190,7 @@ def _compare_gltf(originalFilePath, testFilePath) -> str:
 
 	errorStr += _compare_asset(originalGltf, testGltf)
 	errorStr += _compare_nodes(originalGltf, testGltf)
+	errorStr += _compare_skins(originalGltf, testGltf, originalBuffersMap, testBuffersMap, floatErrTolerance)
 
 	return errorStr
 
@@ -214,13 +217,31 @@ def _compare_nodes(originalGltf, testGltf) -> str:
 		return ""
 	
 	if not C.GLTF_NODE in originalGltf:
-		errStr += f"\tNo {C.GLTF_NODE} found in original file.\n"
+		errStr += f"No {C.GLTF_NODE} found in original file.\n"
 	if not C.GLTF_NODE in testGltf:
-		errStr += f"\tNo {C.GLTF_NODE} found in test file.\n"
+		errStr += f"No {C.GLTF_NODE} found in test file.\n"
 
 	if errStr != "": # if nodes are missing from only 1 file, then skip comparison
 		return errStr
 	
 	errStr += CompareNode.compare_nodes(originalGltf, testGltf, floatErrTolerance)
+
+	return errStr
+
+def _compare_skins(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance) -> str:
+	errStr = ""
+
+	if not C.GLTF_SKIN in originalGltf and not C.GLTF_SKIN in testGltf:
+		return ""
+	
+	if not C.GLTF_NODE in originalGltf:
+		errStr += f"No {C.GLTF_SKIN} found in original file.\n"
+	if not C.GLTF_NODE in testGltf:
+		errStr += f"No {C.GLTF_SKIN} found in test file.\n"
+
+	if errStr != "": # if nodes are missing from only 1 file, then skip comparison
+		return errStr
+	
+	errStr += CompareSkin.compare_skins(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance)
 
 	return errStr

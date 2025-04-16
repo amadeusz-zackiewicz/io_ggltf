@@ -32,34 +32,6 @@ def compare_nodes(originalGltf, testGltf, floatTolerance) -> str:
 		i += 1
 
 	return errStr
-
-def _check_float_array_size(expectedSize, originalArray, testArray, name, keyHint) -> str:
-	errStr = ""
-
-	if len(originalArray) != expectedSize:
-		errStr += f"Node <{name}> has incorrect {keyHint} size in original file: {len(originalArray)}.\n"
-	if len(testArray) != expectedSize:
-		errStr += f"Node <{name}> has incorrect {keyHint} size in test file: {len(testArray)}.\n"
-
-	return errStr
-
-def _compare_float_array(size, originalArray, testArray, name, keyHint, floatTolerance) -> str:
-	errStr = ""
-
-	i = 0
-	while i < size:
-		originalValue = originalArray[i]
-		testValue = testArray[i]
-
-		diff = abs(originalValue - testValue)
-
-		if diff > floatTolerance:
-			errStr += f"{keyHint} mismatch in nodes <{name}>:\n\t{originalArray}\n\t{testArray}\n"
-			break
-
-		i += 1	
-
-	return errStr
 	
 def _compare_matrix(originalNode, testNode, nodeName, floatTolerance) -> str:
 	errStr = ""
@@ -71,11 +43,11 @@ def _compare_matrix(originalNode, testNode, nodeName, floatTolerance) -> str:
 	originalMatrix = originalNode[C.NODE_MATRIX]
 	testMatrix = testNode[C.NODE_MATRIX]
 
-	errStr += _check_float_array_size(matrixLenght, originalMatrix, testMatrix, nodeName)
+	errStr += CompareCommon.check_array_size(matrixLenght, originalMatrix, testMatrix, nodeName, C.NODE_MATRIX, C.GLTF_NODE)
 	if errStr != "": # if matrix size has mismatch then return
 		return errStr
 	
-	errStr += _compare_float_array(matrixLenght, originalMatrix, testMatrix, nodeName, C.NODE_MATRIX, floatTolerance)
+	errStr += CompareCommon.compare_float_array(matrixLenght, originalMatrix, testMatrix, nodeName, C.NODE_MATRIX, C.GLTF_NODE, floatTolerance)
 
 	return errStr
 
@@ -89,11 +61,11 @@ def _compare_translation(originalNode, testNode, nodeName, floatTolerance) -> st
 	originalTranslation = originalNode[C.NODE_TRANSLATION]
 	testTranslation = testNode[C.NODE_TRANSLATION]
 
-	errStr += _check_float_array_size(translationLength, originalTranslation, testTranslation, nodeName, C.NODE_TRANSLATION)
+	errStr += CompareCommon.check_array_size(translationLength, originalTranslation, testTranslation, nodeName, C.NODE_TRANSLATION, C.GLTF_NODE)
 	if errStr != "": # if translation size has mismatch then return
 		return errStr
 	
-	errStr += _compare_float_array(translationLength, originalTranslation, testTranslation, nodeName, C.NODE_TRANSLATION, floatTolerance)
+	errStr += CompareCommon.compare_float_array(translationLength, originalTranslation, testTranslation, nodeName, C.NODE_TRANSLATION, C.GLTF_NODE, floatTolerance)
 
 	return errStr
 
@@ -107,11 +79,11 @@ def _compare_rotation(originalNode, testNode, nodeName, floatTolerance) -> str:
 	originalRotation = originalNode[C.NODE_ROTATION]
 	testRotation = testNode[C.NODE_ROTATION]
 
-	errStr += _check_float_array_size(rotationLenght, originalRotation, testRotation, nodeName, C.NODE_ROTATION)
+	errStr += CompareCommon.check_array_size(rotationLenght, originalRotation, testRotation, nodeName, C.NODE_ROTATION, C.GLTF_NODE)
 	if errStr != "": # if rotation size has mismatch then return
 		return errStr
 	
-	errStr += _compare_float_array(rotationLenght, originalRotation, testRotation, nodeName, C.NODE_ROTATION, floatTolerance)
+	errStr += CompareCommon.compare_float_array(rotationLenght, originalRotation, testRotation, nodeName, C.NODE_ROTATION, C.GLTF_NODE, floatTolerance)
 
 	return errStr
 
@@ -125,11 +97,11 @@ def _compare_scale(originalNode, testNode, nodeName, floatTolerance) -> str:
 	originalScale = originalNode[C.NODE_SCALE]
 	testScale = testNode[C.NODE_SCALE]
 
-	errStr += _check_float_array_size(scaleLenght, originalScale, testScale, nodeName, C.NODE_SCALE)
+	errStr += CompareCommon.check_array_size(scaleLenght, originalScale, testScale, nodeName, C.NODE_SCALE, C.GLTF_NODE)
 	if errStr != "": # if scale size has mismatch then return
 		return errStr
 	
-	errStr += _compare_float_array(scaleLenght, originalScale, testScale, nodeName, C.NODE_SCALE, floatTolerance)
+	errStr += CompareCommon.compare_float_array(scaleLenght, originalScale, testScale, nodeName, C.NODE_SCALE, C.GLTF_NODE, floatTolerance)
 
 	return errStr
 
@@ -197,10 +169,10 @@ def _compare_weights(originalNode, testNode, nodeName, floatTolerance) -> str:
 	originalWeights = originalNode[C.NODE_WEIGHTS]
 	testWeights = testNode[C.NODE_WEIGHTS]
 
-	errStr += _check_float_array_size(len(originalWeights), originalWeights, testWeights, nodeName, C.NODE_WEIGHTS)
+	errStr += CompareCommon.check_array_size(len(originalWeights), originalWeights, testWeights, nodeName, C.NODE_WEIGHTS, C.GLTF_NODE)
 	if errStr != "": # if rotation size has mismatch then return
 		return errStr
 	
-	errStr += _compare_float_array(len(originalWeights), originalWeights, testWeights, nodeName, C.NODE_WEIGHTS, floatTolerance)
+	errStr += CompareCommon.compare_float_array(len(originalWeights), originalWeights, testWeights, nodeName, C.NODE_WEIGHTS, C.GLTF_NODE, floatTolerance)
 
 	return errStr
