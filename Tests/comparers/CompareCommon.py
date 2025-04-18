@@ -47,9 +47,9 @@ def check_array_size(expectedSize, originalArray, testArray, name, keyHint, type
 	errStr = ""
 
 	if len(originalArray) != expectedSize:
-		errStr += f"{typeHint.capitalized()} <{name}> has incorrect {keyHint} size in original file: {len(originalArray)}.\n"
+		errStr += f"{typeHint.capitalize()} <{name}> has incorrect {keyHint} size in original file: {len(originalArray)}.\n"
 	if len(testArray) != expectedSize:
-		errStr += f"{typeHint.capitalized()} <{name}> has incorrect {keyHint} size in test file: {len(testArray)}.\n"
+		errStr += f"{typeHint.capitalize()} <{name}> has incorrect {keyHint} size in test file: {len(testArray)}.\n"
 
 	return errStr
 
@@ -64,7 +64,7 @@ def compare_float_array(size, originalArray, testArray, name, keyHint, typeHint,
 		diff = abs(originalValue - testValue)
 
 		if diff > floatTolerance:
-			errStr += f"{keyHint} mismatch in {typeHint.capitalized()} <{name}>:\n\t{originalArray}\n\t{testArray}\n"
+			errStr += f"{keyHint} mismatch in {typeHint.capitalize()} <{name}>:\n\t{originalArray}\n\t{testArray}\n"
 			break
 
 		i += 1	
@@ -77,7 +77,7 @@ def compare_array(size, originalArray, testArray, name, keyHint, typeHint) -> st
 	i = 0
 	while i < size:
 		if originalArray[i] != testArray[i]:
-			errStr += f"{keyHint} mismatch in {typeHint.capitalized()} <{name}>:\n\t{originalArray}\n\t{testArray}\n"
+			errStr += f"{keyHint} mismatch in {typeHint.capitalize()} <{name}>:\n\t{originalArray}\n\t{testArray}\n"
 			break
 		i += 1
 

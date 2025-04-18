@@ -1,7 +1,7 @@
 import Constants as C
 from . import CompareCommon
 
-def compare_accessor(originalAccessor, testAccessor, originalBuffers, testBuffers, floatTolerance, originalGltf, testGltf, idHint) -> str:
+def compare_accessor(originalAccessor, testAccessor, originalBuffersCache, testBuffersCache, floatTolerance, originalGltf, testGltf, idHint) -> str:
 	errStr = ""
 
 	errStr += CompareCommon.compare_name(originalAccessor, testAccessor, C.GLTF_ACCESSOR, idHint)
