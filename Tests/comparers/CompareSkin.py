@@ -1,5 +1,6 @@
 import Constants as C
 from . import CompareCommon
+from . import CompareAccessor
 
 def compare_skins(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance) -> str:
 	errStr = ""
@@ -26,6 +27,7 @@ def compare_skin(originalSkin, testSkin, originalBuffers, testBuffers, floatTole
 	skinName = originalSkin.get(C.SKIN_NAME, idHint)
 	errStr += _compare_skeleton(originalSkin, testSkin, skinName)
 	errStr += _compare_joints(originalSkin, testSkin, skinName)
+	errStr += _compare_inverse_binds(originalSkin, testSkin, originalBuffers, testBuffers, floatTolerance, idHint, originalGltf, testGltf)
 
 	return errStr
 
@@ -37,7 +39,7 @@ def _compare_skeleton(originalSkin, testSkin, nameHint) -> str:
 		return errStr
 	
 	if originalSkin[C.SKIN_SKELETON] != testSkin[C.SKIN_SKELETON]:
-		errStr += f"Skin <{nameHint}> has mismatched skeleton IDs:\n\t{originalSkin[C.SKIN_SKELETON]} vs {testSkin[C.SKIN_SKELETON]}"
+		errStr += f"Skin <{nameHint}> has mismatched skeleton IDs:\n\t{originalSkin[C.SKIN_SKELETON]} vs {testSkin[C.SKIN_SKELETON]}\n"
 
 	return errStr
 
@@ -52,7 +54,7 @@ def _compare_joints(originalNode, testNode, nameHint) -> str:
 	testChildren = testNode[C.SKIN_JOINTS]
 
 	if originalChildren != testChildren:
-		errStr += f"Skin <{nameHint}> has mismatched joint IDs:\n\t{originalNode[C.SKIN_JOINTS]}\n\t{testNode[C.SKIN_JOINTS]}"
+		errStr += f"Skin <{nameHint}> has mismatched joint IDs:\n\t{originalNode[C.SKIN_JOINTS]}\n\t{testNode[C.SKIN_JOINTS]}\n"
 
 	return errStr
 
@@ -60,9 +62,30 @@ def _compare_inverse_binds(originalSkin, testSkin, originalBuffers, testBuffers,
 	errStr = ""
 
 	errStr += CompareCommon.check_key_exists(C.SKIN_INVERSE_BIND_MATRICES, originalSkin, testSkin, idHint, C.GLTF_SKIN)
-	if errStr != "" or (not C.SKIN_JOINTS in originalSkin and not C.SKIN_JOINTS in testSkin): # if missing in one, report error and return
+	if errStr != "" or (not C.SKIN_INVERSE_BIND_MATRICES in originalSkin and not C.SKIN_INVERSE_BIND_MATRICES in testSkin): # if missing in one, report error and return
 		return errStr
 
-	# compare accessors
+	originalAccessors = CompareAccessor.get_accessors(originalGltf)
+	testAccessors = CompareAccessor.get_accessors(testGltf)
+
+	originalAccessorID = originalSkin[C.SKIN_INVERSE_BIND_MATRICES]
+	testAccessorID = testSkin[C.SKIN_INVERSE_BIND_MATRICES]
+
+	originalAccessor = {}
+	testAccessor = {}
+
+	if originalAccessorID < len(originalAccessors):
+		originalAccessor = originalAccessors[originalAccessorID]
+	else:
+		errStr += f"Original:skin[{idHint}].inverseBinds is out of bounds: ({originalAccessorID}/{len(originalAccessors)})\n"
+	if testAccessorID < len(testAccessors):
+		testAccessor = testAccessors[testAccessorID]
+	else:
+		errStr += f"Test:skin[{idHint}].inverseBinds is out of bounds: ({testAccessorID}/{len(testAccessors)})\n"
+
+	if errStr != "":
+		return errStr
+
+	errStr += CompareAccessor.compare_accessor(originalAccessor, testAccessor, originalBuffers, testBuffers, floatTolerance, originalGltf, testGltf, f"skin[{idHint}].inverseBinds")
 
 	return errStr

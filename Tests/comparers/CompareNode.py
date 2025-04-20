@@ -113,7 +113,7 @@ def _compare_camera(originalNode, testNode, nodeName) -> str:
 		return errStr
 	
 	if originalNode[C.NODE_CAMERA] != testNode[C.NODE_CAMERA]:
-		errStr += f"Node <{nodeName}> has mismatched camera IDs:\n\t{originalNode[C.NODE_CAMERA]} vs {testNode[C.NODE_CAMERA]}"
+		errStr += f"Node <{nodeName}> has mismatched camera IDs:\n\t{originalNode[C.NODE_CAMERA]} vs {testNode[C.NODE_CAMERA]}\n"
 
 	return errStr
 
@@ -125,7 +125,7 @@ def _compare_mesh(originalNode, testNode, nodeName) -> str:
 		return errStr
 	
 	if originalNode[C.NODE_MESH] != testNode[C.NODE_MESH]:
-		errStr += f"Node <{nodeName}> has mismatched mesh IDs:\n\t{originalNode[C.NODE_MESH]} vs {testNode[C.NODE_MESH]}"
+		errStr += f"Node <{nodeName}> has mismatched mesh IDs:\n\t{originalNode[C.NODE_MESH]} vs {testNode[C.NODE_MESH]}\n"
 
 	return errStr
 
@@ -137,7 +137,7 @@ def _compare_skin(originalNode, testNode, nodeName) -> str:
 		return errStr
 	
 	if originalNode[C.NODE_SKIN] != testNode[C.NODE_SKIN]:
-		errStr += f"Node <{nodeName}> has mismatched skin IDs:\n\t{originalNode[C.NODE_SKIN]} vs {testNode[C.NODE_SKIN]}"
+		errStr += f"Node <{nodeName}> has mismatched skin IDs:\n\t{originalNode[C.NODE_SKIN]} vs {testNode[C.NODE_SKIN]}\n"
 
 	return errStr
 
@@ -155,7 +155,7 @@ def _compare_children(originalNode, testNode, nodeName) -> str:
 	testChildren.sort() # prevent mismatched if children are in the exact order
 
 	if originalChildren != testChildren:
-		errStr += f"Node <{nodeName}> has mismatched children IDs:\n\t{originalNode[C.NODE_SKIN]}\n\t{testNode[C.NODE_SKIN]}"
+		errStr += f"Node <{nodeName}> has mismatched children IDs:\n\t{originalNode[C.NODE_SKIN]}\n\t{testNode[C.NODE_SKIN]}\n"
 
 	return errStr
 

@@ -16,10 +16,10 @@ def compare_files(originalFilePath, testFilePath) -> str:
 	"""
 
 	if not os.path.exists(originalFilePath):
-		return f"Original file on path: {originalFilePath} does not exist."
+		return f"Original file on path: {originalFilePath} does not exist.\n"
 	
 	if not os.path.exists(testFilePath):
-		return f"Test file on path: {testFilePath} does not exist."
+		return f"Test file on path: {testFilePath} does not exist.\n"
 	
 	fileExt = os.path.basename(originalFilePath).split(".")[-1]
 
@@ -28,13 +28,15 @@ def compare_files(originalFilePath, testFilePath) -> str:
 	elif fileExt == "gltf":
 		return _compare_gltf(originalFilePath, testFilePath)
 	else:
-		return f"Invalid file extesion '{fileExt}' in file {originalFilePath}"
+		return f"Invalid file extesion '{fileExt}' in file {originalFilePath}\n"
 
-def _get_internal_chunks_glb(jsonChunks, glbInternalBuffers, filePath) -> str:
+def _get_internal_chunks_glb(jsonChunks, filePath):
 	errStr = ""
 	file = open(filePath, "+rb")
 	file.seek(8, 0) # skip header
 	fileLenght = struct.unpack(C.PACKING_FORMAT_U_INT, file.read(4))[0] + 12 # include header size for easier calculations
+
+	glbInternalBuffers = []
 
 	while True:
 		if file.tell() >= fileLenght:
@@ -62,14 +64,14 @@ def _get_internal_chunks_glb(jsonChunks, glbInternalBuffers, filePath) -> str:
 		else:
 			continue # if type is unknown then we skip, some extensions might use custom types
 
-	return errStr
+	return (errStr, glbInternalBuffers)
 
-def _cache_buffers_glb(gltfJson, internalBuffer, mainFilePath, buffersCache) -> str:
+def _cache_buffers_glb(gltfJson, internalBuffer, mainFilePath):
 	errStr = ""
-
+	buffersCache = []
 	buffersDicts = gltfJson.get(C.GLTF_BUFFER, None)
 	if buffersDicts == None:
-		return errStr
+		return (errStr, buffersCache)
 	
 	for i in range(len(buffersDicts)):
 		if CompareBuffer.is_buffer_internal(buffersDicts[i]):
@@ -81,14 +83,14 @@ def _cache_buffers_glb(gltfJson, internalBuffer, mainFilePath, buffersCache) -> 
 			errStr += bffrStr
 			buffersCache.append(buffer)
 
-	return errStr
+	return (errStr, buffersCache)
 
-def _cache_buffers_gltf(gltfJson, mainFilePath, buffersCache) -> str:
+def _cache_buffers_gltf(gltfJson, mainFilePath):
 	errStr = ""
-
+	buffersCache = []
 	buffersDicts = gltfJson.get(C.GLTF_BUFFER, None)
 	if buffersDicts == None:
-		return errStr	
+		return (errStr, buffersCache)
 	
 	for i in range(len(buffersDicts)):
 		if CompareBuffer.is_buffer_internal(buffersDicts[i]):
@@ -98,7 +100,7 @@ def _cache_buffers_gltf(gltfJson, mainFilePath, buffersCache) -> str:
 			if len(bs64BytesFromURI) > 0:
 				buffersCache.append(base64.b64decode(bs64BytesFromURI))
 			else:
-				errStr += f"Failed to load base64 bytes from buffer."
+				errStr += f"Failed to load base64 bytes from buffer.\n"
 				buffersCache.append(None)
 		else:
 			externalBufferPath = CompareBuffer.get_external_buffer_path(mainFilePath, buffersDicts[i])
@@ -107,52 +109,53 @@ def _cache_buffers_gltf(gltfJson, mainFilePath, buffersCache) -> str:
 			errStr += bffrStr
 			buffersCache.append(buffer)
 
-	return errStr
+	return (errStr, buffersCache)
 
 
 def _get_external_buffer(filePath, bufferLenght):
 	errStr = ""
 
 	if not os.path.exists(filePath):
-			errStr += f"Error retreiving external buffer at path: {filePath}"
+			errStr += f"Error retreiving external buffer at path: {filePath}\n"
 			return (errStr, None)
 
 	bufferFile = open(filePath, "+rb")
 	buffer = bufferFile.read(bufferLenght)
 	bufferFile.close()
 
-	return errStr, buffer
+	return (errStr, buffer)
 
 def _compare_glb(originalFilePath, testFilePath) -> str:
 	errorStr = ""
 
 	originalGltf = []
 	testGltf = []
-	originalBufferChunks = []
-	testBufferChunks = []
 
 	originalBuffersCache = []
 	testBuffersCache = []
 
-	errorStr += _get_internal_chunks_glb(originalGltf, originalBufferChunks, originalFilePath)
-	errorStr += _get_internal_chunks_glb(testGltf, testBufferChunks, testFilePath)
+	originalBufferLoadStr, originalBufferChunks = _get_internal_chunks_glb(originalGltf, originalFilePath)
+	testBufferLoadStr, testBufferChunks = _get_internal_chunks_glb(testGltf, testFilePath)
+
+	errorStr += originalBufferLoadStr
+	errorStr += testBufferLoadStr
 
 	if len(originalGltf) != 1:
-		errorStr += f"Incorrect amount of JSON chunks within original file: ({len(originalGltf)})"
+		errorStr += f"Incorrect amount of JSON chunks within original file: ({len(originalGltf)})\n"
 	else:
 		originalGltf = json.loads(originalGltf[0])
 	if len(testGltf) != 1:
-		errorStr += f"Incorrect amount of JSON chunks within test file: ({len(testGltf)})"
+		errorStr += f"Incorrect amount of JSON chunks within test file: ({len(testGltf)})\n"
 	else:
 		testGltf = json.loads(testGltf[0])
 
 	if len(originalBufferChunks) > 1:
-		errorStr += f"Incorrect amount of BIN chunks within original file: ({len(originalBufferChunks)})"
+		errorStr += f"Incorrect amount of BIN chunks within original file: ({len(originalBufferChunks)})\n"
 	if len(testBufferChunks) > 1:
-		errorStr += f"Incorrect amount of BIN chunks within test file: ({len(testBufferChunks)})"
+		errorStr += f"Incorrect amount of BIN chunks within test file: ({len(testBufferChunks)})\n"
 
 	if len(originalBufferChunks) != len(testBufferChunks):
-		errorStr += f"Mismatch of BIN chunks between original and test file:\n\t{len(originalBufferChunks)}\n\t{len(testBufferChunks)}"
+		errorStr += f"Mismatch of BIN chunks between original and test file:\n\t{len(originalBufferChunks)}\n\t{len(testBufferChunks)}\n"
 
 
 	if errorStr != "":
@@ -160,14 +163,18 @@ def _compare_glb(originalFilePath, testFilePath) -> str:
 		return errorStr
 
 	if len(originalBufferChunks) == 0:
-		errorStr += _cache_buffers_glb(originalGltf, None, originalFilePath, originalBuffersCache)
-		errorStr += _cache_buffers_glb(testGltf, None, testFilePath, testBuffersCache)
+		originalBufferLoadStr, originalBuffersCache = _cache_buffers_glb(originalGltf, None, originalFilePath)
+		testBufferLoadStr, testBuffersCache = _cache_buffers_glb(testGltf, None, testFilePath)
+		errorStr += originalBufferLoadStr
+		errorStr += testBufferLoadStr
 	else:
-		errorStr += _cache_buffers_glb(originalGltf, originalBufferChunks[0], originalFilePath, originalBuffersCache)
-		errorStr += _cache_buffers_glb(testGltf, testBufferChunks[0], testFilePath, testBuffersCache)
+		originalBufferLoadStr, originalBuffersCache = _cache_buffers_glb(originalGltf, originalBufferChunks[0], originalFilePath)
+		testBufferLoadStr, testBuffersCache = _cache_buffers_glb(testGltf, testBufferChunks[0], testFilePath)
+		errorStr += originalBufferLoadStr
+		errorStr += testBufferLoadStr
 
 	if len(originalBuffersCache) != len(testBuffersCache):
-		errorStr += f"Mismatch of buffers count between files: {len(originalBuffersCache)} vs {len(testBuffersCache)}"
+		errorStr += f"Mismatch of buffers count between files: {len(originalBuffersCache)} vs {len(testBuffersCache)}\n"
 
 	if errorStr != "":
 		errorStr += "Aborting further testing"
@@ -193,17 +200,17 @@ def _compare_gltf(originalFilePath, testFilePath) -> str:
 	del originalFile
 	del testFile
 
-	originalBuffersCache = []
-	testBuffersCache = []
+	originalBufferLoadStr, originalBuffersCache = _cache_buffers_gltf(originalGltf, originalFilePath)
+	testBufferLoadStr, testBuffersCache = _cache_buffers_gltf(testGltf, testFilePath)
 
-	errorStr += _cache_buffers_gltf(originalGltf, originalFilePath, originalBuffersCache)
-	errorStr += _cache_buffers_gltf(testGltf, testFilePath, testBuffersCache)
+	errorStr += originalBufferLoadStr
+	errorStr += testBufferLoadStr
 
 	if len(originalBuffersCache) != len(testBuffersCache):
-		errorStr += f"Mismatch of buffers count between files: {len(originalBuffersCache)} vs {len(testBuffersCache)}"
+		errorStr += f"Mismatch of buffers count between files: {len(originalBuffersCache)} vs {len(testBuffersCache)}\n"
 
 	if errorStr != "":
-		errorStr += "Aborting further testing"
+		errorStr += "Aborting further testing.\n"
 		return errorStr
 
 	errorStr += _compare_asset(originalGltf, testGltf)
