@@ -82,3 +82,6 @@ def compare_array(size, originalArray, testArray, name, keyHint, typeHint) -> st
 		i += 1
 
 	return errStr
+
+def is_component_type_floaty(componentType) -> bool:
+	return componentType == C.PACKING_FORMAT_FLOAT or componentType == C.PACKING_FORMAT_DOUBLE
