@@ -49,10 +49,10 @@ class Bucket():
         self.data = {
             BUCKET_DATA_EXTENSIONS_USED : [],
             BUCKET_DATA_EXTENSIONS_REQUIRED : [],
-            BUCKET_DATA_ANIMATIONS : [],
             BUCKET_DATA_ASSET : {"generator": "Blender ggltf", "version" : "2.0"},
             BUCKET_DATA_SCENES : [],
             BUCKET_DATA_NODES : [],
+            BUCKET_DATA_ANIMATIONS : [],
             BUCKET_DATA_CAMERAS : [],
             BUCKET_DATA_IMAGES : [],
             BUCKET_DATA_MATERIALS : [],

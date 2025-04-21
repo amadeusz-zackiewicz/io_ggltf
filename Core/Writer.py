@@ -2,10 +2,13 @@ import os
 import json
 import struct
 import bpy
+import re
 from io_ggltf.Core.Managers import BufferManager
 from io_ggltf.Core.Util import cleanup_keys
 from io_ggltf.Constants import *
 from io_ggltf.Core import Collector
+
+jsonSeparators = (",", ":")
 
 # https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf ----- 4.4 glTF Layout
 __BINARY_JSON_PAD = b" "
@@ -75,14 +78,22 @@ def dump_gltf(path : str, data):
     """
     __prep_path(path)
     f = open(path + FILE_EXT_GLTF, "w")
-    json.dump(data, f, indent=4)
+    jsonStr = json.dumps(data, indent="\t", ensure_ascii=False, separators=jsonSeparators)
+    jsonStr = re.sub('(?<=[a-z"0-9-]),\n\t*', ",", jsonStr)
+    jsonStr = re.sub('[[]\n\t*(?=[a-z0-9-])', "[", jsonStr)
+    jsonStr = re.sub('(?<=[a-z"0-9-])\n\t*', "", jsonStr)
+    jsonStr = re.sub('":[[]\n\t*(?=[a-z"0-9-])', '":[', jsonStr)
+    jsonStr = re.sub('(?<=[a-z"0-9-])],\n\t*', "],", jsonStr)
+    jsonStr = re.sub('(?<=\t){\n\t*', "{", jsonStr)
+    jsonStr = re.sub('(?<=[]}])\n\t*}', "}", jsonStr) # there is probably a way to condense it into 1 line
+    f.write(jsonStr)
     f.close()
 
 def dump_glb(path : str, data, blobs):
     """
     Path needs to include file name, without extension
     """
-    js = bytes(json.dumps(data).encode("ascii"))
+    js = bytes(json.dumps(data, ensure_ascii=False, separators=jsonSeparators).encode("utf-8"))
     js_len = len(js) + len(js) % 4
 
     __prep_path(path)
