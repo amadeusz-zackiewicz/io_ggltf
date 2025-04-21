@@ -7,6 +7,7 @@ from . import CompareBuffer
 from . import CompareAsset
 from . import CompareNode
 from . import CompareSkin
+from . import CompareMesh
 
 floatErrTolerance = 0.01
 
@@ -183,6 +184,7 @@ def _compare_glb(originalFilePath, testFilePath) -> str:
 	errorStr += _compare_asset(originalGltf, testGltf)
 	errorStr += _compare_nodes(originalGltf, testGltf)
 	errorStr += _compare_skins(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
+	errorStr += _compare_meshes(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
 
 	return errorStr
 
@@ -216,6 +218,7 @@ def _compare_gltf(originalFilePath, testFilePath) -> str:
 	errorStr += _compare_asset(originalGltf, testGltf)
 	errorStr += _compare_nodes(originalGltf, testGltf)
 	errorStr += _compare_skins(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
+	errorStr += _compare_meshes(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
 
 	return errorStr
 
@@ -259,14 +262,32 @@ def _compare_skins(originalGltf, testGltf, originalBuffers, testBuffers, floatTo
 	if not C.GLTF_SKIN in originalGltf and not C.GLTF_SKIN in testGltf:
 		return ""
 	
-	if not C.GLTF_NODE in originalGltf:
+	if not C.GLTF_SKIN in originalGltf:
 		errStr += f"No {C.GLTF_SKIN} found in original file.\n"
-	if not C.GLTF_NODE in testGltf:
+	if not C.GLTF_SKIN in testGltf:
 		errStr += f"No {C.GLTF_SKIN} found in test file.\n"
 
 	if errStr != "": # if nodes are missing from only 1 file, then skip comparison
 		return errStr
 	
 	errStr += CompareSkin.compare_skins(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance)
+
+	return errStr
+
+def _compare_meshes(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance) -> str:
+	errStr = ""
+
+	if not C.GLTF_MESH in originalGltf and not C.GLTF_MESH in testGltf:
+		return ""
+	
+	if not C.GLTF_MESH in originalGltf:
+		errStr += f"No {C.GLTF_MESH} found in original file.\n"
+	if not C.GLTF_MESH in testGltf:
+		errStr += f"No {C.GLTF_MESH} found in test file.\n"
+
+	if errStr != "": # if nodes are missing from only 1 file, then skip comparison
+		return errStr
+	
+	errStr += CompareMesh.compare_meshes(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance)
 
 	return errStr

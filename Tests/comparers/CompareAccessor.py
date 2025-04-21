@@ -61,7 +61,7 @@ def _compare_count(originalAccessor, testAccessor, ownerHint) -> str:
 	testCount = testAccessor[C.ACCESSOR_COUNT]
 
 	if originalCount != testCount:
-		errStr += f"Accessor <{ownerHint}> mismatch of required key: {C.ACCESSOR_COUNT}\n\t{originalCount}\n\t{testCount}"
+		errStr += f"Accessor <{ownerHint}> mismatch of required key: {C.ACCESSOR_COUNT}\n\t{originalCount}\n\t{testCount}\n"
 
 	return errStr
 

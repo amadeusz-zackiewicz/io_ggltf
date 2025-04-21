@@ -10,13 +10,10 @@ def compare_skins(originalGltf, testGltf, originalBuffers, testBuffers, floatTol
 
 	if len(originalSkins) != len(testSkins):
 		return f"Skin count mismatch:\n\t{len(originalSkins)} vs {len(testSkins)}\n"
-	
-	i = 0
 
 	for i in range(len(originalSkins)):
 		skinName = originalSkins[i].get(C.SKIN_NAME, str(i))
 		errStr += compare_skin(originalSkins[i], testSkins[i], originalBuffers, testBuffers, floatTolerance, skinName, originalGltf, testGltf)
-		i += 1
 
 	return errStr
 
