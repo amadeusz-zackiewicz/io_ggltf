@@ -8,6 +8,7 @@ from . import CompareAsset
 from . import CompareNode
 from . import CompareSkin
 from . import CompareMesh
+from . import CompareAnimation
 
 floatErrTolerance = 0.01
 
@@ -181,10 +182,7 @@ def _compare_glb(originalFilePath, testFilePath) -> str:
 		errorStr += "Aborting further testing"
 		return errorStr
 
-	errorStr += _compare_asset(originalGltf, testGltf)
-	errorStr += _compare_nodes(originalGltf, testGltf)
-	errorStr += _compare_skins(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
-	errorStr += _compare_meshes(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
+	errorStr += _do_comparisons(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
 
 	return errorStr
 
@@ -215,10 +213,18 @@ def _compare_gltf(originalFilePath, testFilePath) -> str:
 		errorStr += "Aborting further testing.\n"
 		return errorStr
 
+	errorStr += _do_comparisons(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
+
+	return errorStr
+
+def _do_comparisons(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance) -> str:
+	errorStr = ""
+
 	errorStr += _compare_asset(originalGltf, testGltf)
 	errorStr += _compare_nodes(originalGltf, testGltf)
 	errorStr += _compare_skins(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
 	errorStr += _compare_meshes(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
+	errorStr += _compare_animations(originalGltf, testGltf, originalBuffersCache, testBuffersCache, floatErrTolerance)
 
 	return errorStr
 
@@ -289,5 +295,23 @@ def _compare_meshes(originalGltf, testGltf, originalBuffers, testBuffers, floatT
 		return errStr
 	
 	errStr += CompareMesh.compare_meshes(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance)
+
+	return errStr
+
+def _compare_animations(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance) -> str:
+	errStr = ""
+
+	if not C.GLTF_ANIMATION in originalGltf and not C.GLTF_ANIMATION in testGltf:
+		return ""
+	
+	if not C.GLTF_ANIMATION in originalGltf:
+		errStr += f"No {C.GLTF_ANIMATION} found in original file.\n"
+	if not C.GLTF_ANIMATION in testGltf:
+		errStr += f"No {C.GLTF_ANIMATION} found in test file.\n"
+
+	if errStr != "": # if nodes are missing from only 1 file, then skip comparison
+		return errStr
+	
+	errStr += CompareAnimation.compare_animations(originalGltf, testGltf, originalBuffers, testBuffers, floatTolerance)
 
 	return errStr
