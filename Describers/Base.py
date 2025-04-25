@@ -5,15 +5,19 @@ class Describer:
 
 	def __init__(self):
 		self._name: str = None
-		self._isResovled: bool = False
+		self._isExported: bool = False
 		self._isReserved: bool = False
 		self._reservedID: int = None
-		self._resolvedData: dict = {}
+		self._exportedData: dict = {}
 		self._dataTypeHint: str = None
 
-	def _resolve(self, isBinary: bool, gltfDict: dict, fileTargetPath: str) -> bool:
-		print(f"Describer: {self} has not overriden internal method '_resolve'.")
+	def _export(self, isBinary: bool, gltfDict: dict, fileTargetPath: str) -> bool:
+		print(f"Describer: {self} has not overriden internal method '_export'.")
 		return False
+	
+	def _export_name(self):
+		if self._name != "" and self._name != None:
+			self._exportedData[C.__VAR_NAME] = self._name
 
 	def _get_id_reservation(self, gltfDict: dict) -> int:
 		if self._isReserved:
@@ -25,8 +29,14 @@ class Describer:
 		array.append(None)
 		return self._reservedID
 
-	def _get_resolved_dict(self) -> dict:
-		return {}
+	def _get_exported_dict(self) -> dict:
+		return self._exportedData
+	
+	def set_name(self, name: str):
+		if self._isExported:
+			print(f"Attempted to change name of resolved describer: {self}.")
+		else:
+			self._name = name
 	
 class ObjectBasedDescriber(Describer):
 	def __init__(self):
@@ -51,4 +61,4 @@ class ObjectBasedDescriber(Describer):
 				self._hasValidObj = True
 				return True
 		else:
-			print(f"Attempted to set object on {self} after it is already resolved.")
+			print(f"Attempted to set object on {self} after it is already exported.")
