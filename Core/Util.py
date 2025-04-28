@@ -1,5 +1,6 @@
 from io_ggltf import Constants as __c
 from io_ggltf.Core import BlenderUtil
+import os
 from mathutils import Matrix, Vector, Quaternion, Euler
 from bpy_extras.io_utils import axis_conversion
 import bpy
@@ -132,7 +133,6 @@ def try_get_bone(accessor):
             return bone
 
     except Exception as e:
-        print(e)
         return None
     
 def name_passes_filters(filter: list[tuple], name: str) -> bool:
@@ -304,3 +304,6 @@ def get_world_matrix(accessor: tuple):
         return obj.matrix_world @ bone.matrix
     else:
         return obj.matrix_world
+    
+def prep_path(path : str):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
