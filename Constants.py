@@ -10,9 +10,12 @@ FILE_BIN_MAGIC_NUMBER 		= 0x46546C67
 FILE_BIN_VERSION_NUMBER		= 2
 FILE_BIN_CHUNK_TYPE_JSON 	= 0x4E4F534A
 FILE_BIN_CHUNK_TYPE_BIN		= 0x004E4942
+FILE_BIN_JSON_PAD = b" "
+FILE_BIN_PAD = b"\0"
+
 
 FILE_INTERNAL_BASE64_PREFIX = "data:application/octet-stream;base64,"
-__TEMP_INTERNAL_BUFFER = "GLB_INTERNAL_BUFFER"
+GLB_TEMP_INTERNAL_BUFFER = "GLB_INTERNAL_BUFFER"
 
 COLLECT_MODE_SIMPLE   = 0
 COLLECT_MODE_ADVANCED = 1
@@ -377,7 +380,7 @@ GLTF_ASSET								= "asset"
 GLTF_BUFFER								= "buffers"
 GLTF_BUFFER_VIEW						= "bufferViews"
 GLTF_CAMERA								= "cameras"
-GLTF_TYPE_IMAGE 						= "images"
+GLTF_IMAGE 								= "images"
 GLTF_MATERIAL 							= "materials"
 GLTF_MESH 								= "meshes"
 GLTF_NODE								= "nodes"
