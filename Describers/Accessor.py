@@ -1,6 +1,6 @@
-import Constants as C
 import struct
 import mathutils
+from io_ggltf import Constants as C
 from io_ggltf.Describers.Base import Describer
 from io_ggltf.Describers.BufferView import BufferViewDescriber
 from io_ggltf.Describers.Buffer import BufferDescriber
@@ -116,7 +116,6 @@ class AccessorDescriber(Describer):
 			self._floatPrecision = precision
 		else:
 			print("Attempted to set float precision on accessor that is already exported.")
-			return False
 
 	def insert_data(self, data: list, buffer: BufferDescriber, groupingType = None, componentType = None, packingFormat = None, max = None, min = None):
 		if not self._isExported:
@@ -160,10 +159,8 @@ class AccessorDescriber(Describer):
 
 			self._bufferView = bufferView
 
-			return True
 		else:
 			print("Attempted to set data on accessor that is already exported.")
-			return False
 		
 	def _export(self, isBinary, gltfDict, fileTargetPath):
 		if not self._isExported:

@@ -1,4 +1,4 @@
-import Constants as C
+from io_ggltf import Constants as C
 from io_ggltf.Describers.Base import Describer
 from io_ggltf.Describers.Buffer import BufferDescriber
 

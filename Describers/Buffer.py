@@ -1,20 +1,20 @@
-import Constants as C
 import os
 import base64
+from io_ggltf import Constants as C
 from io_ggltf.Describers.Base import Describer
 from io_ggltf.Core import Writer
 
 class BufferDescriber(Describer):
-	def __init__(self):
+	def __init__(self, URI: str = None):
 		super().__init__()
 
 		self._dataTypeHint = C.GLTF_BUFFER
 
-		self._blob = bytearray()
-		self._uri = None
+		self._blob: bytearray = bytearray()
+		self._uri: str = URI
 		self._externalFileType = C.FILE_EXT_BIN
-		self._name = None
-		self._byteLength = 0
+		self._name: str = None
+		self._byteLength: int = 0
 
 	def get_current_byte_lenght(self) -> int:
 		return len(self._blob)
@@ -41,11 +41,11 @@ class BufferDescriber(Describer):
 				externalPath = os.path.join(os.path.dirname(fileTargetPath), self._uri)
 				Writer.dump_raw_binary(externalPath, self._blob)
 			elif isBinary:
-				if C.__TEMP_INTERNAL_BUFFER in gltfDict:
+				if C.GLB_TEMP_INTERNAL_BUFFER in gltfDict:
 					print("Attempted to add more then one internal buffer to a glb file.")
 					self._isExported = True
 					return False
-				gltfDict[C.__TEMP_INTERNAL_BUFFER] = self._blob
+				gltfDict[C.GLB_TEMP_INTERNAL_BUFFER] = self._blob
 			else:
 				bs64bytes = bytearray(base64.b64encode(self._blob))
 				padAmount = len(bs64bytes) % 4

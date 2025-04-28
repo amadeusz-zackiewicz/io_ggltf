@@ -1,5 +1,5 @@
-import Constants as C
-from io_ggltf.Core.Util import try_get_object
+from io_ggltf import Constants as C
+from io_ggltf.Core.Util import try_get_object, try_get_bone
 
 class Describer:
 
@@ -17,7 +17,7 @@ class Describer:
 	
 	def _export_name(self):
 		if self._name != "" and self._name != None:
-			self._exportedData[C.__VAR_NAME] = self._name
+			self._exportedData[C.NODE_NAME] = self._name
 
 	def _get_id_reservation(self, gltfDict: dict) -> int:
 		if self._isReserved:
@@ -38,27 +38,41 @@ class Describer:
 		else:
 			self._name = name
 	
+	def get_name(self) -> str:
+		return self._name
+	
+	def get_referenced_describers(self) -> list:
+		return []
+	
 class ObjectBasedDescriber(Describer):
 	def __init__(self):
 		super().__init__()
 
 		self._objectName: str = None
 		self._objectLibrary: str = None
-		self._hasValidObj = False
+		self._boneName: str = None
+		self._hasValidObject = False
 
-	def set_object(self, objName: str, objLibrary: str = None) -> bool:
-		if not self._reservedID:
-			obj = try_get_object((objName, objLibrary))
+	def set_target(self, objName: str, objLibrary: str = None, boneName: str = None) -> bool:
+		if not self._isExported:
+			target = None
+			if boneName != None:
+				target = try_get_bone((objName, objLibrary, boneName))
+			else:
+				target = try_get_object((objName, objLibrary))
 
-			if obj == None:
+			if target == None:
 				self._objectName = None
 				self._objectLibrary = None
-				self._hasValidObj = False
+				self._boneName = None
+				self._hasValidObject = False
 				return False
 			else:
+				self._name = objName
 				self._objectName = objName
 				self._objectLibrary = objLibrary
-				self._hasValidObj = True
+				self._boneName = boneName
+				self._hasValidObject = True
 				return True
 		else:
-			print(f"Attempted to set object on {self} after it is already exported.")
+			print(f"Attempted to set object or bone on {self} after it is already exported.")
