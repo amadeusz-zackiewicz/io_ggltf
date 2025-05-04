@@ -25,7 +25,7 @@ class BufferDescriber(Describer):
 	def insert_bytes(self, bytes):
 		if not self._isExported:
 			offset = len(self._blob)
-			self._blob.append(bytes)
+			self._blob.extend(bytes)
 			return (offset, len(bytes))
 		else:
 			print("Attempted to add more bytes to buffer that is already exported.")
