@@ -27,6 +27,18 @@ class NodeDescriber(ObjectBasedDescriber):
 		self._floatPrecision: int = 6
 		self._scaleCorrection: float = 0.000002
 
+	def get_referenced_describers(self) -> set:
+		references = set()
+
+		for c in self._children:
+			references | c.get_referenced_describers()
+
+		if self._mesh != None:
+			references | self._mesh.get_referenced_describers()
+			references.add(self._mesh)
+
+		return references
+
 	def set_parent(self, parent: Describer):
 		if not self._isExported:
 			self._parent = parent
@@ -150,8 +162,17 @@ class NodeDescriber(ObjectBasedDescriber):
 		if weights != None:
 				self._exportedData[C.NODE_WEIGHTS] = weights
 
-	def __export_mesh(self, gltfDict) -> list:
+	def __export_mesh(self, isBinary, gltfDict, fileTargetPath) -> list:
+		if self._mesh == None:
+			return None
+		
+		if not self._mesh._isExported:
+			self._mesh._export(isBinary, gltfDict, fileTargetPath)
+			
+		self._exportedData[C.NODE_MESH] = self._mesh._get_id_reservation(gltfDict)
+
 		return None
+
 		
 	def __export_skin(self, gltfDict):
 		pass
@@ -202,7 +223,7 @@ class NodeDescriber(ObjectBasedDescriber):
 
 				self._exportedData[C.NODE_CHILDREN] = childrenIDs
 			
-			weights = self.__export_mesh(gltfDict)
+			weights = self.__export_mesh(isBinary, gltfDict, fileTargetPath)
 			self.__export_camera(gltfDict)
 			self.__export_skin(gltfDict)
 
