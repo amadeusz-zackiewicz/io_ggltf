@@ -41,8 +41,8 @@ class Describer:
 	def get_name(self) -> str:
 		return self._name
 	
-	def get_referenced_describers(self) -> list:
-		return []
+	def get_referenced_describers(self) -> set:
+		return set()
 	
 class ObjectBasedDescriber(Describer):
 	def __init__(self):
