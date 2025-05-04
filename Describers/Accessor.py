@@ -174,7 +174,7 @@ class AccessorDescriber(Describer):
 			if self._byteOffset != 0:
 				self._exportedData[C.ACCESSOR_BYTE_OFFSET] = self._byteOffset
 			self._exportedData[C.ACCESSOR_COMPONENT_TYPE] = self._componentType
-			self._exportedData[C.ACCESSOR_COMPONENT_TYPE] = self._type
+			self._exportedData[C.ACCESSOR_TYPE] = self._type
 			self._exportedData[C.ACCESSOR_COUNT] = self._count
 
 			if self._max != None:
