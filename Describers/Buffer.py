@@ -55,11 +55,10 @@ class BufferDescriber(Describer):
 				self._uri = C.FILE_INTERNAL_BASE64_PREFIX + bs64bytes.decode("utf-8")
 				
 			self._export_name()
+			self._exportedData[C.BUFFER_BYTE_LENGTH] = self.get_current_byte_lenght()
 
 			if self._uri != None and self._uri != "":
 				self._exportedData[C.BUFFER_URI] = self._uri
-
-			self._exportedData[C.BUFFER_BYTE_LENGTH] = self.get_current_byte_lenght()
 
 			self._isExported = True
 			return True

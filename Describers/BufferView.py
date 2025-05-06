@@ -44,11 +44,13 @@ class BufferViewDescriber(Describer):
 			
 			self._export_name()
 
+			self._exportedData[C.BUFFER_VIEW_BUFFER] = self._buffer._get_id_reservation(gltfDict)
+			self._exportedData[C.BUFFER_BYTE_LENGTH] = self._byteLength
+			
 			if self._byteOffset > 0:
 				self._exportedData[C.BUFFER_VIEW_BYTE_OFFSET] = self._byteOffset
 
-			self._exportedData[C.BUFFER_VIEW_BUFFER] = self._buffer._get_id_reservation(gltfDict)
-			self._exportedData[C.BUFFER_BYTE_LENGTH] = self._byteLength
+			
 
 			self._isExported = True
 			return True

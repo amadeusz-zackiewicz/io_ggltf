@@ -171,20 +171,20 @@ class AccessorDescriber(Describer):
 			
 			self._export_name()
 
+			self._exportedData[C.ACCESSOR_BUFFER_VIEW] = self._bufferView._get_id_reservation(gltfDict)
+			self._bufferView._export(isBinary, gltfDict, fileTargetPath)
+
+			self._exportedData[C.ACCESSOR_COUNT] = self._count
+			self._exportedData[C.ACCESSOR_TYPE] = self._type
+			self._exportedData[C.ACCESSOR_COMPONENT_TYPE] = self._componentType
+
 			if self._byteOffset != 0:
 				self._exportedData[C.ACCESSOR_BYTE_OFFSET] = self._byteOffset
-			self._exportedData[C.ACCESSOR_COMPONENT_TYPE] = self._componentType
-			self._exportedData[C.ACCESSOR_TYPE] = self._type
-			self._exportedData[C.ACCESSOR_COUNT] = self._count
 
 			if self._max != None:
 				self._exportedData[C.ACCESSOR_MAX] = self._max
 			if self._min != None:
 				self._exportedData[C.ACCESSOR_MIN] = self._min
-
-			self._exportedData[C.ACCESSOR_BUFFER_VIEW] = self._bufferView._get_id_reservation(gltfDict)
-			
-			self._bufferView._export(isBinary, gltfDict, fileTargetPath)
 
 			self._isExported = True
 			return True
