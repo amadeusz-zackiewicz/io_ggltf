@@ -429,11 +429,15 @@ def get_indexed_triangles(loopData: list[list], mesh, materialRemap: list[int]):
 	loopTriangles = mesh.loop_triangles
 
 	triangles = [None] * len(loopTriangles)
-	trianglesMaterial = [None] * len(loopTriangles)
+	trianglesMaterial = [0] * len(loopTriangles)
 
-	for iTriangle, triangle in enumerate(loopTriangles):
-		triangles[iTriangle] = [triangle.loops[0], triangle.loops[1], triangle.loops[2]]
-		trianglesMaterial[iTriangle] = materialRemap[triangle.material_index]
+	if len(materialRemap) > 0:
+		for iTriangle, triangle in enumerate(loopTriangles):
+			triangles[iTriangle] = [triangle.loops[0], triangle.loops[1], triangle.loops[2]]
+			trianglesMaterial[iTriangle] = materialRemap[triangle.material_index]
+	else:
+		for iTriangle, triangle in enumerate(loopTriangles):
+			triangles[iTriangle] = [triangle.loops[0], triangle.loops[1], triangle.loops[2]]
 
 	return loopData, triangles, trianglesMaterial
 

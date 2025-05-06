@@ -312,7 +312,7 @@ class ExportedPrimitives():
 	def export(self):
 		meshPerMaterial: list[MeshInFlight] = []
 
-		for _ in self.materials:
+		for _ in range(max(len(self.materials), 1)): # make at least 1 mesh
 			mesh = MeshInFlight()
 			mesh.arrayPositions = self.meshes[0].arrayPositions
 			mesh.arrayNormals = self.meshes[0].arrayNormals
