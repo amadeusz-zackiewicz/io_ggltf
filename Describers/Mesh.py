@@ -188,7 +188,7 @@ class MeshDescriber(ObjectBasedDescriber):
 				meshesInFlight[iMeshObj] = mesh
 
 			exportPrimitives = ExportedPrimitives(meshesInFlight, materialIDMap, self._buffer, self._floatPrecision, gltfDict, fileTargetPath, isBinary)
-			exportPrimitives.bake()
+			exportPrimitives.export()
 
 			self._export_name()
 			self._exportedData[C.MESH_PRIMITIVES] = exportPrimitives.bakedPrimitives
@@ -309,7 +309,7 @@ class ExportedPrimitives():
 		self.targetFilePath: str = targetFilePath
 		self.isBinary: bool = isBinary
 
-	def bake(self):
+	def export(self):
 		meshPerMaterial: list[MeshInFlight] = []
 
 		for _ in self.materials:
@@ -332,7 +332,7 @@ class ExportedPrimitives():
 			meshPerMaterial.append(mesh)
 
 		if self.meshes[0].mode == C.MESH_TYPE_TRIANGLES:
-			self.__indexed_triangles_bake(meshPerMaterial)
+			self.__indexed_triangles_export(meshPerMaterial)
 
 	def __indexed_triangles_transfer_by_material_id(self, fromMeshes: list[MeshInFlight], toMeshes: list[MeshInFlight]):
 		from collections import OrderedDict
@@ -356,7 +356,7 @@ class ExportedPrimitives():
 							toMesh.vertexData[iData].append(vData[fromTriangle[i]])
 				toMesh.triangles.append(newTriangle)
 
-	def __indexed_triangles_bake(self, meshPerMaterial: list[MeshInFlight]):
+	def __indexed_triangles_export(self, meshPerMaterial: list[MeshInFlight]):
 		self.__indexed_triangles_transfer_by_material_id(self.meshes, meshPerMaterial)
 
 		for mesh in meshPerMaterial:
@@ -370,32 +370,32 @@ class ExportedPrimitives():
 		for mesh in self.meshes:
 			primtiveDict = {C.MESH_PRIMITIVE_MODE: C.MESH_TYPE_TRIANGLES, }
 
-			targets = self.__bake_targets(mesh)
+			targets = self.__export_targets(mesh)
 			if len(targets) > 0:
 				primtiveDict[C.MESH_PRIMITIVE_TARGETS] = targets
 
-			primtiveDict[C.MESH_PRIMITIVE_INDICES] = self.__bake_indexed_triangles_indices(mesh.triangles, len(mesh.vertexData[0]))
+			primtiveDict[C.MESH_PRIMITIVE_INDICES] = self.__export_indexed_triangles_indices(mesh.triangles, len(mesh.vertexData[0]))
 
 			attributes: dict[str, int] = {}
 
 			if mesh.arrayPositions != -1:
-				attributes[C.MESH_ATTRIBUTE_STR_POSITION] = self.__bake_positions(mesh.vertexData[mesh.arrayPositions])
+				attributes[C.MESH_ATTRIBUTE_STR_POSITION] = self.__export_positions(mesh.vertexData[mesh.arrayPositions])
 			if mesh.arrayNormals != -1:
-				attributes[C.MESH_ATTRIBUTE_STR_NORMAL] = self.__bake_normals(mesh.vertexData[mesh.arrayNormals])
+				attributes[C.MESH_ATTRIBUTE_STR_NORMAL] = self.__export_normals(mesh.vertexData[mesh.arrayNormals])
 			if mesh.arrayTangent != -1:
-				attributes[C.MESH_ATTRIBUTE_STR_TANGENT] = self.__bake_tangents(mesh.vertexData[mesh.arrayTangent])
+				attributes[C.MESH_ATTRIBUTE_STR_TANGENT] = self.__export_tangents(mesh.vertexData[mesh.arrayTangent])
 			if len(mesh.arraysColors) > 0:
-				self.__bake_vertex_colors(attributes, [mesh.vertexData[i] for i in mesh.arraysColors])
+				self.__export_vertex_colors(attributes, [mesh.vertexData[i] for i in mesh.arraysColors])
 			if len(mesh.arraysUVMaps) > 0:
-				self.__bake_uv_maps(attributes, [mesh.vertexData[i] for i in mesh.arraysUVMaps])
+				self.__export_uv_maps(attributes, [mesh.vertexData[i] for i in mesh.arraysUVMaps])
 			if mesh.arrayBoneIDs != -1 and mesh.arrayBoneWeights != -1:
-				self.__bake_joints(attributes, mesh.vertexData[mesh.arrayBoneIDs], mesh.vertexData[mesh.arrayBoneWeights])
+				self.__export_joints(attributes, mesh.vertexData[mesh.arrayBoneIDs], mesh.vertexData[mesh.arrayBoneWeights])
 
 			primtiveDict[C.MESH_PRIMITIVE_ATTRIBUTES] = attributes
 
 			self.bakedPrimitives.append(primtiveDict)
 
-	def __insert_accessor_into_gltf(self, accessor) -> int:
+	def __export_accessor(self, accessor: AccessorDescriber) -> int:
 		accessorID = accessor._get_id_reservation(self.gltfDict)
 		bufferView = accessor._bufferView
 		bufferViewID = bufferView._get_id_reservation(self.gltfDict)
@@ -403,9 +403,10 @@ class ExportedPrimitives():
 		self.gltfDict[C.GLTF_ACCESSOR][accessorID] = accessor._exportedData
 		self.gltfDict[C.GLTF_BUFFER_VIEW][bufferViewID] = bufferView._exportedData
 
+		accessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
 		return accessorID
 
-	def __bake_indexed_triangles_indices(self, data, vertexCount: int):
+	def __export_indexed_triangles_indices(self, data, vertexCount: int):
 
 		if vertexCount > 65000:
 			packingFormat = C.PACKING_FORMAT_U_INT
@@ -426,11 +427,10 @@ class ExportedPrimitives():
 					   C.ACCESSOR_TYPE_SCALAR, 
 					   componentType, 
 					   packingFormat)
-		accessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
 
-		return self.__insert_accessor_into_gltf(accessor)
+		return self.__export_accessor(accessor)
 
-	def __bake_positions(self, data) -> int:
+	def __export_positions(self, data) -> int:
 		accessor = AccessorDescriber()
 		accessor.set_float_precision(self.floatPrecision)
 
@@ -449,11 +449,9 @@ class ExportedPrimitives():
 					   C.PACKING_FORMAT_FLOAT,
 					   _max, _min)
 		
-		accessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
-		
-		return self.__insert_accessor_into_gltf(accessor)
+		return self.__export_accessor(accessor)
 	
-	def __bake_normals(self, data) -> int:
+	def __export_normals(self, data) -> int:
 		accessor = AccessorDescriber()
 		accessor.set_float_precision(self.floatPrecision)
 
@@ -463,11 +461,9 @@ class ExportedPrimitives():
 					   C.ACCESSOR_COMPONENT_TYPE_FLOAT,
 					   C.PACKING_FORMAT_FLOAT)
 		
-		accessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
-		
-		return self.__insert_accessor_into_gltf(accessor)
+		return self.__export_accessor(accessor)
 	
-	def __bake_tangents(self, data) -> int:
+	def __export_tangents(self, data) -> int:
 		accessor = AccessorDescriber()
 		accessor.set_float_precision(self.floatPrecision)
 
@@ -476,12 +472,10 @@ class ExportedPrimitives():
 					   C.ACCESSOR_TYPE_VECTOR_4,
 					   C.ACCESSOR_COMPONENT_TYPE_FLOAT,
 					   C.PACKING_FORMAT_FLOAT)
-		
-		accessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
 
-		return self.__insert_accessor_into_gltf(accessor)
+		return self.__export_accessor(accessor)
 	
-	def __bake_uv_maps(self, attributes: dict[str, int], data:list[list]):
+	def __export_uv_maps(self, attributes: dict[str, int], data:list[list]):
 		for i, d in enumerate(data):
 			attrName = C.MESH_ATTRIBUTE_STR_TEXCOORD + str(i)
 			accessor = AccessorDescriber()
@@ -492,10 +486,9 @@ class ExportedPrimitives():
 						C.ACCESSOR_COMPONENT_TYPE_FLOAT,
 						C.PACKING_FORMAT_FLOAT)
 			
-			accessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
-			attributes[attrName] = self.__insert_accessor_into_gltf(accessor)
+			attributes[attrName] = self.__export_accessor(accessor)
 
-	def __bake_vertex_colors(self, attributes: dict[str, int], data: list[list]):
+	def __export_vertex_colors(self, attributes: dict[str, int], data: list[list]):
 		for i, d in enumerate(data):
 			attrName = C.MESH_ATTRIBUTE_STR_COLOR + str(i)
 
@@ -507,10 +500,9 @@ class ExportedPrimitives():
 						C.ACCESSOR_COMPONENT_TYPE_FLOAT,
 						C.PACKING_FORMAT_FLOAT)
 			
-			accessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
-			attributes[attrName] = self.__insert_accessor_into_gltf(accessor)
+			attributes[attrName] = self.__export_accessor(accessor)
 
-	def __bake_joints(self, attributes: dict[str, int], boneIDdata: list, boneWeightData: list):
+	def __export_joints(self, attributes: dict[str, int], boneIDdata: list, boneWeightData: list):
 		divisions = len(boneIDdata[0][0]) / 4
 		for i in range(divisions):
 			attrNameJoint = C.MESH_ATTRIBUTE_STR_JOINT + str(i)
@@ -536,14 +528,11 @@ class ExportedPrimitives():
 							  C.ACCESSOR_TYPE_VECTOR_4,
 							  C.ACCESSOR_COMPONENT_TYPE_FLOAT,
 							  C.PACKING_FORMAT_FLOAT)
-			
-			jointAccessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
-			weightAccessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
 
-			attributes[attrNameJoint] = self.__insert_accessor_into_gltf(jointAccessor)
-			attributes[attrNameWeights] = self.__insert_accessor_into_gltf(weightAccessor)
+			attributes[attrNameJoint] = self.__export_accessor(jointAccessor)
+			attributes[attrNameWeights] = self.__export_accessor(weightAccessor)
 
-	def __bake_targets(self, mesh: MeshInFlight) -> list[dict]:
+	def __export_targets(self, mesh: MeshInFlight) -> list[dict]:
 		if len(mesh.arraysShapeKeyPositions) == 0: #TODO: add checks for normals and UVs
 			return []
 		
@@ -557,8 +546,7 @@ class ExportedPrimitives():
 						C.ACCESSOR_TYPE_VECTOR_3,
 						C.ACCESSOR_COMPONENT_TYPE_FLOAT,
 						C.PACKING_FORMAT_FLOAT)
-			accessor._export(self.isBinary, self.gltfDict, self.targetFilePath)
-			targets[targetID][C.MESH_ATTRIBUTE_STR_POSITION] = self.__insert_accessor_into_gltf(accessor)
+			targets[targetID][C.MESH_ATTRIBUTE_STR_POSITION] = self.__export_accessor(accessor)
 		
 		# TODO: normals
 		# TODO: uvs
