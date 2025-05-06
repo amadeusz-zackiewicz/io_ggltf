@@ -324,14 +324,16 @@ BUFFER_EXTRA                                    = __VAR_EXTRA
 BUFFER_TEMP_BYTES                               = "tempBytes"
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.11 Buffer View
-BUFFER_VIEW_BUFFER = "buffer"
-BUFFER_VIEW_BYTE_OFFSET = "byteOffset"
-BUFFER_VIEW_BYTE_LENGTH = "byteLength"
-BUFFER_VIEW_BYTE_STRIDE = "byteStride"
-BUFFER_VIEW_TARGET = "target"
-BUFFER_VIEW_NAME = __VAR_NAME
-BUFFER_VIEW_EXTENSIONS = __VAR_EXTENSION
-BUFFER_VIEW_EXTRA = __VAR_EXTRA
+BUFFER_VIEW_BUFFER 								= "buffer"
+BUFFER_VIEW_BYTE_OFFSET 						= "byteOffset"
+BUFFER_VIEW_BYTE_LENGTH 						= "byteLength"
+BUFFER_VIEW_BYTE_STRIDE 						= "byteStride"
+BUFFER_VIEW_TARGET 								= "target"
+BUFFER_VIEW_TARGET_ARRAY_BUFFER 				= 34962
+BUFFER_VIEW_TARGET_ELEMENT_ARRAY_BUFFER 		= 34963
+BUFFER_VIEW_NAME 								= __VAR_NAME
+BUFFER_VIEW_EXTENSIONS 							= __VAR_EXTENSION
+BUFFER_VIEW_EXTRA 								= __VAR_EXTRA
 
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.12 Camera
 #https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.pdf --- 5.15 Extension
