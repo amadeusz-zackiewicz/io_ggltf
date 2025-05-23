@@ -1,8 +1,8 @@
 import mathutils
 from io_ggltf import Constants as C
-from io_ggltf.Describers.Base import ObjectBasedDescriber, Describer
+from io_ggltf.Describers import *
 from io_ggltf.Core import Util
-from io_ggltf.Core.BlenderUtil import get_object_accessor
+from io_ggltf.Core import BlenderUtil
 
 
 class NodeDescriber(ObjectBasedDescriber):
@@ -236,21 +236,4 @@ class NodeDescriber(ObjectBasedDescriber):
 			return False
 		
 
-def FromObject(objectName: str = None, objectLibrary: str = None, boneName: str = None) -> NodeDescriber:
-	describer = NodeDescriber()
-	describer.set_target(objName=objectName, objLibrary=objectLibrary, boneName=boneName)
-	if describer._hasValidObject:
-		return describer
-	else:
-		if objectLibrary != None:
-			if boneName != None:
-				print(f"Failed to find target: {objectLibrary}::{objectName}.bones[{boneName}]")
-			else:
-				print(f"Failed to find target: {objectLibrary}::{objectName}")
-		else:
-			if boneName != None:
-				print(f"Failed to find target: {objectName}.bones[{boneName}]")
-			else:
-				print(f"Failed to find target: {objectName}")
-		return None
 

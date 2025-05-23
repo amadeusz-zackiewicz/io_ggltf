@@ -1,10 +1,8 @@
 from io_ggltf import Constants as C
-from io_ggltf.Describers.Base import ObjectBasedDescriber, Describer
-from io_ggltf.Describers.Buffer import BufferDescriber
-from io_ggltf.Describers.Accessor import AccessorDescriber
+from io_ggltf.Describers import *
 from io_ggltf.Core.Scoops.Mesh import MeshUtil
 from io_ggltf.Core.Util import try_get_object
-from io_ggltf.Core import BlenderUtil
+from io_ggltf.Core import BlenderUtil, Util
 from io_ggltf.Core.Validation import MeshValidation
 
 class MeshDescriber(ObjectBasedDescriber):
@@ -552,16 +550,3 @@ class ExportedPrimitives():
 		# TODO: uvs
 
 		return targets
-	
-
-def FromObject(objectName: str = None, objectLibrary: str = None, buffer: BufferDescriber = None) -> MeshDescriber:
-	describer = MeshDescriber(buffer)
-	describer.set_target(objName=objectName, objLibrary=objectLibrary)
-	if describer._hasValidObject:
-		return describer
-	else:
-		if objectLibrary != None:
-			print(f"Failed to find target: {objectLibrary}::{objectName}")
-		else:
-			print(f"Failed to find target: {objectName}")
-		return None

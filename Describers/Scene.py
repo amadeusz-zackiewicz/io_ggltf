@@ -1,6 +1,5 @@
 from io_ggltf import Constants as C
-from io_ggltf.Describers.Base import Describer
-from io_ggltf.Describers.Node import NodeDescriber
+from io_ggltf.Describers import *
 
 class Scene(Describer):
 	def __init__(self):
