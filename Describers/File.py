@@ -9,7 +9,7 @@ from io_ggltf.Describers.Scene import Scene as SceneDescriber
 from io_ggltf.Core import Util
 
 class File(Describer):
-	def __init__(self, fileDirectory: str, fileName: str, binary: True):
+	def __init__(self, fileDirectory: str, fileName: str, binary: bool = True):
 		super().__init__()
 
 		self._name = fileName
@@ -127,7 +127,7 @@ class File(Describer):
 		if len(gltfDict[C.GLTF_SCENE]) == 0:
 			if len(topNodeIDs) > 0:
 				scene = {
-					C.SCENE_NAME : "ggltf",
+					C.SCENE_NAME : "Scene",
 					C.SCENE_NODES : topNodeIDs
 				}
 				gltfDict[C.GLTF_DEFAULT_SCENE] = len(gltfDict[C.GLTF_SCENE])
@@ -259,9 +259,10 @@ class File(Describer):
 					if not recursive_export(referencedDescriber):
 						return False
 				
-			if not describer._export(isBinary, gltfDict, fileTargetPath):
-				print(f"Describer: {describer} failed to export.")
-				return False
+			if not describer._isExported:
+				if not describer._export(isBinary, gltfDict, fileTargetPath):
+					print(f"Describer: {describer} failed to export.")
+					return False
 				
 			gltfDict[describer._dataTypeHint][describer._get_id_reservation(gltfDict)] = describer._exportedData
 			return True
@@ -282,9 +283,6 @@ class File(Describer):
 			else:
 				if self._enforceDefaultScene:
 					self.__enforce_default_scene(gltfDict, topNodes)
-
-			if self._catchStrayNodes:
-				self.__catch_stray_nodes(gltfDict, topNodes)
 
 			if isBinary:
 				self.__export_as_glb(fileTargetPath, gltfDict)
