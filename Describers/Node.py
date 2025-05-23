@@ -37,6 +37,10 @@ class NodeDescriber(ObjectBasedDescriber):
 			references | self._mesh.get_referenced_describers()
 			references.add(self._mesh)
 
+		if self._skin != None:
+			references | self._skin.get_referenced_describers()
+			references.add(self._skin)
+
 		return references
 
 	def set_parent(self, parent: Describer):
@@ -166,6 +170,8 @@ class NodeDescriber(ObjectBasedDescriber):
 		if self._mesh == None:
 			return None
 		
+		self._mesh._skin = self._skin
+		
 		if not self._mesh._isExported:
 			self._mesh._export(isBinary, gltfDict, fileTargetPath)
 			
@@ -174,8 +180,14 @@ class NodeDescriber(ObjectBasedDescriber):
 		return None
 
 		
-	def __export_skin(self, gltfDict):
-		pass
+	def __export_skin(self, isBinary, gltfDict, fileTargetPath):
+		if self._skin == None:
+			return
+		
+		if not self._skin._isExported:
+			self._skin._export(isBinary, gltfDict, fileTargetPath)
+
+		self._exportedData[C.NODE_SKIN] = self._skin._get_id_reservation(gltfDict)
 
 	def __export_camera(self, gltfDict):
 		pass
@@ -196,36 +208,37 @@ class NodeDescriber(ObjectBasedDescriber):
 				else:
 					parentTuple = (parent._objectName, parent._objectLibrary)
 				
-			if self._useMatrix:
-				if Util.try_get_bone(boneTuple) != None:
-					converted, matrix = Util.evaluate_matrix(boneTuple, parentTuple)
-				else:
-					converted, matrix = Util.evaluate_matrix(objTuple, parentTuple)
-				if not converted:
-					matrix = Util.y_up_matrix(matrix)
+			if self._skin == None:
+				if self._useMatrix:
+					if Util.try_get_bone(boneTuple) != None:
+						converted, matrix = Util.evaluate_matrix(boneTuple, parentTuple)
+					else:
+						converted, matrix = Util.evaluate_matrix(objTuple, parentTuple)
+					if not converted:
+						matrix = Util.y_up_matrix(matrix)
 
-				self.__export_matrix(matrix if self._matrix == None else self._matrix)
-			else:
-				if Util.try_get_bone(boneTuple) != None:
-					translation, rotation, scale = Util.get_yup_transforms(boneTuple, parentTuple)
+					self.__export_matrix(matrix if self._matrix == None else self._matrix)
 				else:
-					translation, rotation, scale = Util.get_yup_transforms(objTuple, parentTuple)
+					if Util.try_get_bone(boneTuple) != None:
+						translation, rotation, scale = Util.get_yup_transforms(boneTuple, parentTuple)
+					else:
+						translation, rotation, scale = Util.get_yup_transforms(objTuple, parentTuple)
 
-				self.__export_translation(translation if self._translation == None else self._translation)
-				self.__export_rotation(rotation if self._rotation == None else self._rotation)
-				self.__export_scale(scale if self._scale == None else self._scale)
+					self.__export_translation(translation if self._translation == None else self._translation)
+					self.__export_rotation(rotation if self._rotation == None else self._rotation)
+					self.__export_scale(scale if self._scale == None else self._scale)
 			
 
 			if len(self._children) > 0:
 				childrenIDs = []
 				for c in self._children:
-					childrenIDs.append(self._get_id_reservation(gltfDict))
+					childrenIDs.append(c._get_id_reservation(gltfDict))
 
 				self._exportedData[C.NODE_CHILDREN] = childrenIDs
 			
-			weights = self.__export_mesh(isBinary, gltfDict, fileTargetPath)
 			self.__export_camera(gltfDict)
-			self.__export_skin(gltfDict)
+			self.__export_skin(isBinary, gltfDict, fileTargetPath)
+			weights = self.__export_mesh(isBinary, gltfDict, fileTargetPath)
 
 			self.__export_weights(weights)
 

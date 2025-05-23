@@ -24,7 +24,7 @@ class MeshDescriber(ObjectBasedDescriber):
 
 		self._keepPose: bool = False
 
-		self._skin: Describer
+		self._skin: SkinDescriber = None
 		self._boneInfluenceCount: int = 4
 
 		self._floatPrecision: int = 7
@@ -93,23 +93,20 @@ class MeshDescriber(ObjectBasedDescriber):
 		else:
 			print(f"Attempted to change shape keys of already exported mesh.")
 
-	def merge_mesh(self, meshObjTuple: tuple):
+	def merge_mesh(self, meshObjName: str, meshObjLibrary: str = None):
 		if not self._isExported:
-			obj = try_get_object(meshObjTuple)
+			obj = try_get_object((meshObjName, meshObjLibrary))
 
 			if obj == None:
-				print(f"Failed to get object: {meshObjTuple[1] + '::' if meshObjTuple[1] != None else ''}{meshObjTuple[0]}")
+				print(f"Failed to get object: {meshObjLibrary + '::' if meshObjLibrary != None else ''}{meshObjName}")
 
 			if BlenderUtil.object_is_meshlike(obj):
-				self._additionalObjectNames.append(meshObjTuple[0])
-				self._additionalObjectLibraries.append(meshObjTuple[1])
+				self._additionalObjectNames.append(meshObjName)
+				self._additionalObjectLibraries.append(meshObjLibrary)
 			else:
-				print(f"Object {meshObjTuple[1] + '::' if meshObjTuple[1] != None else ''}{meshObjTuple[0]} is of type {obj.type}, expected type: {C.BLENDER_TYPE_MESH}")
+				print(f"Object {meshObjLibrary + '::' if meshObjName != None else ''}{meshObjName} is of type {obj.type}, expected type: {C.BLENDER_TYPE_MESH}")
 		else:
 			print("Attempted to merge meshes with an already exported mesh.")
-
-	def merge_mesh(self, meshObjName: str, meshObjLibrary: str = None):
-		self._merge_mesh((meshObjName, meshObjLibrary))
 
 	def __get_all_objects(self) -> list:
 		objects = []
@@ -120,7 +117,11 @@ class MeshDescriber(ObjectBasedDescriber):
 				objects.append(obj)
 
 		for i in range(len(self._additionalObjectNames)):
-			objects.append(try_get_object(self._additionalObjectNames[i], self._additionalObjectLibraries))
+			obj = try_get_object((self._additionalObjectNames[i], self._additionalObjectLibraries[i]))
+			if obj != None:
+				objects.append(obj)
+			else:
+				print(f"Failed to find mesh object: {self._additionalObjectLibraries[i] + '::' if self._additionalObjectLibraries[i] != None else ''}{self._additionalObjectNames[i]}")
 
 		return objects
 		
@@ -157,6 +158,10 @@ class MeshDescriber(ObjectBasedDescriber):
 			else:
 				targetMatrix = meshObjects[0].matrix_world
 			
+			if self._skin != None and self._boneInfluenceCount > 0:
+				if not self._skin._isExported:
+					self._skin._export(isBinary, gltfDict, fileTargetPath)
+
 			depsGraph = BlenderUtil.get_depsgraph()
 			materialIDMap = self.__get_material_id_map(meshObjects)
 			meshesInFlight = [None] * len(meshObjects)
@@ -176,6 +181,8 @@ class MeshDescriber(ObjectBasedDescriber):
 					mesh.sample_loop_colors(self._vertexColors)
 				if self._shapeKeys:
 					mesh.sample_shape_key_positions(self._shapeKeys)
+				if self._skin != None and self._boneInfluenceCount > 0:
+					mesh.sample_loop_weights(self._skin._skinDefinition, self._boneInfluenceCount)
 
 				# TODO: extension: on mesh sample here
 				
@@ -432,13 +439,16 @@ class ExportedPrimitives():
 		accessor = AccessorDescriber()
 		accessor.set_float_precision(self.floatPrecision)
 
-		_max = [0.0, 0.0, 0.0]
-		_min = [0.0, 0.0, 0.0]
+		_max = [-10000.0, -10000.0, -10000.0]
+		_min = [10000.0, 10000.0, 10000.0]
 
 		for d in data:
 			for i in range(3):
 				_max[i] = max(_max[i], d[i])
 				_min[i] = min(_min[i], d[i])
+
+		Util.round_float_list_to_precision(_max, self.floatPrecision)
+		Util.round_float_list_to_precision(_min, self.floatPrecision)
 
 		accessor.insert_data(data, 
 					   self.buffer, 
@@ -500,8 +510,8 @@ class ExportedPrimitives():
 			
 			attributes[attrName] = self.__export_accessor(accessor)
 
-	def __export_joints(self, attributes: dict[str, int], boneIDdata: list, boneWeightData: list):
-		divisions = len(boneIDdata[0][0]) / 4
+	def __export_joints(self, attributes: dict[str, int], boneIDdata: list[list[int]], boneWeightData: list[list[float]]):
+		divisions = int(len(boneIDdata[0]) / 4)
 		for i in range(divisions):
 			attrNameJoint = C.MESH_ATTRIBUTE_STR_JOINT + str(i)
 			attrNameWeights = C.MESH_ATTRIBUTE_STR_WEIGHT + str(i)
