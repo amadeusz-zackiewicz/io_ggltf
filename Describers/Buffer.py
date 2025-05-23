@@ -26,7 +26,11 @@ class BufferDescriber(Describer):
 		if not self._isExported:
 			offset = len(self._blob)
 			self._blob.extend(bytes)
-			return (offset, len(bytes))
+			lenght = len(bytes)
+			sizeErr = len(self._blob) % 4
+			if sizeErr != 0:
+				self._blob.extend(bytearray([0] * sizeErr))
+			return (offset, lenght)
 		else:
 			print("Attempted to add more bytes to buffer that is already exported.")
 
