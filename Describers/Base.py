@@ -53,7 +53,7 @@ class ObjectBasedDescriber(Describer):
 		self._boneName: str = None
 		self._hasValidObject = False
 
-	def set_target(self, objName: str, objLibrary: str = None, boneName: str = None) -> bool:
+	def set_target(self, objName: str, objLibrary: str = None, boneName: str = None):
 		if not self._isExported:
 			target = None
 			if boneName != None:
@@ -66,13 +66,11 @@ class ObjectBasedDescriber(Describer):
 				self._objectLibrary = None
 				self._boneName = None
 				self._hasValidObject = False
-				return False
 			else:
-				self._name = objName
+				self._name = objName if boneName == None else boneName
 				self._objectName = objName
 				self._objectLibrary = objLibrary
 				self._boneName = boneName
 				self._hasValidObject = True
-				return True
 		else:
 			print(f"Attempted to set object or bone on {self} after it is already exported.")
