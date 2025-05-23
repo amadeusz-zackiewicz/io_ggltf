@@ -176,6 +176,10 @@ def get_vertex_weights(vertex, vertexGroups, skinDefinition, maxInfleunces):
 	else:
 		boneInflu[0] = 1.0
 
+	for i in range(len(boneInflu)):
+		if boneInflu[i] == 0.0:
+			boneID[i] = 0
+
 	return boneID, boneInflu
 
 

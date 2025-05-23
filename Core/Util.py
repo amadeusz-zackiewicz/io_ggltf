@@ -147,6 +147,15 @@ def name_passes_filters(filter: list[tuple], name: str) -> bool:
                 return False
     return True
 
+def name_passes_filter(filter: tuple[str, bool], name:str) -> bool:
+    match = re.search(filter[0], name)
+    if filter[1] == True: # Whitelist
+        if match == None: return False
+        else: return True
+    else: # Blacklist
+        if match != None: return False
+        else: return True
+
 def rename_node(bucket, nodeID: int, newName: str):
     node = bucket.data[__c.BUCKET_DATA_NODES][nodeID]
     node[__c.NODE_NAME] = newName
@@ -244,6 +253,8 @@ def get_all_nodes_in_hierarchy(bucket, topNodeID):
     return nodes
 
 def get_yup_transforms(childAccessor, parent):
+    if parent == None:
+        parent = False
     corrected, m = evaluate_matrix(childAccessor, parent)
 
     if corrected:

@@ -9,6 +9,12 @@ def set_object_pose_mode(bucket: Bucket, objAccessor, poseMode):
 	obj = bpy.data.objects.get(objAccessor)
 	obj.data.pose_position = poseMode
 
+def set_armature_pose_mode(obj, poseMode):
+	obj.data.pose_position = poseMode
+
+def get_armature_pose_mode(obj):
+	return obj.data.pose_position
+
 def set_object_modifier(bucket: Bucket, objAccessor, modifierID, setActive):
 	obj = bpy.data.objects.get(objAccessor)
 	if bucket.currentDependencyGraph.mode == __c.BLENDER_DEPSGRAPH_MODE_VIEWPORT:
