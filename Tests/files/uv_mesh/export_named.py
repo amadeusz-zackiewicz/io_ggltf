@@ -8,19 +8,20 @@ if __name__ == "__main__" and len(sys.argv) == 1:
 	import os
 	sys.path.append(os.path.abspath(""))
 	import Tests.LimitedTestUtil as T
-	T.run_test("animated_cube", "animated_cube", os.path.basename(__file__).replace(".py", ""))
+	T.run_test("uv_mesh", "uv_mesh", os.path.basename(__file__).replace(".py", ""))
 else:
 	from io_ggltf.Describers import *
 	from io_ggltf.Constants import *
 
 	filePath = "//..\\..\\output\\"
-	fileName = "animated_cube_cube_only"
-	binPath = "animated_cube_cube_only"
+	fileName = "uv_mesh_export_named"
+	binPath = "uv_mesh_export_named"
 
 	def test(buffer, asGlb):
 		file = GltfFile(filePath, fileName, asGlb)
-		node = NodeFromObject("Cube")
-		node._mesh = MeshFromObject("Cube", buffer=buffer)
+		node = NodeFromObject("Plane")
+		node._mesh = MeshFromObject("Plane", buffer=buffer)
+		node._mesh.set_uv_maps(["UVMap", "TopLeft", "BottomRight"])
 		file.add_describers([node, buffer])
 		
 		file.export_file()

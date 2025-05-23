@@ -14,13 +14,14 @@ else:
 	from io_ggltf.Constants import *
 
 	filePath = "//..\\..\\output\\"
-	fileName = "animated_cube_cube_only"
-	binPath = "animated_cube_cube_only"
+	fileName = "uv_mesh_export_auto"
+	binPath = "uv_mesh_export_auto"
 
 	def test(buffer, asGlb):
 		file = GltfFile(filePath, fileName, asGlb)
-		node = NodeFromObject("Cube")
-		node._mesh = MeshFromObject("Cube", buffer=buffer)
+		node = NodeFromObject("Plane")
+		node._mesh = MeshFromObject("Plane", buffer=buffer)
+		node._mesh.set_uv_maps(True)
 		file.add_describers([node, buffer])
 		
 		file.export_file()
