@@ -5,6 +5,7 @@ from .Accessor import AccessorDescriber
 from .Node import NodeDescriber
 from .Mesh import MeshDescriber
 from .Skin import SkinDescriber
+from .Animation import AnimationDescriber
 from .Scene import Scene
 from .File import File
 
