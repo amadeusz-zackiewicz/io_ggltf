@@ -39,6 +39,8 @@ MESH_ATTRIBUTE_STR_COLOR          = "COLOR_"
 MESH_ATTRIBUTE_STR_JOINT          = "JOINTS_"
 MESH_ATTRIBUTE_STR_WEIGHT         = "WEIGHTS_"
 
+EXTENSION_BUILD_IN_EXTRA_PROPERTIES = "ggltf_exProps"
+
 ######### for repeating values
 
 __VAR_BUFFER_VIEW           = "bufferView"
