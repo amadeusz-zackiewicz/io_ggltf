@@ -253,7 +253,7 @@ def get_all_nodes_in_hierarchy(bucket, topNodeID):
     return nodes
 
 def get_yup_transforms(childAccessor, parent):
-    if parent == None:
+    if parent == None and len(childAccessor) == 2:
         parent = False
     corrected, m = evaluate_matrix(childAccessor, parent)
 
