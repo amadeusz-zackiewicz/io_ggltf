@@ -100,12 +100,14 @@ class NodeDescriber(ObjectBasedDescriber):
 			print("Attempted to change scale of already exported node")
 		
 	def __export_children(self, isBinary, gltfDict, fileTargetPath) -> bool:
-		for child in self._children:
-			if not child._isExported:
-				if not child._export(isBinary, gltfDict, fileTargetPath):
-					return False
-				
-			self._exportedData[C.NODE_CHILDREN].append(child._get_id_reservation(gltfDict))
+		if len(self._children) > 0:
+				childrenIDs = []
+				for c in self._children:
+					if not c._isExported:
+						c._export(isBinary, gltfDict, fileTargetPath)
+					childrenIDs.append(c._get_id_reservation(gltfDict))
+
+				self._exportedData[C.NODE_CHILDREN] = childrenIDs
 
 	def __export_translation(self, translation):
 		if translation != None:
@@ -228,20 +230,13 @@ class NodeDescriber(ObjectBasedDescriber):
 					self.__export_rotation(rotation if self._rotation == None else self._rotation)
 					self.__export_scale(scale if self._scale == None else self._scale)
 			
-
-			if len(self._children) > 0:
-				childrenIDs = []
-				for c in self._children:
-					childrenIDs.append(c._get_id_reservation(gltfDict))
-
-				self._exportedData[C.NODE_CHILDREN] = childrenIDs
-			
 			self.__export_camera(gltfDict)
 			self.__export_skin(isBinary, gltfDict, fileTargetPath)
 			weights = self.__export_mesh(isBinary, gltfDict, fileTargetPath)
-
 			self.__export_weights(weights)
+			self.__export_children(isBinary, gltfDict, fileTargetPath)
 
+			self._insert_exported_data_to_dict(gltfDict)
 			self._isExported = True
 			return True
 		else:
