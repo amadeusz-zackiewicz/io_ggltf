@@ -23,10 +23,17 @@ class SkinDescriber(ObjectBasedDescriber):
 		self._extraArmatureParentBoneName: list[str] = []
 
 		self._boneNodeDescribers: list[NodeDescriber] = []
+		self._topBoneDescribers: list[NodeDescriber] = []
+		self._attachedObjDescribers: list[NodeDescriber] = []
 
 		self._jointNodeIDs: list[int] = []
 		self._topJointNodeIds: list[int] = []
+
+		self._jointTree: list[Joint] = []
+		self._joints: dict[str, Joint] = {}
 		self._skinDefinition: OrderedDict[str, int] = {}
+
+		self._hierarchyBuilt: bool = False
 
 	def get_referenced_describers(self):
 		return set(self._boneNodeDescribers)
@@ -103,7 +110,7 @@ class SkinDescriber(ObjectBasedDescriber):
 			return None
 
 		joint = Joint(bone, obj)
-		joint.worldRestMatrix = self.__get_bone_world_matrix(bone, obj)
+		#joint.worldMatrix = self.__get_bone_world_matrix(bone, obj)
 		joints[bone.name] = joint
 
 		if self._stitchHierarchy:
@@ -137,44 +144,61 @@ class SkinDescriber(ObjectBasedDescriber):
 						joint.childrenJoints.append(childJoint)
 		
 		return joint
-
-	def __get_bone_world_matrix(self, bone, obj):
-		return Util.y_up_matrix(obj.matrix_world) @ bone.bone.matrix_local
 	
-	def __convert_joint_into_nodes_recursive(self, joint, gltfDict: dict, mainArmatureObj, parentJoint = None) -> NodeDescriber:
+	def __convert_joint_into_nodes_recursive(self, joint, mainArmatureObj, parentJoint = None) -> NodeDescriber:
 		node = NodeDescriber()
 		joint.nodeDescriber = node
 		
 		node.set_target(joint.armatureObj.name, joint.armatureObj.library, joint.bone.name)
 
-		if parentJoint == None:
-			translation, rotation, scale = Util.get_yup_transforms(
-				(joint.armatureObj.name, joint.armatureObj.library, joint.bone.name),
-				(mainArmatureObj.name, mainArmatureObj.library))
-		else:
-			translation, rotation, scale = Util.get_yup_transforms(
-				(joint.armatureObj.name, joint.armatureObj.library, joint.bone.name),
-				(parentJoint.armatureObj.name, parentJoint.armatureObj.library, parentJoint.bone.name))
-
-		node._translation = Util.bl_math_to_gltf_list(translation)
-		node._rotation = Util.bl_math_to_gltf_list(rotation)
-		node._scale = Util.bl_math_to_gltf_list(scale)
-
-		self._jointNodeIDs.append(node._get_id_reservation(gltfDict))
-
 		for c in joint.childrenJoints:
-			node.append_child(self.__convert_joint_into_nodes_recursive(c, gltfDict, mainArmatureObj, joint))
+			node.append_child(self.__convert_joint_into_nodes_recursive(c, mainArmatureObj, joint))
 		
 		return node
+	
+	def __export_nodes(self, isBinary, gltfDict, fileTargetPath):
+		def recursive(node: NodeDescriber):
+			if not node._isExported:
+				node._export(isBinary, gltfDict, fileTargetPath)
+			for c in node._children:
+				recursive(c)
 
-	def __export_inverse_binds(self, joints: dict, mainObjectWorldMatrix, isBinary, gltfDict, fileTargetPath):
+		for joint in self._jointTree:
+			recursive(joint.nodeDescriber)
+			self._topJointNodeIds.append(joint.nodeDescriber._get_id_reservation(gltfDict))
+	
+	def __set_joint_nodes_transforms(self):
+		def recursive(joint):
+			parentJoint = joint.parentJoint
+			if parentJoint == None:
+				translation, rotation, scale = Util.get_yup_transforms(
+					(joint.armatureObj.name, joint.armatureObj.library, joint.bone.name),
+					(mainArmatureObj.name, mainArmatureObj.library))
+			else:
+				translation, rotation, scale = Util.get_yup_transforms(
+					(joint.armatureObj.name, joint.armatureObj.library, joint.bone.name),
+					(parentJoint.armatureObj.name, parentJoint.armatureObj.library, parentJoint.bone.name))
+				
+			joint.nodeDescriber._translation = Util.bl_math_to_gltf_list(translation)
+			joint.nodeDescriber._rotation = Util.bl_math_to_gltf_list(rotation)
+			joint.nodeDescriber._scale = Util.bl_math_to_gltf_list(scale)
+
+			for cJoint in joint.childrenJoints:
+				recursive(cJoint)
+
+		mainArmatureObj = Util.try_get_object((self._objectName, self._objectLibrary))
+
+		for joint in self._jointTree:
+			recursive(joint)
+
+	def __export_inverse_binds(self, mainObjectWorldMatrix, isBinary, gltfDict, fileTargetPath):
 		if not self._includeInverseBindMatrices:
 			return
 
-		inverseBinds = [None] * len(joints)
+		inverseBinds = [None] * len(self._joints)
 
-		for iJoint, joint in enumerate(joints.values()):
-			inverseBinds[iJoint] = Util.y_up_matrix(mainObjectWorldMatrix.inverted_safe() @ joint.worldRestMatrix.inverted_safe())
+		for iJoint, joint in enumerate(self._joints.values()):
+			inverseBinds[iJoint] = Util.y_up_matrix(mainObjectWorldMatrix.inverted_safe() @ joint.worldMatrix.inverted_safe())
 			inverseBinds[iJoint].transpose()
 
 		accessor = AccessorDescriber()
@@ -192,29 +216,80 @@ class SkinDescriber(ObjectBasedDescriber):
 		
 		self._exportedData[C.SKIN_INVERSE_BIND_MATRICES] = accessor._get_id_reservation(gltfDict)
 
+	def __build_hierarchy(self):
+		if self._hierarchyBuilt:
+			return
+		
+		armatureObjects: list = [Util.try_get_object((self._objectName, self._objectLibrary))]
+
+		if type(self._rootBoneName) == str:
+			mainRootBone = Util.try_get_bone((self._objectName, self._objectLibrary, self._rootBoneName))
+		else:
+			mainRootBone = self.__determine_root_bone(armatureObjects[0])
+
+		parentBoneName: list[str] = [mainRootBone]
+
+		for i, _ in enumerate(self._extraArmatureNames):
+			armatureObjects.append(Util.try_get_object(self._extraArmatureNames[i], self._extraArmatureLibraries[i]))
+			if self._extraArmatureParentBone[i] != None:
+				parentBoneName.append(self._extraArmatureParentBone[i])
+			else:
+				parentBoneName.append(mainRootBone)
+
+			parentBoneName.insert(0, mainRootBone)
+
+		jointParentFallbacks: list[str] = []
+
+		allBones = []
+
+		for iArmature, armatureObj in enumerate(armatureObjects):
+			rootBones = []
+
+			for bone in armatureObj.pose.bones:
+				allBones.append(bone)
+
+			if self._boneFilter != None:
+				for bone in armatureObj.pose.bones:
+					if bone.parent == None:
+						if not Util.name_passes_filter(self._boneFilter, bone.name):
+							continue
+						else:
+							rootBones.append(bone)
+			else:
+				for bone in armatureObj.pose.bones:
+					if bone.parent == None:
+						rootBones.append(bone)
+
+			jointsLen: int = len(self._joints)
+			for rootBone in rootBones:
+				joint = self.__create_joints_recursive(rootBone, armatureObj, self._joints)
+			jointParentFallbacks += [parentBoneName[iArmature]] * int(len(self._joints) - jointsLen)
+
+		if self._stitchHierarchy and self._boneFilter != None:
+			for iJoint, joint in enumerate(self._joints.values()):
+				jointParent = joint.try_get_stitched_parent(self._boneFilter, self._joints, allBones, jointParentFallbacks[iJoint])
+				joint.parentJoint = jointParent
+
+		for joint in self._joints.values():
+			if joint.parentJoint == None:
+				self._jointTree.append(joint)
+
+		for iJoint, jointName in enumerate(self._joints.keys()):
+				self._skinDefinition[jointName] = iJoint
+
+		for rootJoint in self._jointTree:
+			self._boneNodeDescribers.append(self.__convert_joint_into_nodes_recursive(rootJoint, armatureObjects[0]))
+
+		self._hierarchyBuilt = True
 
 	def _export(self, isBinary, gltfDict, fileTargetPath):
 		if not self._isExported:
 
-			depsGraph = BlenderUtil.get_depsgraph()
+			self.__build_hierarchy()
+
 			armatureObjects: list = [Util.try_get_object((self._objectName, self._objectLibrary))]
+			depsGraph = BlenderUtil.get_depsgraph()
 			oldPoseMode: list = []
-
-			if type(self._rootBoneName) == str:
-				mainRootBone = Util.try_get_bone((self._objectName, self._objectLibrary, self._rootBoneName))
-			else:
-				mainRootBone = self.__determine_root_bone(armatureObjects[0])
-
-			parentBoneName: list[str] = [mainRootBone]
-
-			for i, _ in enumerate(self._extraArmatureNames):
-				armatureObjects.append(Util.try_get_object(self._extraArmatureNames[i], self._extraArmatureLibraries[i]))
-				if self._extraArmatureParentBone[i] != None:
-					parentBoneName.append(self._extraArmatureParentBone[i])
-				else:
-					parentBoneName.append(mainRootBone)
-
-			parentBoneName.insert(0, mainRootBone)
 
 			if self._keepPose:
 				for obj in armatureObjects:
@@ -227,75 +302,38 @@ class SkinDescriber(ObjectBasedDescriber):
 
 			depsGraph.update()
 
-			joints: dict[str, Joint] = {}
-			jointParentFallbacks: list[str] = []
-			jointTree: list[Joint] = []
-
-			allBones = []
-			
-
-			for iArmature, armatureObj in enumerate(armatureObjects, start=1):
-				rootBones = []
-
-				for bone in armatureObj.pose.bones:
-					allBones.append(bone)
-
-				if self._boneFilter != None:
-					for bone in armatureObj.pose.bones:
-						if bone.parent == None:
-							if not Util.name_passes_filter(self._boneFilter, bone.name):
-								continue
-							else:
-								rootBones.append(bone)
-				else:
-					for bone in armatureObj.pose.bones:
-						if bone.parent == None:
-							rootBones.append(bone)
-
-				jointsLen: int = len(joints)
-				for rootBone in rootBones:
-					joint = self.__create_joints_recursive(rootBone, armatureObj, joints)
-				jointParentFallbacks += [parentBoneName[iArmature]] * int(len(joints) - jointsLen)
-
-			if self._stitchHierarchy and self._boneFilter != None:
-				for iJoint, joint in enumerate(joints.values()):
-					jointParent = joint.try_get_stitched_parent(self._boneFilter, joints, allBones, jointParentFallbacks[iJoint])
-					joint.parentJoint = jointParent
-
-			for joint in joints.values():
-				if joint.parentJoint == None:
-					jointTree.append(joint)
-
-			for rootJoint in jointTree:
-				self._boneNodeDescribers.append(self.__convert_joint_into_nodes_recursive(rootJoint, gltfDict, armatureObjects[0]))
+			for rootJoint in self._jointTree:
 				self._topJointNodeIds.append(rootJoint.nodeDescriber._get_id_reservation(gltfDict))
 
+			self._jointNodeIDs = [None] * len(self._joints)
+			for iJoint, joint in enumerate(self._joints.values()):
+				joint.calculate_world_matrix()
+				self._jointNodeIDs[iJoint] = joint.nodeDescriber._get_id_reservation(gltfDict)
+
+			self.__set_joint_nodes_transforms()
 
 			self._export_name()
-			self._exportedData[C.SKIN_JOINTS] = self._jointNodeIDs
-			self.__export_inverse_binds(joints, armatureObjects[0].matrix_world, isBinary, gltfDict, fileTargetPath)
+			self.__export_inverse_binds(armatureObjects[0].matrix_world, isBinary, gltfDict, fileTargetPath)
+			self.__export_nodes(isBinary, gltfDict, fileTargetPath)
 
+			self._exportedData[C.SKIN_JOINTS] = self._jointNodeIDs
 
 			if self._rootBoneName:
-				skeletonID = joints.get(mainRootBone, None)
+				skeletonID = self._joints.get(self._rootBoneName, None)
 				if skeletonID != None:
 					self._exportedData[C.SKIN_SKELETON] = skeletonID
+
+			for joint in self._joints.values():
+				if not joint.nodeDescriber._isExported:
+					joint.nodeDescriber._export(isBinary, gltfDict, fileTargetPath)
+					gltfDict[C.GLTF_NODE][joint.nodeDescriber._get_id_reservation(gltfDict)] = joint.nodeDescriber._exportedData
 
 			for i, oldPoseMode in enumerate(oldPoseMode):
 				BlenderUtil.set_armature_pose_mode(armatureObjects[i], oldPoseMode)
 
 			depsGraph.update()
-
-			for joint in joints.values():
-				if not joint.nodeDescriber._isExported:
-					joint.nodeDescriber._export(isBinary, gltfDict, fileTargetPath)
-					gltfDict[C.GLTF_NODE][joint.nodeDescriber._get_id_reservation(gltfDict)] = joint.nodeDescriber._exportedData
-
-			for iJoint, jointName in enumerate(joints.keys()):
-				self._skinDefinition[jointName] = iJoint
-
 			
-			
+			self._insert_exported_data_to_dict(gltfDict)
 			self._isExported = True
 			return True
 		else:
@@ -309,12 +347,15 @@ class Joint:
 		self.armatureObj = armatureObj
 		self.parentJoint: Joint = None
 		self.parentFallbackName: str = None
-		self.worldRestMatrix = None
+		self.worldMatrix = None
 		self.childrenJoints: list[Joint] = []
 		self.attachmentsNames: list[str] = []
 		self.attachmentLibraries: list[str] = []
 
 		self.nodeDescriber: NodeDescriber = None
+
+	def calculate_world_matrix(self):
+		self.worldMatrix = Util.y_up_matrix(self.armatureObj.matrix_world) @ self.bone.bone.matrix_local
 
 	def try_get_stitched_parent(self, filter: tuple[str, bool], joints, bones, fallbackBoneName: str):
 		def __get_parent(bone, filter, allJoints, allBones):
