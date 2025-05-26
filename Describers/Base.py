@@ -32,6 +32,12 @@ class Describer:
 	def _get_exported_dict(self) -> dict:
 		return self._exportedData
 	
+	def _insert_exported_data_to_dict(self, gltfDict: dict):
+		if not self._isReserved:
+			self._get_id_reservation(gltfDict)
+			
+		gltfDict[self._dataTypeHint][self._reservedID] = self._exportedData
+		
 	def set_name(self, name: str):
 		if self._isExported:
 			print(f"Attempted to change name of resolved describer: {self}.")
