@@ -252,7 +252,7 @@ class MeshInFlight():
 
 		if obj.matrix_world != originWorldMatrix:
 			self.mesh.transform(obj.matrix_world, shape_keys=True)
-			self.mesh.transform(originWorldMatrix, shape_keys=True)
+			self.mesh.transform(originWorldMatrix.inverted_safe(), shape_keys=True)
 			self.mesh.update()
 
 	def set_materials_remap(self, materialDict: dict[str, int]):
