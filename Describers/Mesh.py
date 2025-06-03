@@ -198,6 +198,7 @@ class MeshDescriber(ObjectBasedDescriber):
 			self._export_name()
 			self._exportedData[C.MESH_PRIMITIVES] = exportPrimitives.bakedPrimitives
 
+			self._insert_exported_data_to_dict(gltfDict)
 			self._isExported = True
 			return True
 		else:
