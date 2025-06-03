@@ -2,6 +2,7 @@ from collections import OrderedDict
 from io_ggltf import Constants as C
 from io_ggltf.Describers import *
 from io_ggltf.Core import Util, BlenderUtil
+from difflib import SequenceMatcher
 
 class SkinDescriber(ObjectBasedDescriber):
 	def __init__(self, buffer: BufferDescriber):
@@ -33,22 +34,23 @@ class SkinDescriber(ObjectBasedDescriber):
 		self._joints: dict[str, Joint] = {}
 		self._skinDefinition: OrderedDict[str, int] = {}
 
-		self._hierarchyBuilt: bool = False
+		self._hierarchyLocked: bool = False
+		self._reparentDict: dict[str, str] = {}
 
 	def get_referenced_describers(self):
 		return set(self._boneNodeDescribers)
 
 	def set_target(self, objName, objLibrary = None):
-		if not self._isExported:
+		if not self._isExported and not self._hierarchyLocked:
 			if BlenderUtil.object_is_armature(Util.try_get_object((objName, objLibrary))):
 				super().set_target(objName, objLibrary)
 			else:
-				print(f"Tried to set object that is not of type: {C.BLENDER_TYPE_ARMATURE} on skin describer.")
+				print(f"Tried to set object that is not of type: '{C.BLENDER_TYPE_ARMATURE}' on skin describer.")
 		else:
-			print(f"Tried to set object on already exported skin.")
+			print(f"Tried to change target object on skin that is already locked in or exported.")
 
 	def append_extra_armatures(self, objName: str, objLibrary: str = None, parentBoneName: str = None):
-		if not self._isExported:
+		if not self._isExported and not self._hierarchyLocked:
 			if BlenderUtil.object_is_armature(Util.try_get_object((objName, objLibrary))):
 				self._extraArmatureNames.append(objName)
 				self._extraArmatureLibraries.append(objLibrary)
@@ -56,25 +58,25 @@ class SkinDescriber(ObjectBasedDescriber):
 			else:
 				print(f"Tried to append extra armature object that is not of type: {C.BLENDER_TYPE_ARMATURE} on skin describer.")
 		else:
-			print(f"Tried to append extra armatures on already exported skin.")
+			print(f"Tried to append extra armatures on skin that is already locked in or exported.")
 
 	def set_bone_filter(self, filter: tuple[str, bool]):
-		if not self._isExported:
+		if not self._isExported and not self._hierarchyLocked:
 			self._boneFilter = filter
 		else:
-			print(f"Tried to set filter on already exported skin.")
+			print(f"Tried to set bone filter on skin that is already locked in or exported.")
 
 	def set_bone_hierarchy_stitching(self, stitch: bool):
-		if not self._isExported:
+		if not self._isExported and not self._hierarchyLocked:
 			self._stitchHierarchy = stitch
 		else:
-			print(f"Tried to set hierarchy stitching on already exported skin.")
+			print(f"Tried to set hierarchy stitching on skin that is already locked in or exported.")
 
 	def set_root(self, rootBoneName: bool | str):
-		if not self._isExported:
+		if not self._isExported and not self._hierarchyLocked:
 			self._rootBoneName = rootBoneName
 		else:
-			print(f"Tried to set root ID writing on already exported skin.")
+			print(f"Tried to set root bone on skin that is already locked in or exported.")
 
 	def set_include_inverse_binds(self, includeIB: bool):
 		if not self._isExported:
@@ -83,10 +85,22 @@ class SkinDescriber(ObjectBasedDescriber):
 			print(f"Tried to set inverse binds inclusion on already exported skin.")
 
 	def set_keep_pose(self, keepPose: bool):
-		if not self._isExported:
+		if not self._isExported and not self._hierarchyLocked:
 			self._keepPose = keepPose
 		else:
-			print(f"Tried to set keep pose on already exported skin.")
+			print(f"Tried to change keep pose on skin that is already locked in or exported.")
+
+	def add_reparent(self, childName: str, parentName: str):
+		if not self._isExported and not self._hierarchyLocked:
+			self._reparentDict[childName] = parentName
+		else:
+			print(f"Tried to add reparent to skin that is already locked in or exported.")
+
+	def add_reparents(self, reparents: dict[str, str]):
+		if not self._isExported and not self._hierarchyLocked:
+			self._reparentDict =  self._reparentDict | reparents
+		else:
+			print(f"Tried to add reparent to skin that is already locked in or exported.")
 
 	def __determine_root_bone(self, armatureObj) -> str: # find first unparented bone
 		for bone in armatureObj.pose.bones:
@@ -103,47 +117,29 @@ class SkinDescriber(ObjectBasedDescriber):
 		else:
 			includeThisBone = True
 
-		if not includeThisBone:
-			if self._stitchHierarchy:
-				for c in childJoint:
-					_ = self.__create_joints_recursive(c, obj, joints)
+		if not includeThisBone and not self._stitchHierarchy:
 			return None
-
-		joint = Joint(bone, obj)
-		#joint.worldMatrix = self.__get_bone_world_matrix(bone, obj)
-		joints[bone.name] = joint
+		elif includeThisBone:
+			joint = Joint(bone, obj)
+			joints[bone.name] = joint
 
 		if self._stitchHierarchy:
-			if self._boneFilter == None: # if filter is empty then include all
-				for c in bone.children:
-					childJoint = self.__create_joints_recursive(c, obj, joints)
-					childJoint.parentJoint = joint
-					joint.childrenJoints.append(childJoint)
-			else:
-				for c in bone.children:
-					if Util.name_passes_filter(self._boneFilter, c.name):
-						# if both this bone and its child pass the filter
-						# then we can safely assign parent right here
-						childJoint = self.__create_joints_recursive(c, obj, joints)
-						childJoint.parentJoint = joint
-						joint.childrenJoints.append(childJoint)
-					else:
-						# continue creating joints, but do not assign parent
-						_ = self.__create_joints_recursive(c, obj, joints)
+			for c in bone.children:# scan all bones and create joint for each
+				self.__create_joints_recursive(c, obj, joints) 
 		else: # normal filter only
 			if self._boneFilter == None:
 				for c in bone.children:
-					childJoint = self.__create_joints_recursive(c, obj, joints)
-					childJoint.parentJoint = joint
-					joint.childrenJoints.append(childJoint)
+					child = self.__create_joints_recursive(c, obj, joints)
+					child.parentJoint = joint
+					joint.childrenJoints.append(child)
 			else:
 				for c in bone.children:
 					if Util.name_passes_filter(self._boneFilter, c.name):
-						childJoint = self.__create_joints_recursive(c, obj, joints)
-						childJoint.parentJoint = joint
-						joint.childrenJoints.append(childJoint)
+						child = self.__create_joints_recursive(c, obj, joints)
+						child.parentJoint = joint
+						joint.childrenJoints.append(child)
 		
-		return joint
+		return joint if includeThisBone else None
 	
 	def __convert_joint_into_nodes_recursive(self, joint, mainArmatureObj, parentJoint = None) -> NodeDescriber:
 		node = NodeDescriber()
@@ -217,7 +213,7 @@ class SkinDescriber(ObjectBasedDescriber):
 		self._exportedData[C.SKIN_INVERSE_BIND_MATRICES] = accessor._get_id_reservation(gltfDict)
 
 	def __build_hierarchy(self):
-		if self._hierarchyBuilt:
+		if self._hierarchyLocked:
 			return
 		
 		armatureObjects: list = [Util.try_get_object((self._objectName, self._objectLibrary))]
@@ -240,35 +236,54 @@ class SkinDescriber(ObjectBasedDescriber):
 
 		jointParentFallbacks: list[str] = []
 
-		allBones = []
-
 		for iArmature, armatureObj in enumerate(armatureObjects):
 			rootBones = []
 
-			for bone in armatureObj.pose.bones:
-				allBones.append(bone)
-
-			if self._boneFilter != None:
+			if self._boneFilter == None:
+				for bone in armatureObj.pose.bones:
+					if bone.parent == None:
+						rootBones.append(bone)
+			elif self._stitchHierarchy:
+				for bone in armatureObj.pose.bones:
+					if bone.parent == None or not Util.name_passes_filter(self._boneFilter, bone.parent.name):
+						rootBones.append(bone)
+			else:
 				for bone in armatureObj.pose.bones:
 					if bone.parent == None:
 						if not Util.name_passes_filter(self._boneFilter, bone.name):
 							continue
 						else:
 							rootBones.append(bone)
-			else:
-				for bone in armatureObj.pose.bones:
-					if bone.parent == None:
-						rootBones.append(bone)
+			
 
 			jointsLen: int = len(self._joints)
 			for rootBone in rootBones:
 				joint = self.__create_joints_recursive(rootBone, armatureObj, self._joints)
 			jointParentFallbacks += [parentBoneName[iArmature]] * int(len(self._joints) - jointsLen)
 
-		if self._stitchHierarchy and self._boneFilter != None:
+		if self._stitchHierarchy:
 			for iJoint, joint in enumerate(self._joints.values()):
-				jointParent = joint.try_get_stitched_parent(self._boneFilter, self._joints, allBones, jointParentFallbacks[iJoint])
-				joint.parentJoint = jointParent
+				if joint.parentJoint == None:
+					jointParent = joint.try_get_stitched_parent(self._boneFilter, self._joints)
+					if jointParent == None:
+						if joint.bone.name != jointParentFallbacks[iJoint]:
+							jointParent = self._joints.get(jointParentFallbacks[iJoint], None)
+
+					if jointParent != None:
+						joint.parentJoint = jointParent
+						jointParent.childrenJoints.append(joint)
+						
+		print(self._reparentDict)
+		for reparentChildJointName, reparentParentJointName in self._reparentDict.items():
+			childJoint: Joint = self._joints.get(reparentChildJointName)
+			parentJoint: Joint = self._joints.get(reparentParentJointName)
+
+			if childJoint == None or parentJoint == None:
+				continue
+
+			childJoint.parentJoint.childrenJoints.remove(childJoint)
+			childJoint.parentJoint = parentJoint
+			parentJoint.childrenJoints.append(childJoint)
 
 		for joint in self._joints.values():
 			if joint.parentJoint == None:
@@ -280,7 +295,7 @@ class SkinDescriber(ObjectBasedDescriber):
 		for rootJoint in self._jointTree:
 			self._boneNodeDescribers.append(self.__convert_joint_into_nodes_recursive(rootJoint, armatureObjects[0]))
 
-		self._hierarchyBuilt = True
+		self._hierarchyLocked = True
 
 	def _export(self, isBinary, gltfDict, fileTargetPath):
 		if not self._isExported:
@@ -357,48 +372,17 @@ class Joint:
 	def calculate_world_matrix(self):
 		self.worldMatrix = Util.y_up_matrix(self.armatureObj.matrix_world) @ self.bone.bone.matrix_local
 
-	def try_get_stitched_parent(self, filter: tuple[str, bool], joints, bones, fallbackBoneName: str):
-		def __get_parent(bone, filter, allJoints, allBones):
-			if bone.parent != None:
-				if Util.name_passes_filter(filter, bone.parent.name):
-					return allJoints[bone.parent.name]
-
-			potentialParent = BlenderUtil.rigify_get_potential_parent_name(bone.name)
-			if potentialParent != None:
-				if potentialParent in allJoints:
-					return allJoints[potentialParent]
-			del potentialParent
-					
-			for c in bone.constraints:
-				if c.type == C.BLENDER_CONSTRAINT_COPY_TRANSFORM:
-					try:
-						target = allBones[c.subtarget]
-						if Util.name_passes_filters(filter, target.name):
-							return allJoints[target.name]
-
-						parent = __get_parent(target, filter, allJoints, allBones)
-						if parent != None:
-							return parent
-					except:
-						pass
-				if c.type == C.BLENDER_CONSTRAINT_ARMATURE:
-					try:
-						target = allBones[c.targets[0].subtarget]
-						if Util.name_passes_filters(filter, target.name):
-							return allJoints[target.name]
-
-						parent = __get_parent(target, filter, allJoints, allBones) # this contraint allows for parent switching and as far as i can tell target[0] is the real parent, if no parent is given
-						if parent != None:
-							return parent
-					except:
-						pass
-
-		if self.bone.parent != None:
-			return __get_parent(self.bone.parent, filter=filter, allJoints=joints, allBones=bones)
-
-		if self.parentJoint == None:
-			fallbackParent = joints.get(self.parentFallbackName, None)
-			return fallbackParent
+	def try_get_stitched_parent(self, filter: tuple[str, bool], joints):
+		parentList = self.bone.parent_recursive
 		
+		if filter != None:
+			for parent in parentList:
+				parentJoint = joints.get(parent.name, None)
+				if parentJoint != None:
+					return parentJoint
+		else:
+			if len(parentList) > 0:
+				return joints.get(parentList[0].name, None)
+			
 		return None
 
