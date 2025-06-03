@@ -154,7 +154,7 @@ class MeshDescriber(ObjectBasedDescriber):
 				MeshValidation.objects_have_shape_keys(meshObjects, self._shapeKeys)
 
 			if self._hasValidOriginOverride:
-				targetMatrix = try_get_object((self._originObjectName, self._originObjLibrary)).world_matrix
+				targetMatrix = try_get_object((self._originObjectName, self._originObjLibrary)).matrix_world
 			else:
 				targetMatrix = meshObjects[0].matrix_world
 			
