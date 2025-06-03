@@ -39,7 +39,7 @@ class MeshDescriber(ObjectBasedDescriber):
 		self._shapeKeyIncludeUV: bool = False
 		self._shapeKeyWeights: list[float] = None
 
-	def set_origin_override(self, originObjName: str, originObjLibrary: str):
+	def set_origin_override(self, originObjName: str, originObjLibrary: str = None):
 		if not self._isExported:
 			obj = try_get_object((originObjName, originObjLibrary))
 
