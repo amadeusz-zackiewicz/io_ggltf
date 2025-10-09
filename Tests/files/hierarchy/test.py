@@ -8,21 +8,19 @@ if __name__ == "__main__" and len(sys.argv) == 1:
 	import os
 	sys.path.append(os.path.abspath(""))
 	import Tests.LimitedTestUtil as T
-	T.run_test("animated_cube", "animated_cube", os.path.basename(__file__).replace(".py", ""))
+	T.run_test("hierarchy", "hierarchy", os.path.basename(__file__).replace(".py", ""))
 else:
 	from io_ggltf.Describers import *
 	from io_ggltf.Constants import *
 
 	filePath = "//..\\..\\output\\"
-	fileName = "animated_cube_nla_animation"
-	binPath = "animated_cube_nla_animation"
+	fileName = "hierarchy_test"
+	binPath = "hierarchy_test"
 
 	def test(buffer, asGlb):
-		node = NodeFromObject("Cube").set_mesh(MeshFromObject("Cube", buffer=buffer))
-		anim = AnimationDescriber(buffer).add_animation_targets(node).add_NLA_track("UpActionTrack", "Cube")
+		topNode = NodeHierarchy("0-0")
 
-
-		GltfFile(filePath, fileName, asGlb).add_describers([node, anim, buffer]).export_file()
+		GltfFile(filePath, fileName, asGlb).add_describers(topNode).export_file()
 
 	print("---------- Start gltf")
 	test(BufferDescriber(binPath), False)

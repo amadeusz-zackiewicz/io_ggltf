@@ -33,12 +33,8 @@ else:
 					   "LP_Teeth",
 					   "LP_Tongue"
 					   ]
-		file = GltfFile(filePath, fileName, asGlb)
 		node = NodeFromObject("RIG-trashblazer_f_meta")
-		skin = SkinDescriber(buffer)
-		skin.set_target("RIG-trashblazer_f_meta")
-		skin.set_bone_filter(("(^DEF-)|(^root$)", True))
-		skin.set_bone_hierarchy_stitching(True)
+		skin = SkinDescriber(buffer).set_target("RIG-trashblazer_f_meta").set_bone_filter(("(^DEF-)|(^root$)", True)).set_bone_hierarchy_stitching(True)
 
 		skin.add_reparents(RIGIFY_META_HUMAN_REPARENTS)
 
@@ -89,19 +85,9 @@ else:
 		skin.add_reparent("DEF-weapon_pivot.L", "DEF-hand.L")
 
 
-		mesh = MeshFromObject("LP_Body", buffer=buffer)
-		mesh.set_uv_maps(True)
+		node.set_mesh(MeshFromObject("LP_Body", buffer=buffer).set_uv_maps(True).merge_meshes(extraMeshObjNames)).set_skin(skin)
 
-		for extraMesh in extraMeshObjNames:
-			mesh.merge_mesh(extraMesh)
-		
-		node._mesh = mesh
-		mesh._skin = skin
-		node._skin = skin
-
-		file.add_describers([node, mesh, skin, buffer])
-		
-		file.export_file()
+		GltfFile(filePath, fileName, asGlb).add_describers([node, skin, buffer]).export_file()
 
 
 	print("---------- Start gltf")

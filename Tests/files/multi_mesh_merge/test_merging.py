@@ -18,28 +18,15 @@ else:
 	binPath = "multi_mesh_merge_test_merge"
 
 	def test(buffer, asGlb):
-		file = GltfFile(filePath, fileName, asGlb)
 
-		helicopterNode = NodeFromObject("Helicopter")
-		bodyMesh = MeshFromObject("Body", buffer=buffer)
-		bodyMesh.merge_mesh("Landing_Gear")
-		bodyMesh.merge_mesh("Tail")
-		bodyMesh.set_origin_override("Helicopter")
-		helicopterNode._mesh = bodyMesh
+		rotorNode = NodeFromObject("Rotor").set_mesh(MeshFromObject("Rotor", buffer=buffer))
+		rearRotorNode = NodeFromObject("Rear_Rotor").set_mesh(MeshFromObject("Rear_Rotor", buffer=buffer))
 
-
-		rotorNode = NodeFromObject("Rotor")
-		rotorNode._mesh = MeshFromObject("Rotor", buffer=buffer)
-
-		rearRotorNode = NodeFromObject("Rear_Rotor")
-		rearRotorNode._mesh = MeshFromObject("Rear_Rotor", buffer=buffer)
-
-		helicopterNode.append_child(rotorNode)
-		helicopterNode.append_child(rearRotorNode)
-
-		file.add_describers([helicopterNode, buffer])
+		bodyMesh = MeshFromObject("Body", buffer=buffer).merge_meshes(["Landing_Gear", "Tail"]).set_origin_override("Helicopter")
 		
-		file.export_file()
+		helicopterNode = NodeFromObject("Helicopter").set_mesh(bodyMesh).append_children([rotorNode, rearRotorNode])
+
+		GltfFile(filePath, fileName, asGlb).add_describers([helicopterNode, buffer]).export_file()
 
 
 	print("---------- Start gltf")

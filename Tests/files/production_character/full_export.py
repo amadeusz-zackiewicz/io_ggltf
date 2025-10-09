@@ -33,23 +33,13 @@ else:
 					   "LP_Teeth",
 					   "LP_Tongue"
 					   ]
-		file = GltfFile(filePath, fileName, asGlb)
-		node = NodeFromObject("RIG-trashblazer_f_meta")
-		skin = SkinDescriber(buffer)
-		skin.set_target("RIG-trashblazer_f_meta")
-		mesh = MeshFromObject("LP_Body", buffer=buffer)
-		mesh.set_uv_maps(True)
-
-		for extraMesh in extraMeshObjNames:
-			mesh.merge_mesh(extraMesh)
 		
-		node._mesh = mesh
-		mesh._skin = skin
-		node._skin = skin
+		node = NodeFromObject("RIG-trashblazer_f_meta")\
+			.set_mesh(MeshFromObject("LP_Body", buffer=buffer).set_uv_maps(True).merge_meshes(extraMeshObjNames))\
+			.set_skin(SkinDescriber(buffer).set_target("RIG-trashblazer_f_meta"))
 
-		file.add_describers([node, mesh, skin, buffer])
-		
-		file.export_file()
+		GltfFile(filePath, fileName, asGlb).add_describers([node, buffer]).export_file()
+
 
 
 	print("---------- Start gltf")

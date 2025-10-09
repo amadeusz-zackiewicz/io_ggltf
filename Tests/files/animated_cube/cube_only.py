@@ -18,12 +18,9 @@ else:
 	binPath = "animated_cube_cube_only"
 
 	def test(buffer, asGlb):
-		file = GltfFile(filePath, fileName, asGlb)
-		node = NodeFromObject("Cube")
-		node._mesh = MeshFromObject("Cube", buffer=buffer)
-		file.add_describers([node, buffer])
-		
-		file.export_file()
+		node = NodeFromObject("Cube").set_mesh(MeshFromObject("Cube", buffer=buffer))
+
+		GltfFile(filePath, fileName, asGlb).add_describers([node, buffer]).export_file()
 
 
 	print("---------- Start gltf")

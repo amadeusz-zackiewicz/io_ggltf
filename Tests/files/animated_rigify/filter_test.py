@@ -18,20 +18,14 @@ else:
 	binPath = "animated_rigify_filter_test"
 
 	def test(buffer, asGlb):
-		file = GltfFile(filePath, fileName, asGlb)
-		node = NodeFromObject("rigify_rig")
-		skin = SkinDescriber(buffer)
-		skin.set_target("rigify_rig")
-		skin.set_bone_filter(("(^DEF-)|(^root$)", True))
-		skin.set_bone_hierarchy_stitching(True)
+		skin = SkinDescriber(buffer).set_target("rigify_rig")\
+			.set_bone_filter(("(^DEF-)|(^root$)", True)).set_bone_hierarchy_stitching(True)\
+				.add_reparents(RIGIFY_META_HUMAN_REPARENTS)
 
-		skin.add_reparents(RIGIFY_META_HUMAN_REPARENTS)
+		node = NodeFromObject("rigify_rig").set_skin(skin)
 
-		node._skin = skin
+		GltfFile(filePath, fileName, asGlb).add_describers([node, skin, buffer]).export_file()
 
-		file.add_describers([node, skin, buffer])
-		
-		file.export_file()
 
 
 	print("---------- Start gltf")
