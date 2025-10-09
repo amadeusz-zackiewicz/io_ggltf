@@ -256,11 +256,11 @@ class File(Describer):
 
 		return self._export(self._isBinary, self.__construct_gltf_dict(), absFilePath + self._name)
 	
-	def __revert_scene(original_frame, original_active_obj_mode):
-		bpy.context.scene.current_frame = original_frame
+	def __revert_scene(self, original_frame, original_active_obj_mode):
+		bpy.context.scene.frame_current = original_frame
 
 		if bpy.context.active_object is not None:
-				bpy.context.active_object.mode = original_active_obj_mode
+				bpy.ops.object.mode_set(mode=original_active_obj_mode)
 
 		BlenderUtil.get_depsgraph().update()
 
