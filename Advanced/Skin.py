@@ -7,10 +7,12 @@ from io_ggltf.Core import BlenderUtil, Util, ShowFunction
 from io_ggltf.Advanced import Settings, Attach
 import bpy
 from io_ggltf.Core.Validation import FilterValidation
+from warnings import deprecated
 
 __setArmaturePoseCommand = lambda bucket, objAccessor, poseMode: BlenderUtil.set_object_pose_mode(bucket=bucket, objAccessor=objAccessor, poseMode=poseMode)
 __scoopSkinCommand = lambda bucket, skinID, objAccessor, getInverse, boneBlackList, boneOffset, filters, rigify: Skin.scoop_skin(bucket=bucket, objAccessors=objAccessor,getInversedBinds=getInverse, blacklist=boneBlackList, nodeIDOffset=boneOffset, skinID=skinID, filters=filters, stitch=rigify) # TODO: need to provide bone node offsets and skin id
 
+@deprecated("Advanced.Skin.based_on_object is deprecated, it will be removed in future versions and might not function as intended.")
 def based_on_object(
     bucket: Bucket, 
     objAccessor,
@@ -76,6 +78,7 @@ def based_on_object(
 
     return skinID, attachments
 
+@deprecated("Advanced.Skin.based_on_object_modifiers is deprecated, it will be removed in future versions and might not function as intended.")
 def based_on_object_modifiers(
     bucket: Bucket, 
     objAccessor,
@@ -184,4 +187,4 @@ def __queue_trim_names(bucket, skinID, rigifyFlags):
 
             bucket.commandQueue[__c.COMMAND_QUEUE_NAMING].append((Util.pattern_replace_skin_joint_names, (bucket, skinID, pattern, "")))
 
-ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Skin-Module#based_on_object")
+#ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Skin-Module#based_on_object")

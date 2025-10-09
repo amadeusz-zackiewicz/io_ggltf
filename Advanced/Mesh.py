@@ -7,10 +7,12 @@ from io_ggltf.Core.Scoops.Mesh import ScoopMesh
 from io_ggltf.Advanced import Settings, Attach
 from io_ggltf.Core.Validation import MeshValidation, FilterValidation
 import bpy
+from warnings import deprecated
 
 __scoop_merged_command = lambda bucket, objAccessors, mergeTargetAccessor, name, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones: ScoopMesh.scoop_and_merge(bucket=bucket, objAccessors=objAccessors, mergeTargetAccessor=mergeTargetAccessor,assignedID=meshID, normals=normals, tangents=tangents, uvMaps=uvMaps, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, vertexColors=vertexColors, maxBoneInfluences=maxBones, skinID=skinID, name=name)
 __scoop_mesh_command = lambda bucket, objAccessor, normals, tangents, uvMaps, vertexColors, skinID, shapeKeys, shapeKeyNormals, meshID, maxBones, name: ScoopMesh.scoop_from_obj(bucket=bucket, objAccessor=objAccessor, normals=normals, tangents=tangents, uvMaps=uvMaps, vertexColors=vertexColors, skinID=skinID, shapeKeys=shapeKeys, shapeKeyNormals=shapeKeyNormals, maxBoneInfluences=maxBones, assignedID=meshID, name=name)
 
+@deprecated("Advanced.Mesh.based_on_object is deprecated, it will be removed in future versions and might not function as intended.")
 def based_on_object(bucket: Bucket, objAccessor,
 normals=None,
 tangents=None,
@@ -86,6 +88,7 @@ origin=None
 
     return meshID
 
+@deprecated("Advanced.Mesh.merged_based_on_hierarchy is deprecated, it will be removed in future versions and might not function as intended.")
 def merged_based_on_hierarchy(bucket: Bucket,
 topObjectAccessor,
 blacklist = {},
@@ -187,6 +190,7 @@ def __resolve_component_arg(bucket, arg, obj, settingName, whenTrue):
         arg = [arg]
     return arg
 
+@deprecated("Advanced.Mesh.merged_based_on_list is deprecated, it will be removed in future versions and might not function as intended.")
 def merged_based_on_list(bucket: Bucket,
 objectAccessors,
 blacklist = {},
@@ -271,6 +275,6 @@ origin=None
         print(f"No meshes found in list: {objectAccessors}")
         return None
 
-ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#based_on_object")
-ShowFunction.Register(merged_based_on_hierarchy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_hierarchy")
-ShowFunction.Register(merged_based_on_list, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_list")
+#ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#based_on_object")
+#ShowFunction.Register(merged_based_on_hierarchy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_hierarchy")
+#ShowFunction.Register(merged_based_on_list, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Mesh-Module#merged_based_on_list")

@@ -8,10 +8,12 @@ from io_ggltf.Advanced import Settings, Attach, Scene
 from io_ggltf.Core import Util, BlenderUtil, ShowFunction
 import bpy
 from io_ggltf.Core.Validation import FilterValidation
+from warnings import deprecated
 
 #__linkChildCommand = lambda bucket, pID, cID: Linker.node_to_node(bucket=bucket, parentID=pID, childID=cID)
 __scoopCommand = lambda bucket, assignedID, objID, parent: NodeScoop.scoop(bucket=bucket, assignedID=assignedID, accessor=objID, parent=parent)
 
+@deprecated("Advanced.Node.based_on_object is deprecated, it will be removed in future versions and might not function as intended.")
 def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=None, name=None, autoAttachData=None, inSpace=None, sceneID=None) -> int:
     """Create a node based on the object transformations"""
 
@@ -55,6 +57,7 @@ def based_on_object(bucket: Bucket, objAccessor, parent=None, checkRedundancies=
 
     return nodeID
 
+@deprecated("Advanced.Node.based_on_hierarchy is deprecated, it will be removed in future versions and might not function as intended.")
 def based_on_hierarchy(bucket: Bucket, topObjAccessor, blacklist = {}, parent=None, checkRedundancies=None, filters=[], autoAttachData=None, inSpace=None, sceneID=None) -> int:
     """Create a node hierarcht based on the object and its children transformations"""
 
@@ -212,7 +215,8 @@ def __add_skin(bucket, obj, blacklist, filters):
         if BlenderUtil.object_is_armature(obj):
             from io_ggltf.Advanced import Skin
             Skin.based_on_object(bucket, BlenderUtil.get_object_accessor(obj), autoAttach=True, attachmentBlacklist=blacklist, attachmentFilters=filters)
-
+            
+@deprecated("Advanced.Node.dummy is deprecated, it will be removed in future versions and might not function as intended.")
 def dummy(bucket: Bucket, name: str, sceneID = None):
     """Create a node that has no transformation"""
 
@@ -224,7 +228,7 @@ def dummy(bucket: Bucket, name: str, sceneID = None):
 
     return id
 
-ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_object")
-ShowFunction.Register(based_on_hierarchy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_hierarchy")
-ShowFunction.Register(based_on_collection, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_collection")
-ShowFunction.Register(dummy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#dummy")
+#ShowFunction.Register(based_on_object, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_object")
+#ShowFunction.Register(based_on_hierarchy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_hierarchy")
+#ShowFunction.Register(based_on_collection, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#based_on_collection")
+#ShowFunction.Register(dummy, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/Node-Module#dummy")
