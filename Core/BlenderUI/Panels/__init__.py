@@ -1,15 +1,15 @@
-from . import TextEditorAccessorsPanel, TextEditorAdvFuncsPanel, TextEditorBoilerPlatePanel, TextEditorDocsPanel, TextEditorButtonsPanel
+from . import TextEditorAdvFuncsPanel, TextEditorBoilerPlatePanel, TextEditorDocsPanel, TextEditorButtonsPanel, TextEditorReferencesPanel
 
 def register():
     TextEditorDocsPanel.register()
     TextEditorBoilerPlatePanel.register()
     TextEditorButtonsPanel.register()
-    TextEditorAccessorsPanel.register()
+    TextEditorReferencesPanel.register()
     TextEditorAdvFuncsPanel.register()
 
 def unregister():
     TextEditorDocsPanel.unregister()
     TextEditorBoilerPlatePanel.unregister()
     TextEditorButtonsPanel.unregister()
-    TextEditorAccessorsPanel.unregister()
+    TextEditorReferencesPanel.unregister()
     TextEditorAdvFuncsPanel.unregister()

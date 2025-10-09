@@ -15,7 +15,13 @@ class PasteQuickStartOperator(bpy.types.Operator):
 
     def execute(self, context):
         script = context.area.spaces.active.text
-        script.write(f'from io_ggltf.Advanced import *\nfrom io_ggltf.Constants import *\n\nbucket = File.create_bucket(filePath="//", fileName="{script.name.replace(".py", "")}", binPath="bin/", fileType=FILE_TYPE_GLB)\nFile.dump_bucket(bucket)\n')
+        script.write(f"""from io_ggltf.Describers import *
+from io_ggltf.Constants import *
+     
+buffer = BufferInternal() # You can only have one internal buffer per file, there is no limit to external buffers
+node = NodeFromObject('Cube').set_mesh(MeshFromObject('Cube', buffer=buffer))
+        
+GltfFile(fileDirectory="//", fileName='ggltf_export', binary=True).add_describers([node, buffer]).export_file()""")
         return {"FINISHED"}
 
 class PasteImportsOnlyOperator(bpy.types.Operator):
@@ -33,7 +39,7 @@ class PasteImportsOnlyOperator(bpy.types.Operator):
 
     def execute(self, context):
         script = context.area.spaces.active.text
-        script.write(f'from io_ggltf.Advanced import *\nfrom io_ggltf.Constants import *\n')
+        script.write(f'from io_ggltf.Describers import *\nfrom io_ggltf.Constants import *\n')
         return {"FINISHED"}
 
 class PasteMakeButtonOperator(bpy.types.Operator):
