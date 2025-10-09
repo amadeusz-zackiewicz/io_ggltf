@@ -43,6 +43,7 @@ class Describer:
 			print(f"Attempted to change name of resolved describer: {self}.")
 		else:
 			self._name = name
+		return self
 	
 	def get_name(self) -> str:
 		return self._name
@@ -80,3 +81,4 @@ class ObjectBasedDescriber(Describer):
 				self._hasValidObject = True
 		else:
 			print(f"Attempted to set object or bone on {self} after it is already exported.")
+		return self

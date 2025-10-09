@@ -54,36 +54,42 @@ class MeshDescriber(ObjectBasedDescriber):
 				self._hasValidOriginOverride = True
 		else:
 			print(f"Attempted to set mesh origin override on {self} after it is already exported.")
+		return self
 
 	def set_buffer(self, buffer: BufferDescriber):
 		if not self._isExported:
 			self._buffer = buffer
 		else:
 			print(f"Attempted to change buffer of already exported mesh.")
+		return self
 
 	def set_normals(self, includeNormals: bool):
 		if not self._isExported:
 			self._normals = includeNormals
 		else:
 			print(f"Attempted to change normals of already exported mesh.")
+		return self
 	
 	def set_tangets(self, includeTangets: bool):
 		if not self._isExported:
 			self._tangets = includeTangets
 		else:
 			print(f"Attempted to change tangets of already exported mesh.")
+		return self
 
 	def set_vertex_colors(self, includeVertexColors: bool | list[str]):
 		if not self._isExported:
 			self._vertexColors = includeVertexColors
 		else:
 			print(f"Attempted to change vertex colors of already exported mesh.")
+		return self
 
 	def set_uv_maps(self, includeUVs: bool | list[str]):
 		if not self._isExported:
 			self._uvMaps = includeUVs
 		else:
 			print(f"Attempted to change UV maps of already exported mesh.")
+		return self
 
 	def set_shape_keys(self, includeShapeKeys: bool | list[str], shapeKeysIncludeNormals: bool = False, shapeKeysIncludeUV: bool = False):
 		if not self._isExported:
@@ -92,6 +98,7 @@ class MeshDescriber(ObjectBasedDescriber):
 			self._shapeKeyIncludeUV = shapeKeysIncludeUV
 		else:
 			print(f"Attempted to change shape keys of already exported mesh.")
+		return self
 
 	def merge_mesh(self, meshObjName: str, meshObjLibrary: str = None):
 		if not self._isExported:
@@ -104,9 +111,29 @@ class MeshDescriber(ObjectBasedDescriber):
 				self._additionalObjectNames.append(meshObjName)
 				self._additionalObjectLibraries.append(meshObjLibrary)
 			else:
-				print(f"Object {meshObjLibrary + '::' if meshObjName != None else ''}{meshObjName} is of type {obj.type}, expected type: {C.BLENDER_TYPE_MESH}")
+				print(f"Object {meshObjLibrary + '::' if meshObjLibrary != None else ''}{meshObjName} is of type {obj.type}, expected type: {C.BLENDER_TYPE_MESH}")
 		else:
 			print("Attempted to merge meshes with an already exported mesh.")
+		return self
+	
+	def merge_meshes(self, meshObjNames: list[str], meshObjLibraries: list[str] = None):
+		if not self._isExported:
+			if meshObjLibraries == None:
+				meshObjLibraries = [None] * len(meshObjNames)
+
+			for i, meshObjName in enumerate(meshObjNames):
+				meshObjLib = meshObjLibraries[i]
+				_ = self.merge_mesh(meshObjName, meshObjLib)
+		else:
+			print("Attempted to merge meshes with an already exported mesh.")
+		return self
+	
+	def set_skin(self, skin: Describer):
+		if not self._isExported:
+			self._skin = skin
+		else:
+			print("Attempted to change skin of already exported mesh.")
+		return self
 
 	def __get_all_objects(self) -> list:
 		objects = []

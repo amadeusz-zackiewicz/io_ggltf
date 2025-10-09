@@ -27,13 +27,14 @@ class AnimationDescriber(Describer):
 		self._returnFrame: float = 1.0 # frame to return to when export is done
 
 
-	def add_NLA_track(self, nlaTrackName: str, trackOwnerName: str = None, trackOwnerLibrary:str = None):
+	def add_NLA_track(self, nlaTrackName: str, trackOwnerName: str = None, trackOwnerLibrary: str = None):
 		if not self._isExported:
 			self._nlaTracks.append(nlaTrackName)
 			self._nlaTracksOwnerName.append(trackOwnerName)
 			self._nlaTracksOwnerLibraries.append(trackOwnerLibrary)
 		else:
-			return print(f"Tried to add nla tracks to already exported animation")
+			print(f"Tried to add nla tracks to already exported animation")
+		return self
 
 	def add_animation_targets(self, describers: Describer | list[Describer] | tuple[Describer] | set[Describer]):
 		if not self._isExported:
@@ -43,19 +44,28 @@ class AnimationDescriber(Describer):
 			else:
 				self.__try_add_describer_to_targets(describers)
 		else:
-			return print(f"Tried to add animation targets to already exported animation")
+			print(f"Tried to add animation targets to already exported animation")
+		return self
 
 	def set_use_step_interpolation(self, useSteppedInterpolation: bool):
 		if not self._isExported:
 			self._steppedInterpolation = useSteppedInterpolation
 		else:
-			return print(f"Tried to change interpolation on already exported animation")
+			print(f"Tried to change interpolation on already exported animation")
+		return self
+		
+	def get_use_step_interpolation(self):
+		return self._steppedInterpolation
 
 	def set_optimise(self, optimise: bool):
 		if not self._isExported:
 			self._optimise = optimise
 		else:
-			return print(f"Tried to change optimisation on already exported animation")
+			print(f"Tried to change optimisation on already exported animation")
+		return self
+		
+	def get_is_optimised(self):
+		return self._optimise
 		
 	def _export_name(self):
 		super()._export_name()

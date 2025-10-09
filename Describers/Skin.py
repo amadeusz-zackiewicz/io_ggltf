@@ -48,6 +48,7 @@ class SkinDescriber(ObjectBasedDescriber):
 				print(f"Tried to set object that is not of type: '{C.BLENDER_TYPE_ARMATURE}' on skin describer.")
 		else:
 			print(f"Tried to change target object on skin that is already locked in or exported.")
+		return self
 
 	def append_extra_armatures(self, objName: str, objLibrary: str = None, parentBoneName: str = None):
 		if not self._isExported and not self._hierarchyLocked:
@@ -59,48 +60,60 @@ class SkinDescriber(ObjectBasedDescriber):
 				print(f"Tried to append extra armature object that is not of type: {C.BLENDER_TYPE_ARMATURE} on skin describer.")
 		else:
 			print(f"Tried to append extra armatures on skin that is already locked in or exported.")
+		return self
 
 	def set_bone_filter(self, filter: tuple[str, bool]):
 		if not self._isExported and not self._hierarchyLocked:
 			self._boneFilter = filter
 		else:
 			print(f"Tried to set bone filter on skin that is already locked in or exported.")
+		return self
 
 	def set_bone_hierarchy_stitching(self, stitch: bool):
 		if not self._isExported and not self._hierarchyLocked:
 			self._stitchHierarchy = stitch
 		else:
 			print(f"Tried to set hierarchy stitching on skin that is already locked in or exported.")
+		return self
 
 	def set_root(self, rootBoneName: bool | str):
 		if not self._isExported and not self._hierarchyLocked:
 			self._rootBoneName = rootBoneName
 		else:
 			print(f"Tried to set root bone on skin that is already locked in or exported.")
+		return self
 
 	def set_include_inverse_binds(self, includeIB: bool):
 		if not self._isExported:
 			self._includeInverseBindMatrices = includeIB
 		else:
 			print(f"Tried to set inverse binds inclusion on already exported skin.")
+		return self
 
 	def set_keep_pose(self, keepPose: bool):
 		if not self._isExported and not self._hierarchyLocked:
 			self._keepPose = keepPose
 		else:
 			print(f"Tried to change keep pose on skin that is already locked in or exported.")
+		return self
 
 	def add_reparent(self, childName: str, parentName: str):
 		if not self._isExported and not self._hierarchyLocked:
 			self._reparentDict[childName] = parentName
 		else:
 			print(f"Tried to add reparent to skin that is already locked in or exported.")
+		return self
 
 	def add_reparents(self, reparents: dict[str, str]):
 		if not self._isExported and not self._hierarchyLocked:
 			self._reparentDict =  self._reparentDict | reparents
 		else:
 			print(f"Tried to add reparent to skin that is already locked in or exported.")
+		return self
+
+	def lock_bone_hierarchy(self):
+		self.__build_hierarchy()
+		return self
 
 	def __determine_root_bone(self, armatureObj) -> str: # find first unparented bone
 		for bone in armatureObj.pose.bones:

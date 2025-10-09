@@ -48,6 +48,10 @@ class NodeDescriber(ObjectBasedDescriber):
 			self._parent = parent
 		else:
 			print("Attempted to set parent of a node that is already exported.")
+		return self
+		
+	def get_parent(self):
+		return self._parent
 		
 	def append_child(self, child: Describer):
 		if not self._isExported:
@@ -55,21 +59,38 @@ class NodeDescriber(ObjectBasedDescriber):
 			self._children.append(child)
 		else:
 			print("Attempted to append a child to a node that is already exported.")
-			return False
+		return self
+	
+	def append_children(self, children: list[Describer]):
+		if not self._isExported:
+			for child in children:
+				self.append_child(child)
+		else:
+			print("Attempted to append a child to a node that is already exported.")
+		return self
+		
+	def get_children(self):
+		return self._children
 		
 	def set_float_precision(self, precision: float):
 		if not self._isExported:
 			self._floatPrecision = precision
 		else:
 			print("Attempted to set float precision on a node that is already exported.")
-			return False
+		return self
+		
+	def get_float_precision(self):
+		return self._floatPrecision
 		
 	def set_scale_correction(self, errorTolerance: float):
 		if not self._isExported:
 			self._scaleCorrection = errorTolerance
 		else:
 			print("Attempted to set scale correction on a node that is already exported.")
-			return False
+		return self
+		
+	def get_scale_correction(self):
+		return self._scaleCorrection
 		
 	def set_translation(self, x: float, y: float, z: float, yUp: bool = True):
 		if not self._isExported:
@@ -79,6 +100,10 @@ class NodeDescriber(ObjectBasedDescriber):
 				self._translation = Util.y_up_location([x, y, z])
 		else:
 			print("Attempted to change translation of already exported node")
+		return self
+		
+	def get_translation(self):
+		return self._translation
 
 	def set_rotation(self, x: float, y: float, z: float, yUp: bool = True):
 		if not self._isExported:
@@ -89,6 +114,10 @@ class NodeDescriber(ObjectBasedDescriber):
 				self._rotation = Util.bl_math_to_gltf_list(Util.y_up_rotation(quat))
 		else:
 			print("Attempted to change rotation of already exported node")
+		return self
+		
+	def get_rotation(self):
+		return self._rotation
 
 	def set_scale(self, x: float, y: float, z: float, yUp: bool = True):
 		if not self._isExported:
@@ -98,6 +127,32 @@ class NodeDescriber(ObjectBasedDescriber):
 				self._scale = Util.y_up_scale([x, y, z])
 		else:
 			print("Attempted to change scale of already exported node")
+		return self
+		
+	def get_scale(self):
+		return self._scale
+
+	def set_mesh(self, mesh: Describer):
+		if not self._isExported:
+			self._mesh = mesh
+		else:
+			print("Attempted to change mesh of already exported node.")
+		return self
+		
+	def get_mesh(self):
+		return self._mesh
+		
+	def set_skin(self, skin: Describer, apply_to_mesh: bool = True):
+		if not self._isExported:
+			self._skin = skin
+			if apply_to_mesh and self._mesh != None:
+				self._mesh.set_skin(skin)
+		else:
+			print("Attempted to change skin of already exported node.")
+		return self
+		
+	def get_skin(self):
+		return self._skin
 		
 	def __export_children(self, isBinary, gltfDict, fileTargetPath) -> bool:
 		if len(self._children) > 0:

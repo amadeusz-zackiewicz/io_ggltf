@@ -14,6 +14,15 @@ class Scene(Describer):
 			self._nodes.append(node)
 		else:
 			print("Attempted to append a node to scene that is already exported.")
+		return self
+	
+	def append_nodes(self, nodes: list[NodeDescriber]):
+		if not self._isExported:
+			for node in nodes:
+				self.append_node(node)
+		else:
+			print("Attempted to append a node to scene that is already exported.")
+		return self
 
 	def _export(self, isBinary, gltfDict, fileTargetPath):
 		if not self._isExported:

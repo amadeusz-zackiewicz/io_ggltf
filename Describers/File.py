@@ -6,7 +6,7 @@ import struct
 from io_ggltf import Constants as C
 from io_ggltf.Describers.Base import Describer
 from io_ggltf.Describers.Scene import Scene as SceneDescriber
-from io_ggltf.Core import Util
+from io_ggltf.Core import Util, BlenderUtil
 
 class File(Describer):
 	def __init__(self, fileDirectory: str, fileName: str, binary: bool = True):
@@ -41,6 +41,7 @@ class File(Describer):
 			self._fileDirectory = fileDirectory
 		else:
 			print("Attempted to change file directory of already exported file.")
+		return self
 
 	def get_file_directory(self) -> str:
 		return self._fileDirectory
@@ -54,12 +55,17 @@ class File(Describer):
 				self._describersMap[C.GLTF_SCENE].append(scene)
 		else:
 			print("Attempted to change default scene of already exported file.")
+		return self
+	
+	def get_default_scene(self) -> Describer:
+		return self._defaultScene
 
 	def set_enforce_default_scene(self, enforce: bool):
 		if not self._isExported:
 			self._enforceDefaultScene = enforce
 		else:
 			print("Attempted to change scene enforcement of already exported file.")
+		return self
 
 	def get_enforce_default_scene(self) -> bool:
 		return self._enforceDefaultScene
@@ -69,18 +75,17 @@ class File(Describer):
 			self._catchStrayNodes = catchStrays
 		else:
 			print("Attempted to change stray catching of already exported file.")
+		return self
 
 	def get_catch_stray_nodes(self) -> bool:
 		return self._catchStrayNodes
-
-	def get_default_scene(self) -> Describer:
-		return self._defaultScene
 
 	def set_is_binary(self, binary: bool):
 		if not self._isExported:
 			self._isBinary = binary
 		else:
 			print("Attempted to change file type of already exported file.")
+		return self
 	
 	def get_is_binary(self) -> bool:
 		return self._isBinary
@@ -95,6 +100,7 @@ class File(Describer):
 					self._describersMap[describer._dataTypeHint].append(describer)
 		else:
 			print(f"Attempted to add describer {describers} to already exported file")
+		return self
 
 	def __construct_gltf_dict(self) -> dict:
 		items = [
@@ -250,6 +256,14 @@ class File(Describer):
 
 		return self._export(self._isBinary, self.__construct_gltf_dict(), absFilePath + self._name)
 	
+	def __revert_scene(original_frame, original_active_obj_mode):
+		bpy.context.scene.current_frame = original_frame
+
+		if bpy.context.active_object is not None:
+				bpy.context.active_object.mode = original_active_obj_mode
+
+		BlenderUtil.get_depsgraph().update()
+
 	def _export(self, isBinary, gltfDict, fileTargetPath):
 		def recursive_export(describer: Describer) -> bool:
 			referencedDescribers = describer.get_referenced_describers()
@@ -268,12 +282,19 @@ class File(Describer):
 			return True
 
 		if not self._isExported:
+			original_frame = bpy.context.scene.frame_current
+			original_mode = "OBJECT"
+			if bpy.context.active_object is not None:
+				original_mode = bpy.context.active_object.mode
+				if bpy.context.active_object.mode != "OBJECT":
+					bpy.ops.object.mode_set(mode="OBJECT")
 			exportQueue = self.get_referenced_describers()
 
 			for desc in exportQueue:
 				if not recursive_export(desc):
 					print(f"Recursive export failed on: {desc}")
 					self._isExported = True
+					self.__revert_scene(original_frame, original_mode)
 					return False
 				
 			topNodes = self.__find_top_nodes(gltfDict)
@@ -289,6 +310,7 @@ class File(Describer):
 			else:
 				self.__export_as_gltf(fileTargetPath, gltfDict)
 
+			self.__revert_scene(original_frame, original_mode)
 			return True
 		else:
 			print("Attempted to export already export file.")
