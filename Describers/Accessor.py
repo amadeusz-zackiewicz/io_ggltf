@@ -50,11 +50,11 @@ class AccessorDescriber(Describer):
 			if type(data[0][0]) == float:
 				return C.ACCESSOR_COMPONENT_TYPE_FLOAT
 			if type(data[0][0]) == int:
-				return C.ACCESSOR_COMPONENT_TYPE_SHORT
+				return C.ACCESSOR_COMPONENT_TYPE_INT
 		if typeOf == float or typeOf == mathutils.Quaternion or typeOf == mathutils.Matrix:
 			return C.ACCESSOR_COMPONENT_TYPE_FLOAT
 		if typeOf == int:
-			return C.ACCESSOR_COMPONENT_TYPE_SHORT
+			return C.ACCESSOR_COMPONENT_TYPE_INT
 		if typeOf == bool:
 			return C.ACCESSOR_COMPONENT_TYPE_BYTE
 	
@@ -64,11 +64,11 @@ class AccessorDescriber(Describer):
 			if type(data[0][0]) == float:
 				return C.PACKING_FORMAT_FLOAT
 			if type(data[0][0]) == int:
-				return C.PACKING_FORMAT_SHORT
+				return C.PACKING_FORMAT_INT
 		if typeOf == float or typeOf == mathutils.Quaternion or typeOf == mathutils.Matrix:
 			return C.PACKING_FORMAT_FLOAT
 		if typeOf == int:
-			return C.PACKING_FORMAT_SHORT
+			return C.PACKING_FORMAT_INT
 		if typeOf == bool:
 			return C.PACKING_FORMAT_BOOL
 		
