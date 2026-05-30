@@ -9,6 +9,7 @@ from .Animation import AnimationDescriber
 from .Scene import Scene
 from .File import File
 from io_ggltf.Core import ShowFunction
+from io_ggltf.Core.BlenderUI.FastButtons.Decorator import Button as MakeButton
 
 
 def MeshFromObject(objectName: str = None, objectLibrary: str = None, buffer: BufferDescriber = None) -> MeshDescriber:
