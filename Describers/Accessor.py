@@ -182,8 +182,21 @@ class AccessorDescriber(Describer):
 				self._exportedData[C.ACCESSOR_BYTE_OFFSET] = self._byteOffset
 
 			if self._max != None:
+				if type(self._max) == float:
+					self._max = round(self._max, self._floatPrecision)
+				if type(self._max) == list:
+					if type(self._max[0]) == float:
+						Util.round_float_list_to_precision(self._max, self._floatPrecision)
+
 				self._exportedData[C.ACCESSOR_MAX] = self._max
+				
 			if self._min != None:
+				if type(self._min) == float:
+					self._min = round(self._min, self._floatPrecision)
+				if type(self._min) == list:
+					if type(self._min[0]) == float:
+						Util.round_float_list_to_precision(self._min, self._floatPrecision)
+
 				self._exportedData[C.ACCESSOR_MIN] = self._min
 
 			self._isExported = True
