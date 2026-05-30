@@ -82,3 +82,11 @@ class ObjectBasedDescriber(Describer):
 		else:
 			print(f"Attempted to set object or bone on {self} after it is already exported.")
 		return self
+	
+	def get_target(self) -> tuple:
+		if self._hasValidObject == False:
+			return None
+		if self._boneName != None:
+			return (self._objectName, self._objectLibrary, self._boneName)
+		else:
+			return (self._objectName, self._objectLibrary)
