@@ -26,6 +26,10 @@ class NodeDescriber(ObjectBasedDescriber):
 		self._parent: NodeDescriber = None
 		self._floatPrecision: int = 6
 		self._scaleCorrection: float = 0.000002
+		self._animateTranslation: bool = True
+		self._animateRotation: bool = True
+		self._animateScale: bool = True
+		self._animateMeshWeights: bool = False
 
 	def get_referenced_describers(self) -> set:
 		references = set()
@@ -153,6 +157,46 @@ class NodeDescriber(ObjectBasedDescriber):
 		
 	def get_skin(self):
 		return self._skin
+	
+	def set_animate_transforms(self, translation: bool, rotation: bool, scale: bool):
+		if not self._isExported:
+			self._animateTranslation = translation
+			self._animateRotation = rotation
+			self._animateScale = scale
+		else:
+			print("Attempted to change animate transforms of already exported node.")
+		return self
+
+	def get_animate_transforms(self) -> tuple:
+		return (self._animateTranslation, self._animateRotation, self._animateScale)
+	
+	def set_animate_mesh_weights(self, animate: bool):
+		self._animateMeshWeights = animate
+
+	def get_animate_mesh_weights(self) -> bool:
+		return self._animateMeshWeights
+	
+	def get_weights_from_mesh(self) -> list[float]:
+		return self._mesh.get_current_shape_key_weights()
+	
+	def get_flattened_hierarchy(self) -> list:
+		# includes itself as 1st node in the list
+		# locks skin hierarchies
+		def recursive(node, hierarchy: list):
+			hierarchy.append(node)
+			for child in node.get_children():
+				recursive(child, hierarchy)
+			skin = node.get_skin()
+			if skin != None:
+				skin.lock_bone_hierarchy()
+				for boneDescriber in skin._boneNodeDescribers:
+					recursive(boneDescriber, hierarchy)
+
+
+		hierarchy = []
+		recursive(self, hierarchy)
+
+		return hierarchy
 		
 	def __export_children(self, isBinary, gltfDict, fileTargetPath) -> bool:
 		if len(self._children) > 0:
@@ -254,36 +298,21 @@ class NodeDescriber(ObjectBasedDescriber):
 
 			self._export_name()
 
-			boneTuple = (self._objectName, self._objectLibrary, self._boneName)
-			objTuple = (self._objectName, self._objectLibrary)
-
 			parentTuple = None
 			if self._parent != None:
 				parent = self._parent
-				if parent._boneName != None:
-					parentTuple = (parent._objectName, parent._objectLibrary, parent._boneName)
-				else:
-					parentTuple = (parent._objectName, parent._objectLibrary)
+				parentTuple = parent.get_target()
 				
-			if self._skin == None:
-				if self._useMatrix:
-					if Util.try_get_bone(boneTuple) != None:
-						converted, matrix = Util.evaluate_matrix(boneTuple, parentTuple)
-					else:
-						converted, matrix = Util.evaluate_matrix(objTuple, parentTuple)
-					if not converted:
-						matrix = Util.y_up_matrix(matrix)
+			if self._useMatrix:
+				matrix = Util.y_up_matrix(Util.evaluate_matrix(self.get_target(), parentTuple))
 
-					self.__export_matrix(matrix if self._matrix == None else self._matrix)
-				else:
-					if Util.try_get_bone(boneTuple) != None:
-						translation, rotation, scale = Util.get_yup_transforms(boneTuple, parentTuple)
-					else:
-						translation, rotation, scale = Util.get_yup_transforms(objTuple, parentTuple)
+				self.__export_matrix(matrix if self._matrix == None else self._matrix)
+			else:
+				translation, rotation, scale = Util.get_yup_transforms(self.get_target(), parentTuple)
 
-					self.__export_translation(translation if self._translation == None else self._translation)
-					self.__export_rotation(rotation if self._rotation == None else self._rotation)
-					self.__export_scale(scale if self._scale == None else self._scale)
+				self.__export_translation(translation if self._translation == None else self._translation)
+				self.__export_rotation(rotation if self._rotation == None else self._rotation)
+				self.__export_scale(scale if self._scale == None else self._scale)
 			
 			self.__export_camera(gltfDict)
 			self.__export_skin(isBinary, gltfDict, fileTargetPath)

@@ -70,7 +70,7 @@ class MeshDescriber(ObjectBasedDescriber):
 			print(f"Attempted to change normals of already exported mesh.")
 		return self
 	
-	def set_tangets(self, includeTangets: bool):
+	def set_tangents(self, includeTangets: bool):
 		if not self._isExported:
 			self._tangets = includeTangets
 		else:
@@ -99,6 +99,26 @@ class MeshDescriber(ObjectBasedDescriber):
 		else:
 			print(f"Attempted to change shape keys of already exported mesh.")
 		return self
+	
+	def get_current_shape_key_weights(self) -> list[float]:
+		if not self._hasValidObject or self._shapeKeys == False or self._shapeKeys == None:
+			return None
+		
+		obj = try_get_object((self._objectName, self._objectLibrary))
+		mesh = obj.data
+
+		shapeKeyValues = []
+
+		if self._shapeKeys == True:
+			shapeKeys = mesh.shape_keys.key_blocks
+			for i in range(1, len(shapeKeys)):
+				shapeKeyValues.append(shapeKeys[i].value)
+		else:
+			for shapeKeyName in self._shapeKeys:
+				shapeKey = mesh.shape_keys.key_blocks[shapeKeyName]
+				shapeKeyValues.append(shapeKey.value)
+
+		return shapeKeyValues
 
 	def merge_mesh(self, meshObjName: str, meshObjLibrary: str = None):
 		if not self._isExported:
@@ -324,9 +344,8 @@ class MeshInFlight():
 		self.arraysShapeKeyPositions = list(range(startID, len(self.loopsData)))
 
 	def clean_up(self):
-		if not self.keepPose:
-			BlenderUtil.batch_set_modifiers(self.obj, self.objModifierResetArray)
-			self.depsGraph.update()
+		BlenderUtil.batch_set_modifiers(self.obj, self.objModifierResetArray)
+		self.depsGraph.update()
 		self.mesh = None
 		self.obj.to_mesh_clear()
 
@@ -575,13 +594,30 @@ class ExportedPrimitives():
 		targets: list[dict] = [{} for _ in range(len(mesh.arraysShapeKeyPositions))]
 
 		for targetID, arrayID in enumerate(mesh.arraysShapeKeyPositions):
+			targetArray = mesh.vertexData[arrayID]
+			basisArray = mesh.vertexData[mesh.arrayPositions]
+
+			for i_vertex, base_vertex in enumerate(basisArray):
+				for i in [0, 1, 2]:
+					targetArray[i_vertex][i] = targetArray[i_vertex][i] - base_vertex[i]
+
+
+			_max = [-9999.0, -9999.0, -9999.0]
+			_min = [9999.0, 9999.0, 9999.0]
+			for vertex in targetArray:
+					for i in [0, 1, 2]:
+						_max[i] = max(_max[i], vertex[i])
+						_min[i] = min(_min[i], vertex[i])
+
 			accessor = AccessorDescriber()
 			accessor.set_float_precision(self.floatPrecision)
-			accessor.insert_data(mesh.vertexData[arrayID],
+			accessor.insert_data(targetArray,
 						self.buffer,
 						C.ACCESSOR_TYPE_VECTOR_3,
 						C.ACCESSOR_COMPONENT_TYPE_FLOAT,
-						C.PACKING_FORMAT_FLOAT)
+						C.PACKING_FORMAT_FLOAT,
+						_max,
+						_min)
 			targets[targetID][C.MESH_ATTRIBUTE_STR_POSITION] = self.__export_accessor(accessor)
 		
 		# TODO: normals
