@@ -24,7 +24,6 @@ class SkinDescriber(ObjectBasedDescriber):
 		self._extraArmatureParentBoneName: list[str] = []
 
 		self._boneNodeDescribers: list[NodeDescriber] = []
-		self._topBoneDescribers: list[NodeDescriber] = []
 		self._attachedObjDescribers: list[NodeDescriber] = []
 
 		self._jointNodeIDs: list[int] = []
@@ -82,6 +81,12 @@ class SkinDescriber(ObjectBasedDescriber):
 		else:
 			print(f"Tried to set root bone on skin that is already locked in or exported.")
 		return self
+	
+	def get_root_describer(self) -> Describer:
+		if len(self._boneNodeDescribers) > 0:
+			return self._boneNodeDescribers[0]
+		else:
+			return None
 
 	def set_include_inverse_binds(self, includeIB: bool):
 		if not self._isExported:
