@@ -18,7 +18,7 @@ class AnimationDescriber(Describer):
 		self._nlaTracksOwnerLibraries: list[str] = []
 		self._nlaTracks: list[str] = []
 		self._sampleNodes: set[NodeDescriber] = set()
-		self._sampleSkins: set[SkinDescriber] = set()
+		#self._sampleSkins: set[SkinDescriber] = set()
 		self._boneFilter: tuple[str, bool] = None
 		self._objectFilter: tuple[str, bool] = None
 		self._steppedInterpolation = False
@@ -77,48 +77,15 @@ class AnimationDescriber(Describer):
 	def __try_add_describer_to_targets(self, describer: Describer):
 		if describer._dataTypeHint == C.GLTF_NODE:
 			self._sampleNodes.add(describer)
-		elif describer._dataTypeHint == C.GLTF_SKIN:
-			self._sampleNodes.add(describer)
 
 	def __flatten_describers(self):
-		def add_child_nodes_recursive(node: NodeDescriber):
-			for child in node._children:
-				add_child_nodes_recursive(child)
-				describers.append(child)
-				describers.append([])
-		
-		describers: list[NodeDescriber] = []
-		extraProps: list[str] = []
+		describers = set()
+		for sampleNode in self._sampleNodes:
+			hierarchy = sampleNode.get_flattened_hierarchy()
+			for offspring in hierarchy:
+				describers.add(offspring)
 
-		for skin in self._sampleSkins:
-			jointNodes = skin._boneNodeDescribers
-
-			if self._boneFilter != None:
-				for joint in jointNodes:
-					if Util.name_passes_filter(self._boneFilter, joint._boneName):
-						describers.append(joint)
-						extraProps.append([])
-			else:
-				for joint in jointNodes:
-					describers.append(joint)
-					extraProps.append([])
-
-		if self._objectFilter != None:
-			for node in self._sampleNodes:
-				if Util.name_passes_filter(self._objectFilter, node._objectName):
-					describers.append(node)
-					extraProps.append([])
-		else:
-			for node in self._sampleNodes:
-				describers.append(node)
-				extraProps.append([])
-			
-		if self._objectFilter != None:
-			for i in range(len(describers), -1, -1):
-				if not Util.name_passes_filter(self._objectFilter, describers[i]._objectName):
-					_ = describers.pop(i)
-
-		return describers, extraProps
+		return describers
 
 	def __snapshot_all_tracks_states(self):
 		return NLA.get_snapshot_of_all_nla_tracks_states()
@@ -184,36 +151,60 @@ class AnimationDescriber(Describer):
 
 		return sampler
 
-	def __export_trs(self, isBinary, gltfDict, fileTargetPath, nodeSampler, allSamplers, allChannels):
-		if len(nodeSampler.trs.translationKeys) > 0:
-			input = self.__create_input_accessor(nodeSampler.trs.translationKeys)
-			output = AccessorDescriber()
-			output.insert_data(nodeSampler.trs.translationValues,
-				self._buffer, C.ACCESSOR_TYPE_VECTOR_3, C.ACCESSOR_COMPONENT_TYPE_FLOAT, C.PACKING_FORMAT_FLOAT)
-			self.__export_input_output_accessors(input, output, isBinary, gltfDict, fileTargetPath)
-			
-			allChannels.append(self.__create_channel(len(allSamplers), nodeSampler.nodeDescriber._get_id_reservation(gltfDict), C.NODE_TRANSLATION))
-			allSamplers.append(self.__create_sampler(input._get_id_reservation(gltfDict), output._get_id_reservation(gltfDict)))
+	def __export_trs(self, isBinary, gltfDict, fileTargetPath, nodeSampler, exportSamplers, exportChannels, targetChannel):
+		if targetChannel == None or len(targetChannel.keys) == 0:
+			return
 
-		if len(nodeSampler.trs.rotationKeys) > 0:
-			input = self.__create_input_accessor(nodeSampler.trs.rotationKeys)
-			output = AccessorDescriber()
-			output.insert_data(nodeSampler.trs.rotationValues,
+		input = self.__create_input_accessor(targetChannel.keys)
+		output = AccessorDescriber()
+		channelTypeHint: str
+
+		if targetChannel.transformSampleOffset == 1:
+			channelTypeHint = C.NODE_ROTATION
+			output.insert_data(targetChannel.values,
 				self._buffer, C.ACCESSOR_TYPE_VECTOR_4, C.ACCESSOR_COMPONENT_TYPE_FLOAT, C.PACKING_FORMAT_FLOAT)
-			self.__export_input_output_accessors(input, output, isBinary, gltfDict, fileTargetPath)
-			
-			allChannels.append(self.__create_channel(len(allSamplers), nodeSampler.nodeDescriber._get_id_reservation(gltfDict), C.NODE_ROTATION))
-			allSamplers.append(self.__create_sampler(input._get_id_reservation(gltfDict), output._get_id_reservation(gltfDict)))
+		else:
+			if targetChannel.transformSampleOffset == 0:
+				channelTypeHint = C.NODE_TRANSLATION
+			else:
+				channelTypeHint = C.NODE_SCALE
 
-		if len(nodeSampler.trs.scaleKeys) > 0:
-			input = self.__create_input_accessor(nodeSampler.trs.scaleKeys)
-			output = AccessorDescriber()
-			output.insert_data(nodeSampler.trs.scaleValues,
+			output.insert_data(targetChannel.values,
 				self._buffer, C.ACCESSOR_TYPE_VECTOR_3, C.ACCESSOR_COMPONENT_TYPE_FLOAT, C.PACKING_FORMAT_FLOAT)
-			self.__export_input_output_accessors(input, output, isBinary, gltfDict, fileTargetPath)
 			
-			allChannels.append(self.__create_channel(len(allSamplers), nodeSampler.nodeDescriber._get_id_reservation(gltfDict), C.NODE_SCALE))
-			allSamplers.append(self.__create_sampler(input._get_id_reservation(gltfDict), output._get_id_reservation(gltfDict)))
+		self.__export_input_output_accessors(input, output, isBinary, gltfDict, fileTargetPath)
+
+		exportChannels.append(self.__create_channel(len(exportSamplers), nodeSampler.nodeDescriber._get_id_reservation(gltfDict), channelTypeHint))
+		exportSamplers.append(self.__create_sampler(input._get_id_reservation(gltfDict), output._get_id_reservation(gltfDict)))
+
+
+	def __export_translation(self, isBinary, gltfDict, fileTargetPath, nodeSampler, exportSamplers, exportChannels):
+		self.__export_trs(isBinary, gltfDict, fileTargetPath, nodeSampler, exportSamplers, exportChannels, nodeSampler.translationChannel)
+
+	def __export_rotation(self, isBinary, gltfDict, fileTargetPath, nodeSampler, exportSamplers, exportChannels):
+		self.__export_trs(isBinary, gltfDict, fileTargetPath, nodeSampler, exportSamplers, exportChannels, nodeSampler.rotationChannel)
+
+	def __export_scale(self, isBinary, gltfDict, fileTargetPath, nodeSampler, exportSamplers, exportChannels):
+		self.__export_trs(isBinary, gltfDict, fileTargetPath, nodeSampler, exportSamplers, exportChannels, nodeSampler.scaleChannel)
+
+	def __export_weights(self, isBinary, gltfDict, fileTargetPath, nodeSampler, exportSamplers, exportChannels):
+		channel: WeightsChannel = nodeSampler.weightsChannel
+		if channel == None or (channel.keys) == 0:
+			return
+		
+		input = self.__create_input_accessor(channel.keys)
+		output = AccessorDescriber()
+		flattened_values = []
+		for weights in channel.values:
+			for weight in weights:
+				flattened_values.append(weight)
+
+		output.insert_data(flattened_values, self._buffer, C.ACCESSOR_TYPE_SCALAR, C.ACCESSOR_COMPONENT_TYPE_FLOAT, C.PACKING_FORMAT_FLOAT)
+
+		self.__export_input_output_accessors(input, output, isBinary, gltfDict, fileTargetPath)
+		
+		exportChannels.append(self.__create_channel(len(exportSamplers), nodeSampler.nodeDescriber._get_id_reservation(gltfDict), C.NODE_WEIGHTS))
+		exportSamplers.append(self.__create_sampler(input._get_id_reservation(gltfDict), output._get_id_reservation(gltfDict)))
 
 		
 	def _export(self, isBinary, gltfDict, fileTargetPath):
@@ -223,25 +214,15 @@ class AnimationDescriber(Describer):
 				self._isExported = True
 				return False
 
-			nodesToAnimate, extraProperties = self.__flatten_describers()
-
-			for extraPropertiesNames in extraProperties:
-				if len(extraPropertiesNames) > 0:
-					if C.ANIMATION_EXTENSION in self._exportedData:
-						self._exportedData[C.ANIMATION_EXTENSION][C.EXTENSION_BUILD_IN_EXTRA_PROPERTIES] = {}
-					else:
-						self._exportedData[C.ANIMATION_EXTENSION] = {C.EXTENSION_BUILD_IN_EXTRA_PROPERTIES: {}}
-					break
-			
-			
+			sceneArmatures, armatureStates = BlenderUtil.snapshot_all_armature_obj_states()
+			BlenderUtil.set_all_armatures_to_pose_mode(C.BLENDER_ARMATURE_POSE_MODE)
+			nodesToAnimate = self.__flatten_describers()
+			# TODO: if even a single node has custom property to animate then add extension info
 
 			nodeSamplers: list[NodeSampler] = [NodeSampler] * len(nodesToAnimate)
 
 			for iNode, node in enumerate(nodesToAnimate):
-				sampler = NodeSampler(node, extraProperties[iNode])
-
-				for extraPropsName in extraProperties[iNode]:
-					sampler.extraChannels.append(ExtensionChannel(node, extraPropsName))
+				sampler = NodeSampler(node)
 
 				nodeSamplers[iNode] = sampler
 
@@ -274,8 +255,8 @@ class AnimationDescriber(Describer):
 				currentFrame: float = self._frameStart
 				while True:
 					relativeFrameTime = Timeline.get_real_time(currentFrame - self._frameStart)
-					Timeline.set_frame(currentFrame)
-					
+					Timeline.set_frame(currentFrame, depsGraph)
+
 					for nodeSampler in nodeSamplers:
 						nodeSampler.sample(relativeFrameTime)
 
@@ -296,14 +277,14 @@ class AnimationDescriber(Describer):
 			extensionChannels = []
 
 			for nodeSampler in nodeSamplers:
-				if nodeSampler.trs != None:
-					self.__export_trs(isBinary, gltfDict, fileTargetPath, nodeSampler, exportedSamplers, exportedChannels)
+				if nodeSampler.animateTRS:
+					self.__export_translation(isBinary, gltfDict, fileTargetPath, nodeSampler, exportedSamplers, exportedChannels)
+					self.__export_rotation(isBinary, gltfDict, fileTargetPath, nodeSampler, exportedSamplers, exportedChannels)
+					self.__export_scale(isBinary, gltfDict, fileTargetPath, nodeSampler, exportedSamplers, exportedChannels)
 
-				if nodeSampler.weights != None:
-					pass
+				if nodeSampler.weightsChannel != None:
+					self.__export_weights(isBinary, gltfDict, fileTargetPath, nodeSampler, exportedSamplers, exportedChannels)
 
-				for extraChannel in nodeSampler.extraChannels:
-					pass
 			
 			self._exportedData[C.ANIMATION_CHANNELS] = exportedChannels
 			self._exportedData[C.ANIMATION_SAMPLERS] = exportedSamplers
@@ -312,26 +293,62 @@ class AnimationDescriber(Describer):
 				pass
 
 			self.__revert_track_states(originalTrackStates)
+			BlenderUtil.reset_all_armature_obj_states(sceneArmatures, armatureStates)
 			Timeline.set_frame(beforeFrame, depsGraph)
 			self._isExported = True
+			
 			return True
 		else:
 			print(f"Tried to export animation that is already exported.")
 
 class NodeSampler:
-	def __init__(self, nodeDescriber: NodeDescriber, extraProperties: list[str]):
+	def __init__(self, nodeDescriber: NodeDescriber):
 		self.nodeDescriber: NodeDescriber = nodeDescriber
-		self.trs: TRSChannel = TRSChannel(nodeDescriber)
-		self.weights: WeightsChannel = None
-		if nodeDescriber._mesh != None:
-			pass # TODO: add weights if shape keys are present
-		self.extraChannels: list[ExtensionChannel] = [ExtensionChannel(nodeDescriber, prop) for prop in extraProperties]
+
+		self.translationChannel: TranslationChannel = None
+		self.rotationChannel: RotationChannel = None
+		self.scaleChannel: ScaleChannel = None
+		self.weightsChannel: WeightsChannel = None
+		
+		self.animateTRS: bool = False
+
+		animateTransform = nodeDescriber.get_animate_transforms()
+
+		if animateTransform[0] == True:
+			self.translationChannel = TranslationChannel(nodeDescriber)
+			self.animateTRS = True
+		if animateTransform[1] == True:
+			self.rotationChannel = RotationChannel(nodeDescriber)
+			self.animateTRS = True
+		if animateTransform[2] == True:
+			self.scaleChannel = ScaleChannel(nodeDescriber)
+			self.animateTRS = True
+
+		if nodeDescriber.get_animate_mesh_weights() and nodeDescriber._mesh != None:
+			self.weightsChannel = WeightsChannel(nodeDescriber)
+
+		self.extraChannels: list[ExtensionChannel] = []
 
 	def sample(self, time: float):
-		if self.trs != None:
-			self.trs.sample_trs(time)
-		if self.weights != None:
-			self.weights.sample_weights(time)
+		transform = None
+
+		if self.animateTRS:
+			parent = self.nodeDescriber.get_parent()
+			if parent != None:
+				transform = Util.get_yup_transforms(self.nodeDescriber.get_target(), parent.get_target())
+			else:
+				transform = Util.get_yup_transforms(self.nodeDescriber.get_target(), None)
+
+		if self.translationChannel != None:
+			self.translationChannel.sample_trs(time, transform)
+		if self.rotationChannel != None:
+			self.rotationChannel.sample_trs(time, transform)
+		if self.scaleChannel != None:
+			self.scaleChannel.sample_trs(time, transform)
+
+		if self.weightsChannel != None:
+			self.weightsChannel.sample_weights(time)
+
 		for channel in self.extraChannels:
 			channel.sample_property(time)
 
@@ -348,18 +365,20 @@ class NodeSampler:
 					popIDs.append(i)
 
 				i -= 1
-
+			print
 			for popID in popIDs:
 				_ = keys.pop(popID)
 				_ = values.pop(popID)
 
 	def optimise(self):
-		if self.trs != None:
-			self.optimise_channel(self.trs.translationKeys, self.trs.translationValues)
-			self.optimise_channel(self.trs.rotationKeys, self.trs.rotationValues)
-			self.optimise_channel(self.trs.scaleKeys, self.trs.scaleValues)
-		if self.weights != None:
-			self.optimise_channel(self.weights.keys, self.weights.values)
+		if self.translationChannel != None:
+			self.optimise_channel(self.translationChannel.keys, self.translationChannel.values)
+		if self.rotationChannel != None:
+			self.optimise_channel(self.rotationChannel.keys, self.rotationChannel.values)
+		if self.scaleChannel != None:
+			self.optimise_channel(self.scaleChannel.keys, self.scaleChannel.values)
+		if self.weightsChannel != None:
+			self.optimise_channel(self.weightsChannel.keys, self.weightsChannel.values)
 		
 		for extraChannel in self.extraChannels:
 			self.optimise_channel(extraChannel.keys, extraChannel.values)
@@ -385,29 +404,28 @@ class ChannelBase:
 class TRSChannel(ChannelBase):
 	def __init__(self, node: NodeDescriber):
 		super().__init__(node)
+		self.keys: list[float] = []
+		self.values: list[list[float]] = []
+		self.transformSampleOffset: int = 0
 
-		self.translationKeys: list[float] = []
-		self.rotationKeys: list[float] = []
-		self.scaleKeys: list[float] = []
+	def sample_trs(self, time: float, precalculated_transform):
+		self.keys.append(time)
+		self.values.append(Util.bl_math_to_gltf_list(precalculated_transform[self.transformSampleOffset]))
 
-		self.translationValues: list[list[float]] = []
-		self.rotationValues: list[list[float]] = []
-		self.scaleValues: list[list[float]] = []
+class TranslationChannel(TRSChannel):
+	def __init__(self, node: NodeDescriber):
+		super().__init__(node)
+		self.transformSampleOffset = 0
 
-	def sample_trs(self, time: float):
-		t, r ,s = Util.get_yup_transforms(self._selfTuple, self._parentTuple)
+class RotationChannel(TRSChannel):
+	def __init__(self, node: NodeDescriber):
+		super().__init__(node)
+		self.transformSampleOffset = 1
 
-		t = Util.bl_math_to_gltf_list(t)
-		r = Util.bl_math_to_gltf_list(r)
-		s = Util.bl_math_to_gltf_list(s)
-
-		self.translationKeys.append(time)
-		self.rotationKeys.append(time)
-		self.scaleKeys.append(time)
-
-		self.translationValues.append(t)
-		self.rotationValues.append(r)
-		self.scaleValues.append(s)
+class ScaleChannel(TRSChannel):
+	def __init__(self, node: NodeDescriber):
+		super().__init__(node)
+		self.transformSampleOffset = 2
 
 class WeightsChannel(ChannelBase):
 	def __init__(self, node: NodeDescriber):
@@ -417,7 +435,10 @@ class WeightsChannel(ChannelBase):
 		self.values: list[list[float]] = []
 
 	def sample_weights(self, time: float):
-		pass
+		weights = self.node.get_weights_from_mesh()
+		self.keys.append(time)
+		self.values.append(weights)
+
 
 class ExtensionChannel(ChannelBase):
 	def __init__(self, node: NodeDescriber, propertyName: str):
