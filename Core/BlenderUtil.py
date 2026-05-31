@@ -15,6 +15,25 @@ def set_armature_pose_mode(obj, poseMode):
 def get_armature_pose_mode(obj):
 	return obj.data.pose_position
 
+def snapshot_all_armature_obj_states():
+	armatures = []
+	states = []
+	for obj in bpy.data.objects:
+		if obj.type == __c.BLENDER_TYPE_ARMATURE:
+			armatures.append(obj)
+			states.append(get_armature_pose_mode(obj))
+
+	return armatures, states
+
+def reset_all_armature_obj_states(armatures, states):
+	for i, armature in enumerate(armatures):
+		set_armature_pose_mode(armature, states[i])
+
+def set_all_armatures_to_pose_mode(poseMode):
+	for obj in bpy.data.objects:
+		if obj.type == __c.BLENDER_TYPE_ARMATURE:
+			set_armature_pose_mode(obj, poseMode)
+
 def set_object_modifier(bucket: Bucket, objAccessor, modifierID, setActive):
 	obj = bpy.data.objects.get(objAccessor)
 	if bucket.currentDependencyGraph.mode == __c.BLENDER_DEPSGRAPH_MODE_VIEWPORT:
