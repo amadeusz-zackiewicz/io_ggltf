@@ -7,7 +7,7 @@ class Scene(Describer):
 
 		self._dataTypeHint = C.GLTF_SCENE
 
-		self._nodes: list[NodeDescriber]
+		self._nodes: list[NodeDescriber] = []
 
 	def append_node(self, node: NodeDescriber):
 		if not self._isExported:
@@ -23,6 +23,12 @@ class Scene(Describer):
 		else:
 			print("Attempted to append a node to scene that is already exported.")
 		return self
+	
+	def get_referenced_describers(self) -> set:
+		unique_nodes = set()
+		for node in self._nodes:
+			unique_nodes.add(node)
+		return unique_nodes
 
 	def _export(self, isBinary, gltfDict, fileTargetPath):
 		if not self._isExported:
@@ -32,9 +38,13 @@ class Scene(Describer):
 				nodeIDs = []
 
 				for node in self._nodes:
-					nodeIDs.append(node._get_id_reservation())
+					hierarchy: list[NodeDescriber] = node.get_flattened_hierarchy()
+					for offspring in hierarchy:
+						if offspring.get_parent() == None:
+							nodeIDs.append(offspring._get_id_reservation(gltfDict))
 
 				self._exportedData[C.SCENE_NODES] = nodeIDs
-
+			return True
 		else:
 			print("Attempted to export a scene that is already exported.")
+			return False
