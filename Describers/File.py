@@ -142,6 +142,8 @@ class File(Describer):
 
 	def __find_top_nodes(self, gltfDict: dict) -> list:
 		nodes = gltfDict[C.GLTF_NODE]
+		if nodes == None or len(nodes) == 0:
+			return []
 		isTopNode = [True] * len(nodes)
 		topNodeIDs = []
 
@@ -300,7 +302,7 @@ class File(Describer):
 			topNodes = self.__find_top_nodes(gltfDict)
 
 			if self._defaultScene != None:
-				gltfDict[C.GLTF_DEFAULT_SCENE] = self._defaultScene._get_id_reservation()
+				gltfDict[C.GLTF_DEFAULT_SCENE] = self._defaultScene._get_id_reservation(gltfDict)
 			else:
 				if self._enforceDefaultScene:
 					self.__enforce_default_scene(gltfDict, topNodes)
