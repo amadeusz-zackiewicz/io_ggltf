@@ -356,12 +356,12 @@ def extract_loop_shape_keys(mesh, includeShapeKeys: bool | list[str]):
 	if includeShapeKeys == False:
 		return None
 	
-	shapeKeys = mesh.shapeKeys.key_blocks
+	shapeKeys = mesh.shape_keys.key_blocks
 
 	if includeShapeKeys == True:
 		includeShapeKeys = []
-		for shapeKey in shapeKeys:
-			includeShapeKeys.append(shapeKey.key_blocks.name)
+		for i in range(1, len(shapeKeys)):
+			includeShapeKeys.append(shapeKeys[i].name)
 
 	loops = mesh.loops
 	loopedShapeKeys = []
@@ -413,7 +413,7 @@ def unique_vertices(vertexData: list[list]):
 			if type(vertexElement) == list:
 				vertexCopy[iElement] = tuple(vertexElement)
 			else:
-				vertexCopy[iElement] = vertexElement
+				vertexCopy[iElement] = tuple(Util.bl_math_to_gltf_list(vertexElement))
 
 		hashedVertex = tuple(vertexCopy)
 		del vertexCopy
