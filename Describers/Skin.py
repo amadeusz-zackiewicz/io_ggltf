@@ -291,7 +291,6 @@ class SkinDescriber(ObjectBasedDescriber):
 						joint.parentJoint = jointParent
 						jointParent.childrenJoints.append(joint)
 						
-		print(self._reparentDict)
 		for reparentChildJointName, reparentParentJointName in self._reparentDict.items():
 			childJoint: Joint = self._joints.get(reparentChildJointName)
 			parentJoint: Joint = self._joints.get(reparentParentJointName)

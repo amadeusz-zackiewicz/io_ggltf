@@ -100,8 +100,13 @@ class MeshDescriber(ObjectBasedDescriber):
 			print(f"Attempted to change shape keys of already exported mesh.")
 		return self
 	
+	def get_shape_keys(self) -> bool:
+		return self._shapeKeys and self.has_shape_keys()
+	
 	def get_current_shape_key_weights(self) -> list[float]:
 		if not self._hasValidObject or self._shapeKeys == False or self._shapeKeys == None:
+			return None
+		if not self.has_shape_keys():
 			return None
 		
 		obj = try_get_object((self._objectName, self._objectLibrary))
@@ -109,7 +114,7 @@ class MeshDescriber(ObjectBasedDescriber):
 
 		shapeKeyValues = []
 
-		if self._shapeKeys == True:
+		if self.get_shape_keys() == True:
 			shapeKeys = mesh.shape_keys.key_blocks
 			for i in range(1, len(shapeKeys)):
 				shapeKeyValues.append(shapeKeys[i].value)
@@ -119,6 +124,23 @@ class MeshDescriber(ObjectBasedDescriber):
 				shapeKeyValues.append(shapeKey.value)
 
 		return shapeKeyValues
+	
+	def has_shape_keys(self) -> bool:
+		if self._hasValidObject == False:
+			return False
+		
+		obj = try_get_object((self._objectName, self._objectLibrary))
+
+		data = obj.data
+		if data == None:
+			return False
+
+		shapeKeys = obj.data.shape_keys
+
+		if shapeKeys == None:
+			return False
+		
+		return len(shapeKeys.key_blocks) > 1
 
 	def merge_mesh(self, meshObjName: str, meshObjLibrary: str = None):
 		if not self._isExported:
@@ -226,7 +248,7 @@ class MeshDescriber(ObjectBasedDescriber):
 					mesh.sample_loop_uvs(self._uvMaps)
 				if self._vertexColors:
 					mesh.sample_loop_colors(self._vertexColors)
-				if self._shapeKeys:
+				if self.has_shape_keys():
 					mesh.sample_shape_key_positions(self._shapeKeys)
 				if self._skin != None and self._boneInfluenceCount > 0:
 					mesh.sample_loop_weights(self._skin._skinDefinition, self._boneInfluenceCount)

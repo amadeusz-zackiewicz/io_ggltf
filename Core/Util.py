@@ -267,18 +267,21 @@ def get_yup_transforms(childAccessor, parent):
 	location = y_up_location(location)
 	rotation = y_up_rotation(rotation)
 	scale = y_up_scale(scale)
-	return location, rotation, scale
+	return (location, rotation, scale)
 
-
-def evaluate_matrix(childAccessor, parent):
+def evaluate_matrix(childAccessor, parent, depsgraph = None):
 	if childAccessor == None:
-		return Matrix.indentity()
+		return Matrix()
+	
+	if depsgraph == None:
+		depsgraph = BlenderUtil.get_depsgraph()
+
 	if type(childAccessor) == str:
 		childAccessor = (childAccessor, None)
 
 	yUpMatrix = None
 
-	childObj = try_get_object(childAccessor)
+	childObj = depsgraph.id_eval_get(try_get_object(childAccessor))
 
 	if len(childAccessor) == 3:
 		childBone = get_bone(childObj, childAccessor[2])
@@ -291,7 +294,7 @@ def evaluate_matrix(childAccessor, parent):
 		if type(parent) == str:
 			parent = (parent, None)
 
-		parentObj = try_get_object(parent)
+		parentObj = depsgraph.id_eval_get(try_get_object(parent))
 		
 		if len(parent) == 3:
 			parentBone = get_bone(parentObj, parent[2])
@@ -306,8 +309,11 @@ def evaluate_matrix(childAccessor, parent):
 	return yUpMatrix
 
 def get_world_matrix(accessor: tuple):
-	bone = try_get_bone(accessor)
-	obj = try_get_object(accessor)
+	depsgraph = BlenderUtil.get_depsgraph()
+	obj = depsgraph.id_eval_get(try_get_object(accessor))
+
+	if len(accessor) == 3:
+		bone = try_get_bone(accessor)
 
 	if bone != None:
 		return obj.matrix_world @ bone.matrix

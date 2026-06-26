@@ -121,6 +121,10 @@ def BufferExternal(relative_path: str) -> BufferDescriber:
 def GltfFile(fileDirectory: str, fileName: str, binary: bool = True) -> File:
 	return File(fileDirectory, fileName, binary)
 
+def NodeDummy() -> NodeDescriber:
+	node = NodeDescriber()
+	node.set_animate_transforms(False, False, False)
+	return node
 
 ShowFunction.Register(GltfFile, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/")
 ShowFunction.Register(BufferInternal, "https://github.com/amadeusz-zackiewicz/io_ggltf/wiki/")

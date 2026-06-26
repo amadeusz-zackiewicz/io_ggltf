@@ -10,6 +10,14 @@ class Describer:
 		self._reservedID: int = None
 		self._exportedData: dict = {}
 		self._dataTypeHint: str = None
+		self._extensionObservers: list = []
+		self._priority: int = 0
+
+	def __gt__(self, other):
+		return self._priority > other._priority
+	
+	def __lt__(self, other):
+		return self._priority < other._priority
 
 	def _export(self, isBinary: bool, gltfDict: dict, fileTargetPath: str) -> bool:
 		print(f"Describer: {self} has not overriden internal method '_export'.")
@@ -50,6 +58,20 @@ class Describer:
 	
 	def get_referenced_describers(self) -> set:
 		return set()
+	
+	def get_priority(self) -> int:
+		return self._priority
+
+	def set_priority(self, priority: int):
+		self._priority = priority
+		return self
+
+	def notify_observers(self, notificationHint, **kwargs):
+		for observer in self._extensionObservers:
+			observer.notify(notificationHint, **kwargs)
+
+	def get_extension_observers(self) -> list:
+		return self._extensionObservers
 	
 class ObjectBasedDescriber(Describer):
 	def __init__(self):

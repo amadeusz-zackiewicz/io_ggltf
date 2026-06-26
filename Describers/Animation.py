@@ -1,6 +1,7 @@
 from io_ggltf import Constants as C
 from io_ggltf.Core import Util, BlenderUtil
 from io_ggltf.Describers import *
+from io_ggltf.Extensions import ExtensionObserver
 
 from io_ggltf.Core.Blender import NLA, Timeline
 
@@ -18,7 +19,7 @@ class AnimationDescriber(Describer):
 		self._nlaTracksOwnerLibraries: list[str] = []
 		self._nlaTracks: list[str] = []
 		self._sampleNodes: set[NodeDescriber] = set()
-		#self._sampleSkins: set[SkinDescriber] = set()
+		self._extraDescribers: set[Describer] = set()
 		self._boneFilter: tuple[str, bool] = None
 		self._objectFilter: tuple[str, bool] = None
 		self._steppedInterpolation = False
@@ -77,6 +78,8 @@ class AnimationDescriber(Describer):
 	def __try_add_describer_to_targets(self, describer: Describer):
 		if describer._dataTypeHint == C.GLTF_NODE:
 			self._sampleNodes.add(describer)
+		else:
+			self._extraDescribers.add(describer)
 
 	def __flatten_describers(self):
 		describers = set()
@@ -92,6 +95,9 @@ class AnimationDescriber(Describer):
 	
 	def __revert_track_states(self, states):
 		NLA.set_all_nla_tracks_from_snapshot(states)
+
+	def __mute_all_tracks_in_file(self):
+		NLA.mute_all()
 
 	def __is_frame_step_invalid(self):
 		if self._frameStep == 0.0:
@@ -207,6 +213,12 @@ class AnimationDescriber(Describer):
 		exportSamplers.append(self.__create_sampler(input._get_id_reservation(gltfDict), output._get_id_reservation(gltfDict)))
 
 		
+	def __append_extension_samplers_from_describer(self, samplers, describer):
+		for extensionObserver in describer.get_extension_observers():
+			if extensionObserver.animation_allowed_and_enabled():
+				extSampler = ExtensionSampler(extensionObserver)
+				samplers.append(extSampler)
+
 	def _export(self, isBinary, gltfDict, fileTargetPath):
 		if not self._isExported:
 			if self.__is_frame_step_invalid():
@@ -219,12 +231,20 @@ class AnimationDescriber(Describer):
 			nodesToAnimate = self.__flatten_describers()
 			# TODO: if even a single node has custom property to animate then add extension info
 
-			nodeSamplers: list[NodeSampler] = [NodeSampler] * len(nodesToAnimate)
+			nodeSamplers: list[NodeSampler] = [None] * len(nodesToAnimate)
+			extensionSamplers: list[ExtensionSampler] = []
 
 			for iNode, node in enumerate(nodesToAnimate):
 				sampler = NodeSampler(node)
 
 				nodeSamplers[iNode] = sampler
+				self.__append_extension_samplers_from_describer(extensionSamplers, node)
+				
+				if node.get_skin() != None:
+					self.__append_extension_samplers_from_describer(extensionSamplers, node.get_skin())
+				if node.get_mesh() != None:
+					self.__append_extension_samplers_from_describer(extensionSamplers, node.get_mesh())
+				
 
 			self.__calculate_frame_range()
 
@@ -232,20 +252,23 @@ class AnimationDescriber(Describer):
 			reverse: bool = self.__is_reverse()
 
 			originalTrackStates = self.__snapshot_all_tracks_states()
-			NLA.mute_all()
-			for i, tracks in enumerate(self._nlaTracks):
-				NLA.set_track_mute((self._nlaTracksOwnerName[i], self._nlaTracksOwnerLibraries[i]), tracks, False)
+			self.__mute_all_tracks_in_file()
+			for i, track in enumerate(self._nlaTracks):
+				NLA.set_track_mute((self._nlaTracksOwnerName[i], self._nlaTracksOwnerLibraries[i]), track, False)
 
 			depsGraph = BlenderUtil.get_depsgraph()
 
 			if reverse:
 				currentFrame: float = self._frameEnd
 				while True:
-					relativeFrameTime = Timeline.get_real_time(self._frameEnd - currentFrame)
+					realFrameTime = Timeline.get_real_time(self._frameEnd - currentFrame)
 					Timeline.set_frame(currentFrame, depsGraph)
 
 					for nodeSampler in nodeSamplers:
-						nodeSampler.sample(relativeFrameTime)
+						nodeSampler.sample(realFrameTime)
+
+					for extensionSampler in extensionSamplers:
+						extensionSampler.sample_property(realFrameTime)
 
 					currentFrame += self._frameStep
 
@@ -254,11 +277,14 @@ class AnimationDescriber(Describer):
 			else:
 				currentFrame: float = self._frameStart
 				while True:
-					relativeFrameTime = Timeline.get_real_time(currentFrame - self._frameStart)
+					realFrameTime = Timeline.get_real_time(currentFrame - self._frameStart)
 					Timeline.set_frame(currentFrame, depsGraph)
 
 					for nodeSampler in nodeSamplers:
-						nodeSampler.sample(relativeFrameTime)
+						nodeSampler.sample(realFrameTime)
+
+					for extensionSampler in extensionSamplers:
+						extensionSampler.sample_property(realFrameTime)
 
 					currentFrame += self._frameStep
 
@@ -273,8 +299,6 @@ class AnimationDescriber(Describer):
 
 			exportedSamplers = []
 			exportedChannels = []
-			extensionSamplers = []
-			extensionChannels = []
 
 			for nodeSampler in nodeSamplers:
 				if nodeSampler.animateTRS:
@@ -285,12 +309,20 @@ class AnimationDescriber(Describer):
 				if nodeSampler.weightsChannel != None:
 					self.__export_weights(isBinary, gltfDict, fileTargetPath, nodeSampler, exportedSamplers, exportedChannels)
 
+			# specifically designed for KHR_animation_pointer
+			self.notify_observers(C.EXTENSION_NOTIFICATION_ANIM_FILL_EXPORT,\
+				exportChannels=exportedChannels,\
+				exportSamplers=exportedSamplers,\
+				steppedInterpolation=self._steppedInterpolation,\
+				isBinary=isBinary,\
+				gltfDict=gltfDict,\
+				fileTargetPath=fileTargetPath,\
+				buffer=self._buffer,\
+				extensionSamplers=extensionSamplers)
+
 			
 			self._exportedData[C.ANIMATION_CHANNELS] = exportedChannels
 			self._exportedData[C.ANIMATION_SAMPLERS] = exportedSamplers
-
-			if len(extensionChannels) > 0:
-				pass
 
 			self.__revert_track_states(originalTrackStates)
 			BlenderUtil.reset_all_armature_obj_states(sceneArmatures, armatureStates)
@@ -327,8 +359,6 @@ class NodeSampler:
 		if nodeDescriber.get_animate_mesh_weights() and nodeDescriber._mesh != None:
 			self.weightsChannel = WeightsChannel(nodeDescriber)
 
-		self.extraChannels: list[ExtensionChannel] = []
-
 	def sample(self, time: float):
 		transform = None
 
@@ -349,8 +379,6 @@ class NodeSampler:
 		if self.weightsChannel != None:
 			self.weightsChannel.sample_weights(time)
 
-		for channel in self.extraChannels:
-			channel.sample_property(time)
 
 	def optimise_channel(self, keys: list[float], values: list):
 		if len(keys) > 2:
@@ -365,7 +393,6 @@ class NodeSampler:
 					popIDs.append(i)
 
 				i -= 1
-			print
 			for popID in popIDs:
 				_ = keys.pop(popID)
 				_ = values.pop(popID)
@@ -380,8 +407,6 @@ class NodeSampler:
 		if self.weightsChannel != None:
 			self.optimise_channel(self.weightsChannel.keys, self.weightsChannel.values)
 		
-		for extraChannel in self.extraChannels:
-			self.optimise_channel(extraChannel.keys, extraChannel.values)
 
 class ChannelBase:
 	def __init__(self, node: NodeDescriber):
@@ -440,15 +465,35 @@ class WeightsChannel(ChannelBase):
 		self.values.append(weights)
 
 
-class ExtensionChannel(ChannelBase):
-	def __init__(self, node: NodeDescriber, propertyName: str):
-		super().__init__(node)
+class ExtensionSampler():
+	def __init__(self, extensionObserver: ExtensionObserver):
 
-		self.propertyName: str = propertyName
+		self._observer: ExtensionObserver = extensionObserver
 		self.keys: list[float] = [] # time
 		self.values: list = []
 
 	def sample_property(self, time: float):
-		pass
+		self.keys.append(time)
+		value = self._observer.get_value_at_current_frame()
+
+		if self._observer.animation_value_requires_flattening():
+			if len(value[0]) > 0 and type(value[0]) != str:
+				for lvl1 in value:
+					for lvl2 in lvl1:
+						self.values.append(lvl2)
+			else:
+				for v in value:
+					self.values.append(v)
+		else:
+			self.values.append(value)
+
+
+	def allow_linear_interpolation(self) -> bool:
+		return self._observer.animation_force_stepped()
+	
+	def fill_export_variables(self, **kwargs):
+		kwargs
+
+
 
 

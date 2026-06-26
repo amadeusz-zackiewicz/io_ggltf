@@ -19,6 +19,7 @@ class File(Describer):
 		self._catchStrayNodes: bool = True
 		self._defaultScene: SceneDescriber = None
 		self._jsonSeparator = (",", ":")
+		self._extensionsUsed: set = set()
 
 		self._describersMap = {
 			C.GLTF_SCENE : [],
@@ -35,6 +36,9 @@ class File(Describer):
 			C.GLTF_BUFFER_VIEW : [],
 			C.GLTF_BUFFER : []
 		}
+
+	def add_extension(self, extensionInfo: tuple):
+		self._extensionsUsed.add(extensionInfo)
 
 	def set_file_directory(self, fileDirectory: str):
 		if not self._isExported:
@@ -158,6 +162,14 @@ class File(Describer):
 		
 		return topNodeIDs
 	
+	def __export_extensions_used(self, gltfDict: dict):
+		if len(self._extensionsUsed) > 0:
+			for extensionInfo in self._extensionsUsed:
+				if extensionInfo[1] == True: # is required to open file
+					gltfDict[C.GLTF_EXTENSIONS_REQUIRED].append(extensionInfo[0])
+				gltfDict[C.GLTF_EXTENSIONS_USED].append(extensionInfo[0])
+
+	
 	def __catch_stray_nodes(self, gltfDict: dict, topNodeIDs: list[int]):
 
 		scenes = gltfDict[C.GLTF_SCENE]
@@ -268,6 +280,8 @@ class File(Describer):
 
 	def _export(self, isBinary, gltfDict, fileTargetPath):
 		def recursive_export(describer: Describer) -> bool:
+			gltfDict[describer._dataTypeHint][describer._get_id_reservation(gltfDict)] = describer._exportedData
+			
 			referencedDescribers = describer.get_referenced_describers()
 
 			for referencedDescriber in referencedDescribers:
@@ -280,7 +294,6 @@ class File(Describer):
 					print(f"Describer: {describer} failed to export.")
 					return False
 				
-			gltfDict[describer._dataTypeHint][describer._get_id_reservation(gltfDict)] = describer._exportedData
 			return True
 
 		if not self._isExported:
@@ -291,6 +304,13 @@ class File(Describer):
 				if bpy.context.active_object.mode != "OBJECT":
 					bpy.ops.object.mode_set(mode="OBJECT")
 			exportQueue = self.get_referenced_describers()
+			exportQueue.sort(reverse=True)
+
+			self.notify_observers(C.EXTENSION_NOTIFICATION_FILE_PRE_EXPORT, gltfDict=gltfDict)
+			for describer in exportQueue:
+				describer.notify_observers(C.EXTENSION_NOTIFICATION_FILE_PRE_EXPORT, gltfDict=gltfDict)
+
+			self.__export_extensions_used(gltfDict)
 
 			for desc in exportQueue:
 				if not recursive_export(desc):
@@ -298,6 +318,11 @@ class File(Describer):
 					self._isExported = True
 					self.__revert_scene(original_frame, original_mode)
 					return False
+				
+			self.notify_observers(C.EXTENSION_NOTIFICATION_FILE_POST_EXPORT, gltfDict=gltfDict)
+			for describer in exportQueue:
+				describer.notify_observers(C.EXTENSION_NOTIFICATION_FILE_POST_EXPORT, gltfDict=gltfDict)
+
 				
 			topNodes = self.__find_top_nodes(gltfDict)
 

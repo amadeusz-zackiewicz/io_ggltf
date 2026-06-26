@@ -22,14 +22,17 @@ class NodeDescriber(ObjectBasedDescriber):
 		self._matrix: list[float] = None
 		self._weights: list[float] = None
 
+		self._skinMainOwner: bool = True
 		self._useMatrix: bool = False
 		self._parent: NodeDescriber = None
 		self._floatPrecision: int = 6
-		self._scaleCorrection: float = 0.000002
+		self._scaleCorrection: float = 0.000004
 		self._animateTranslation: bool = True
 		self._animateRotation: bool = True
 		self._animateScale: bool = True
 		self._animateMeshWeights: bool = False
+
+		self._extensionsUsed: set = set()
 
 	def get_referenced_describers(self) -> set:
 		references = set()
@@ -59,7 +62,7 @@ class NodeDescriber(ObjectBasedDescriber):
 		
 	def append_child(self, child: Describer):
 		if not self._isExported:
-			child._parent = self
+			child.set_parent(self)
 			self._children.append(child)
 		else:
 			print("Attempted to append a child to a node that is already exported.")
@@ -146,9 +149,10 @@ class NodeDescriber(ObjectBasedDescriber):
 	def get_mesh(self):
 		return self._mesh
 		
-	def set_skin(self, skin: Describer, apply_to_mesh: bool = True):
+	def set_skin(self, skin: Describer, is_main_owner: bool = True, apply_to_mesh: bool = True):
 		if not self._isExported:
 			self._skin = skin
+			self._skinMainOwner = is_main_owner
 			if apply_to_mesh and self._mesh != None:
 				self._mesh.set_skin(skin)
 		else:
@@ -174,7 +178,7 @@ class NodeDescriber(ObjectBasedDescriber):
 		self._animateMeshWeights = animate
 
 	def get_animate_mesh_weights(self) -> bool:
-		return self._animateMeshWeights
+		return self._animateMeshWeights and self._mesh.has_shape_keys()
 	
 	def get_weights_from_mesh(self) -> list[float]:
 		return self._mesh.get_current_shape_key_weights()
@@ -199,14 +203,19 @@ class NodeDescriber(ObjectBasedDescriber):
 		return hierarchy
 		
 	def __export_children(self, isBinary, gltfDict, fileTargetPath) -> bool:
-		if len(self._children) > 0:
-				childrenIDs = []
-				for c in self._children:
-					if not c._isExported:
-						c._export(isBinary, gltfDict, fileTargetPath)
-					childrenIDs.append(c._get_id_reservation(gltfDict))
+		childrenIDs = []
+		for c in self._children:
+			childrenIDs.append(c._get_id_reservation(gltfDict))
 
-				self._exportedData[C.NODE_CHILDREN] = childrenIDs
+		if self._skin != None and self._skinMainOwner:
+			skin = self._skin
+			if not skin._hierarchyLocked:
+				skin.lock_bone_hierarchy()
+			for rootBone in skin._boneNodeDescribers:
+				childrenIDs.append(rootBone._get_id_reservation(gltfDict))
+
+		if len(childrenIDs) > 0:
+			self._exportedData[C.NODE_CHILDREN] = childrenIDs
 
 	def __export_translation(self, translation):
 		if translation != None:
@@ -264,7 +273,7 @@ class NodeDescriber(ObjectBasedDescriber):
 				self._exportedData[C.NODE_MATRIX] = m
 
 	def __export_weights(self, weights):
-		if weights != None:
+		if weights != None and self._mesh != None and self._mesh.get_shape_keys():
 				self._exportedData[C.NODE_WEIGHTS] = weights
 
 	def __export_mesh(self, isBinary, gltfDict, fileTargetPath) -> list:
@@ -278,7 +287,10 @@ class NodeDescriber(ObjectBasedDescriber):
 			
 		self._exportedData[C.NODE_MESH] = self._mesh._get_id_reservation(gltfDict)
 
-		return None
+		if self._mesh._shapeKeys != None and self._mesh._shapeKeys != False and self._mesh.has_shape_keys():
+			return self._mesh.get_current_shape_key_weights()
+		else:
+			return None
 
 		
 	def __export_skin(self, isBinary, gltfDict, fileTargetPath):
@@ -295,6 +307,7 @@ class NodeDescriber(ObjectBasedDescriber):
 
 	def _export(self, isBinary, gltfDict, fileTargetPath) -> bool:
 		if not self._isExported:
+			self.notify_observers(C.EXTENSION_NOTIFICATION_NODE_PRE_EXPORT, gltfDict=gltfDict, isBinary=isBinary, fileTargetPath=fileTargetPath)
 
 			self._export_name()
 
@@ -321,6 +334,9 @@ class NodeDescriber(ObjectBasedDescriber):
 			self.__export_children(isBinary, gltfDict, fileTargetPath)
 
 			self._insert_exported_data_to_dict(gltfDict)
+
+			self.notify_observers(C.EXTENSION_NOTIFICATION_NODE_POST_EXPORT, gltfDict=gltfDict, isBinary=isBinary, fileTargetPath=fileTargetPath)
+			
 			self._isExported = True
 			return True
 		else:

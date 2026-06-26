@@ -1,13 +1,17 @@
 import bpy
 from io_ggltf import Constants as __c
 from io_ggltf.Core.Exceptions import AnimationExceptions
+from io_ggltf.Core import BlenderUtil
 
 def set_frame(frame: float, depsGraph=None):
-    bpy.context.scene.frame_float = frame
+    bpy.context.scene.frame_set(int(frame.__floor__()), subframe=frame % 1.0)
+    BlenderUtil.force_update_all_drivers_in_file()
+    
     if depsGraph == None:
-        bpy.context.evaluated_depsgraph_get().update()
-    else:
-        depsGraph.update()
+        depsGraph = bpy.context.evaluated_depsgraph_get()
+
+    depsGraph.update()
+    
 
 def get_current_frame():
     return bpy.context.scene.frame_float

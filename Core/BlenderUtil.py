@@ -103,6 +103,15 @@ def get_depsgraph():
 def queue_reset_armature_pose(bucket: Bucket, obj):
 	bucket.commandQueue[__c.COMMAND_QUEUE_ANIM_SETUP].append((set_object_pose_mode, (bucket, get_object_accessor(obj), obj.data.pose_position)))
 	
+def force_update_all_drivers_in_file():
+	for obj in bpy.data.objects:
+		force_update_drivers_on_obj(obj)
+
+def force_update_drivers_on_obj(obj):
+	if obj.animation_data != None:
+		for data in obj.animation_data.drivers:
+			data.driver.expression = data.driver.expression
+
 
 def create_rigify_filters(rigifyFlags):
 	if rigifyFlags & ~__c.RIGIFY_TRIM_NAMES != 0: # clear the RIGIFY_TRIM_NAMES flag
@@ -220,3 +229,6 @@ def get_active_shape_key_names(obj):
 			if not key.mute:
 				sk.append(key.name)
 	return sk
+
+def update_view_layer():
+	bpy.context.view_layer.update()

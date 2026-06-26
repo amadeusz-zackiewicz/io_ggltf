@@ -117,13 +117,19 @@ def mute_all(*args):
 	objs = bpy.data.objects
 
 	for obj in objs:
-		try:
-			tracks = obj.animation_data.nla_tracks
-			for track in tracks:
-				track.mute = True
-				track.is_solo = False
-		except:
-			continue
+
+		anim_data = obj.animation_data
+		if anim_data == None:
+			return
+		
+		tracks = obj.animation_data.nla_tracks
+		if tracks == None:
+			return
+		
+		for track in tracks:
+			track.mute = True
+			track.is_solo = False
+
 		
 def get_snapshot_of_all_nla_tracks_states() -> list[tuple[str, str, str, bool, bool]]:
 	states = []
