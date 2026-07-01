@@ -21,7 +21,7 @@ class KHRNodeVisibility(ExtensionObserver):
 			exportData[self._VALUE_DICT_KEY] = self.get_value_at_current_frame()
 
 	def animation_component_type(self):
-		return C.ACCESSOR_COMPONENT_TYPE_UNSIGNED_BYTE
+		return C.ACCESSOR_COMPONENT_TYPE_UNSIGNED_INT
 	
 	def animation_type(self):
 		return C.ACCESSOR_TYPE_SCALAR
@@ -46,5 +46,5 @@ class KHRNodeVisibility(ExtensionObserver):
 		if obj == None:
 			return self._fallback
 
-		return obj.get("hide_viewport", self._fallback)
+		return obj.visible_get()
 
