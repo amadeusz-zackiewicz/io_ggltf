@@ -56,7 +56,7 @@ class AccessorDescriber(Describer):
 		if typeOf == int:
 			return C.ACCESSOR_COMPONENT_TYPE_INT
 		if typeOf == bool:
-			return C.ACCESSOR_COMPONENT_TYPE_BYTE
+			return C.ACCESSOR_COMPONENT_TYPE_UNSIGNED_INT
 	
 	def __guess_packing_format(self, data: list):
 		typeOf = type(data[0])
@@ -70,7 +70,7 @@ class AccessorDescriber(Describer):
 		if typeOf == int:
 			return C.PACKING_FORMAT_INT
 		if typeOf == bool:
-			return C.PACKING_FORMAT_BOOL
+			return C.PACKING_FORMAT_U_INT
 		
 	def __scalar_into_bytearray(self, _format, data: list):
 		size = struct.calcsize(_format)
@@ -122,6 +122,9 @@ class AccessorDescriber(Describer):
 			if self._bufferView != None:
 				print("Accessor already has data set and cannot accept new data.")
 				return
+			if len(data) == 0:
+				print("Accessor: Cannot insert empty data.")
+				return False
 			
 			if groupingType == None:
 				groupingType = self.__guess_grouping_type(data)
