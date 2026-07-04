@@ -352,6 +352,21 @@ def extract_loop_bone_weights(obj, mesh, skinDefinition: dict, maxBoneInfluences
 
 	return boneIDs, boneWeights
 
+def extract_loop_shape_key(mesh, shapeKeyName: str):
+	shapeKey = mesh.shape_keys.key_blocks[shapeKeyName]
+	shapeKeyData = shapeKey.data
+	loops = mesh.loops
+	relativeKeyData = shapeKey.relative_key.data
+
+	coordinates = []
+
+	for loop in loops:
+		vertexIndex = loop.vertex_index
+		relativeCoord = Util.y_up_location(shapeKeyData[vertexIndex].co - relativeKeyData[vertexIndex].co)
+		coordinates.append(relativeCoord)
+
+	return coordinates
+
 def extract_loop_shape_keys(mesh, includeShapeKeys: bool | list[str]):
 	if includeShapeKeys == False:
 		return None
@@ -368,7 +383,7 @@ def extract_loop_shape_keys(mesh, includeShapeKeys: bool | list[str]):
 
 	for shapeKeyName in includeShapeKeys:
 		shapeKeyVertexData = shapeKeys[shapeKeyName].data
-		shapeKeyLoopData = [None] * len(loops)
+		shapeKeyLoopData = [0] * len(loops)
 		for iLoop, loop in enumerate(loops):
 			shapeKeyLoopData[iLoop] = Util.y_up_location(shapeKeyVertexData[loop.vertex_index].co)
 

@@ -34,7 +34,7 @@ class MeshDescriber(ObjectBasedDescriber):
 		self._vertexColors = False
 		self._uvMaps = True
 
-		self._shapeKeys = False
+		self._shapeKeys: list[str] = []
 		self._shapeKeyIncludeNormals: bool = False
 		self._shapeKeyIncludeUV: bool = False
 		self._shapeKeyWeights: list[float] = None
@@ -93,7 +93,14 @@ class MeshDescriber(ObjectBasedDescriber):
 
 	def set_shape_keys(self, includeShapeKeys: bool | list[str], shapeKeysIncludeNormals: bool = False, shapeKeysIncludeUV: bool = False):
 		if not self._isExported:
-			self._shapeKeys = includeShapeKeys
+			if type(includeShapeKeys) == bool:
+				if includeShapeKeys == True:
+					self._shapeKeys = BlenderUtil.get_shape_keys_names(Util.try_get_object(self.get_target()))
+				else:
+					self._shapeKeys = []
+			else:
+				self._shapeKeys = includeShapeKeys
+
 			self._shapeKeyIncludeNormals = shapeKeysIncludeNormals
 			self._shapeKeyIncludeUV = shapeKeysIncludeUV
 		else:
@@ -101,7 +108,13 @@ class MeshDescriber(ObjectBasedDescriber):
 		return self
 	
 	def get_shape_keys(self) -> bool:
-		return self._shapeKeys and self.has_shape_keys()
+		if type(self._shapeKeys) == bool:
+			return self._shapeKeys and self.has_shape_keys()
+		else:
+			if not self.has_shape_keys():
+				return Failed
+			else:
+				return len(self._shapeKeys) > 0
 	
 	def get_current_shape_key_weights(self) -> list[float]:
 		if not self._hasValidObject or self._shapeKeys == False or self._shapeKeys == None:
@@ -222,6 +235,11 @@ class MeshDescriber(ObjectBasedDescriber):
 			if type(self._shapeKeys) == list:
 				MeshValidation.objects_have_shape_keys(meshObjects, self._shapeKeys)
 
+			wasObjHiddenInViewport = []
+
+			for meshObj in meshObjects:
+				wasObjHiddenInViewport.append(meshObj.hide_viewport)
+
 			if self._hasValidOriginOverride:
 				targetMatrix = try_get_object((self._originObjectName, self._originObjLibrary)).matrix_world
 			else:
@@ -269,6 +287,10 @@ class MeshDescriber(ObjectBasedDescriber):
 
 			self._insert_exported_data_to_dict(gltfDict)
 			self._isExported = True
+
+			for i, meshObj in enumerate(meshObjects):
+				meshObj.hide_viewport = wasObjHiddenInViewport[i]
+
 			return True
 		else:
 			print(f"Tried to export mesh that was already exported.")
@@ -306,6 +328,8 @@ class MeshInFlight():
 
 		self.vertexData: list[list] = []
 		self.loopsData: list[list] = []
+		self.driversState: list[bool] = []
+		self.shapeKeyState: list[bool] = []
 
 	def set_object(self, obj, depsGraph, originWorldMatrix, keepPose: bool = False):
 		self.obj = obj
@@ -315,7 +339,13 @@ class MeshInFlight():
 		if not keepPose:
 			self.objModifierResetArray = BlenderUtil.get_all_mod_states(obj)
 			BlenderUtil.batch_set_modifier_type(obj, C.BLENDER_MODIFIER_ARMATURE, False)
-			depsGraph.update()
+			
+		self.driversState = BlenderUtil.snapshot_drivers(obj)
+		self.shapeKeyState = BlenderUtil.snapshot_shape_keys(obj)
+		BlenderUtil.disable_all_drivers(obj)
+		BlenderUtil.disable_all_shape_keys(obj)
+		obj.hide_viewport = False
+		depsGraph.update()
 
 		self.mesh = depsGraph.id_eval_get(obj).to_mesh()
 
@@ -360,13 +390,21 @@ class MeshInFlight():
 		self.arrayBoneWeights = len(self.loopsData)
 		self.loopsData.append(boneWeightArray)
 
-	def sample_shape_key_positions(self, includeShapeKeys: bool | list[str]):
-		startID = len(self.loopsData)
-		self.loopsData += MeshUtil.extract_loop_shape_keys(self.mesh, includeShapeKeys)
-		self.arraysShapeKeyPositions = list(range(startID, len(self.loopsData)))
+	def sample_shape_key_positions(self, includeShapeKeys: list[str]):
+		if len(includeShapeKeys) == 0:
+			return
+
+		self.arraysShapeKeyPositions = []
+
+		for shapeKey in includeShapeKeys:
+			data = MeshUtil.extract_loop_shape_key(self.mesh, shapeKey)
+			self.arraysShapeKeyPositions.append(len(self.loopsData))
+			self.loopsData.append(data)
 
 	def clean_up(self):
 		BlenderUtil.batch_set_modifiers(self.obj, self.objModifierResetArray)
+		BlenderUtil.batch_set_drivers(self.obj, self.driversState)
+		BlenderUtil.batch_set_shape_keys(self.obj, self.shapeKeyState)
 		self.depsGraph.update()
 		self.mesh = None
 		self.obj.to_mesh_clear()
@@ -617,12 +655,6 @@ class ExportedPrimitives():
 
 		for targetID, arrayID in enumerate(mesh.arraysShapeKeyPositions):
 			targetArray = mesh.vertexData[arrayID]
-			basisArray = mesh.vertexData[mesh.arrayPositions]
-
-			for i_vertex, base_vertex in enumerate(basisArray):
-				for i in [0, 1, 2]:
-					targetArray[i_vertex][i] = targetArray[i_vertex][i] - base_vertex[i]
-
 
 			_max = [-9999.0, -9999.0, -9999.0]
 			_min = [9999.0, 9999.0, 9999.0]
