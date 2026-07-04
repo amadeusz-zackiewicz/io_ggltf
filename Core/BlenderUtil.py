@@ -112,6 +112,41 @@ def force_update_drivers_on_obj(obj):
 		for data in obj.animation_data.drivers:
 			data.driver.expression = data.driver.expression
 
+def snapshot_drivers(obj):
+	states: list[bool] = []
+	if obj.animation_data != None:
+		for data in obj.animation_data.drivers:
+			states.append(data.mute)
+
+	return states
+
+def disable_all_drivers(obj):
+	if obj.animation_data != None:
+		for data in obj.animation_data.drivers:
+			data.mute = True
+
+def batch_set_drivers(obj, states: list[bool]):
+	if obj.animation_data != None:
+		for i, data in enumerate(obj.animation_data.drivers):
+			data.mute = states[i]
+
+def snapshot_shape_keys(obj):
+	states: list[bool] = []
+	if obj.data.shape_keys != None:
+		for key in obj.data.shape_keys.key_blocks:
+			states.append(key.mute)
+
+	return states
+
+def disable_all_shape_keys(obj):
+	if obj.data.shape_keys != None:
+		for key in obj.data.shape_keys.key_blocks:
+			key.mute = True
+
+def batch_set_shape_keys(obj, states: list[bool]):
+	if obj.data.shape_keys != None:
+		for i, key in enumerate(obj.data.shape_keys.key_blocks):
+			key.mute = states[i]
 
 def create_rigify_filters(rigifyFlags):
 	if rigifyFlags & ~__c.RIGIFY_TRIM_NAMES != 0: # clear the RIGIFY_TRIM_NAMES flag
@@ -232,3 +267,15 @@ def get_active_shape_key_names(obj):
 
 def update_view_layer():
 	bpy.context.view_layer.update()
+
+def get_shape_keys_names(obj):
+	names: list[str] = []
+
+	if obj.type == __c.BLENDER_TYPE_MESH:
+		shape_keys = obj.data.shape_keys
+		if shape_keys == None:
+			return names
+		for key in obj.data.shape_keys.key_blocks[1:]:
+			names.append(key.name)
+
+	return names
