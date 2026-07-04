@@ -330,7 +330,7 @@ def extract_loop_uv_maps(mesh, includeUVmaps: bool | list[str]) -> list[list[lis
 		uvMaps[includeID] = [None] * loopCount
 		uvMapData = mesh.uv_layers[includeUVMap].data
 		for loopID, uv in enumerate(uvMapData):
-			uvMaps[includeID][loopID] = [uv.uv[0], uv.uv[1]]
+			uvMaps[includeID][loopID] = [uv.uv[0], uv.uv[1] * -1.0]
 
 	return uvMaps
 
